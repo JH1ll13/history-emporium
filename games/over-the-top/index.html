@@ -49,7 +49,7 @@
   </div>
 </a>
 <a class="card" href="/games/beyond-the-horizon/" style="--c:#8a5a2b">
-  <div class="thumb" style="background-image:url(/assets/thumbs/beyond-the-horizon.webp)"><span class="tbadge">▶ Trailer</span></div>
+  <div class="thumb" style="background-image:url(/assets/thumbs/beyond-the-horizon.webp)"><span class="tbadge">▶ Video</span></div>
   <div class="body">
     <div class="unit">Age of Exploration</div>
     <h3>Beyond the Horizon</h3>
@@ -58,7 +58,7 @@
   </div>
 </a>
 <a class="card" href="/games/lantern-of-reason/" style="--c:#3f7a3a">
-  <div class="thumb" style="background-image:url(/assets/thumbs/lantern-of-reason.webp)"></div>
+  <div class="thumb" style="background-image:url(/assets/thumbs/lantern-of-reason.webp)"><span class="tbadge">▶ Video</span></div>
   <div class="body">
     <div class="unit">The Enlightenment</div>
     <h3>Lantern of Reason</h3>
@@ -80,7 +80,7 @@
 const f=document.getElementById('game');
 f.addEventListener('load',()=>{try{f.contentWindow.focus()}catch(e){}});
 const tr=document.getElementById('tr');
-if(tr){const show=t=>{f.src=t?tr.dataset.trailer:tr.dataset.game;tr.textContent=t?'🎮 Play game':'▶ Watch trailer';tr.dataset.on=t?'1':'';};
+if(tr){const show=t=>{f.src=t?tr.dataset.trailer:tr.dataset.game;tr.textContent=t?'🎮 Play game':'▶ Watch video';tr.dataset.on=t?'1':'';};
   tr.addEventListener('click',()=>{show(!tr.dataset.on);window.scrollTo(0,0)});
   const tl=document.getElementById('tl');if(tl)tl.addEventListener('click',ev=>{ev.preventDefault();show(true);window.scrollTo(0,0)});
   if(location.hash==='#trailer')show(true);}

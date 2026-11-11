@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Social Contract Job — Lantern of Reason</title>
+<link rel="stylesheet" href="/assets/fonts.css">
+<style>
+  html,body{margin:0;height:100%;background:#0f1a12;color:#fff6dc;font-family:'Fredoka',system-ui,sans-serif}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:14px;box-sizing:border-box}
+  h1{font-family:'Luckiest Guy',system-ui,sans-serif;font-weight:400;letter-spacing:.04em;margin:0;font-size:clamp(22px,3.4vw,38px);color:#ffd84a;text-shadow:0 3px 0 #7a4a10;text-align:center}
+  .frame{width:min(100%,calc((100vh - 140px) * 16 / 9));aspect-ratio:16/9;background:#000;border:4px solid #ffd84a;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  video{width:100%;height:100%;display:block;background:#000}
+  .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .btn{font:600 17px 'Fredoka',system-ui,sans-serif;color:#2a1a06;background:#ffd84a;border:0;border-radius:999px;padding:9px 20px;text-decoration:none;cursor:pointer;box-shadow:0 3px 0 #b8901a}
+  .btn.ghost{background:transparent;color:#ffd84a;border:2px solid #ffd84a;box-shadow:none}
+</style>
+</head>
+<body>
+  <h1>The Social Contract Job</h1>
+  <div class="frame">
+    <video id="v" controls playsinline preload="metadata" poster="media/social-contract-job-poster.webp">
+      <source src="media/social-contract-job.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="row">
+    <a class="btn" href="index.html" target="_top">Play Lantern of Reason</a>
+    <button class="btn ghost" id="fs" type="button">Full screen</button>
+  </div>
+<script>
+  const v=document.getElementById('v');
+  document.getElementById('fs').addEventListener('click',()=>{const r=v.requestFullscreen||v.webkitEnterFullscreen||v.webkitRequestFullscreen;if(r)r.call(v)});
+</script>
+</body>
+</html>

@@ -28,7 +28,8 @@
     "color": "#3f7a3a",
     "blurb": "An Enlightenment quest. Explore the map, meet Hobbes, Locke, Montesquieu and Rousseau, and battle for big ideas.",
     "learn": "Natural rights, the social contract, separation of powers and the thinkers behind them.",
-    "controls": "Arrow keys or WASD to explore; click or tap to answer."
+    "controls": "Arrow keys or WASD to explore; click or tap to answer.",
+    "trailer": "trailer.html"
   },
   {
     "slug": "the-last-king",

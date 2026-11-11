@@ -10,3 +10,6 @@
 
 /assets/thumbs/*
   Cache-Control: public, max-age=86400
+
+/games/*/media/*
+  Cache-Control: public, max-age=604800
