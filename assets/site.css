@@ -106,3 +106,19 @@ footer a{color:var(--brass-lt);text-decoration:none;margin-right:14px}
   .links a{font-size:14px}
 }
 .tbadge{position:absolute;top:10px;right:10px;background:var(--oxblood);color:#fff;font-weight:700;font-size:12px;padding:3px 9px;border-radius:999px;letter-spacing:.04em}
+/* ---------- teacher shop ---------- */
+.fullyear{display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--walnut);color:var(--cream);border:3px solid var(--brass);border-radius:16px;padding:22px 24px}
+.fullyear h2{font-family:var(--display);color:var(--brass-lt);margin:2px 0 6px;font-size:26px}
+.fullyear p{margin:0;max-width:620px;color:#e9dcc2}
+.fullyear .buy{background:var(--brass);color:var(--walnut);font-size:17px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px}
+.sunit{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.sunit .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;border-top:5px solid var(--c)}
+.sunit h3{margin:0;font-size:21px}
+.sunit p{margin:0;color:var(--muted);font-size:15px}
+.buys{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.buy{display:flex;justify-content:space-between;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:15px;padding:9px 14px;border-radius:10px;background:var(--oxblood);color:#fff}
+.buy small{font-weight:400;font-size:12px;opacity:.9}
+.buy.best{background:var(--walnut);box-shadow:inset 0 0 0 2px var(--brass)}
+.buy.soon{background:#e9e1cf;color:var(--muted);cursor:default}
+.tiny{font-size:14px;margin-top:6px}

@@ -41,7 +41,7 @@ def head(title, desc, path, extra=""):
 """
 
 def nav(active=""):
-    items = [("/", "Games"), ("/teachers/", "For Teachers"), ("/about/", "About")]
+    items = [("/", "Games"), ("/teachers/", "For Teachers"), ("/shop/", "Teacher Shop"), ("/about/", "About")]
     links = "".join(f'<a href="{h}"{" aria-current=page" if h == active else ""}>{t}</a>' for h, t in items)
     return f"""<nav class="topnav wrap" aria-label="Main">
   <a class="brand" href="/">{MARK}<span>History Emporium</span></a>
@@ -50,7 +50,7 @@ def nav(active=""):
 
 FOOT = f"""<footer><div class="wrap">
   <div>© {YEAR} {SITE_NAME}. Free history games for the classroom.</div>
-  <div><a href="/teachers/">For Teachers</a><a href="/about/">About</a><a href="/privacy/">Privacy</a></div>
+  <div><a href="/teachers/">For Teachers</a><a href="/shop/">Teacher Shop</a><a href="/about/">About</a><a href="/privacy/">Privacy</a></div>
 </div></footer>
 </body></html>
 """
@@ -165,7 +165,7 @@ write("teachers/index.html", head(f"For Teachers | {SITE_NAME}", "How to use His
 </ul>
 <h3>Getting the site approved on your network</h3>
 <p>If your school filter blocks the site, ask your technology department to allow this domain. It is an educational site with no chat, no user uploads and no outside links.</p>
-<p><em>Teacher accounts with class dashboards are on the way.</em></p>
+<h3>Lesson and practice decks</h3><p>Matching Google Slides lesson decks and student practice decks are in the <a href="/shop/">Teacher Shop</a>.</p>\n<p><em>Teacher accounts with class dashboards are on the way.</em></p>
 </div></main>
 {FOOT}""")
 
@@ -193,7 +193,7 @@ write("privacy/index.html", head(f"Privacy | {SITE_NAME}", "Privacy policy for M
 <li><strong>Game progress</strong> and any name a student types into a game are saved only in that student's own browser (local storage). That data never leaves the device, and clearing the browser deletes it.</li>
 <li><strong>Visitor statistics.</strong> We may count page visits with Cloudflare Web Analytics, which does not use cookies and does not track individual visitors.</li>
 <li><strong>Class mode in History Hero.</strong> When students choose to join a class game, their devices connect directly to each other using a connection service (PeerJS). Only the game moves and the nickname a student chooses are exchanged.</li>
-<li><strong>No advertising</strong> is shown on this site at this time. If that changes, this policy will be updated first.</li>
+<li><strong>Teacher Shop purchases</strong> are processed by Payhip on its own site. We never see or store card details. Payhip's privacy policy covers that checkout.</li>\n<li><strong>No advertising</strong> is shown on this site at this time. If that changes, this policy will be updated first.</li>
 </ul>
 <p>Questions? Contact the site owner.</p>
 </div></main>
@@ -205,8 +205,37 @@ write("404.html", head(f"Page not found | {SITE_NAME}", "Page not found.", "/404
 <main class="wrap" style="text-align:center"><a class="btn" href="/">Back to all games</a></main>
 {FOOT}""")
 
+
+# ---------- teacher shop ----------
+shopdata = json.load(open(os.path.join(ROOT, "shop.json"), encoding="utf-8"))
+def buy(item):
+    label = f"{e(item['kind'])} · {e(item['price'])}"
+    note = f"<small>{e(item['note'])}</small>" if item.get("note") else ""
+    if item.get("url"):
+        return f'<a class="buy{" best" if item.get("note") else ""}" href="{e(item["url"])}" rel="noopener">{label}{note}</a>'
+    return f'<span class="buy soon">{label}<small>Coming soon</small></span>'
+units_html = "".join(f"""<article class="sunit" style="--c:{next((g['color'] for g in games if g['slug']==u['game']), '#555')}">
+  <div class="thumb" style="background-image:url(/assets/thumbs/{u['game']}.webp)"></div>
+  <div class="body"><div class="unit">{e(u['unit'])}</div><h3>{e(u['title'])}</h3><p>{e(u['blurb'])}</p>
+  <div class="buys">{''.join(buy(i) for i in u['items'])}</div>
+  <a class="tiny" href="/games/{u['game']}/">Play the matching game ▸</a></div>
+</article>""" for u in shopdata["units"])
+fy = shopdata["fullYear"]
+write("shop/index.html", head(f"Teacher Shop | {SITE_NAME}", "Middle school world history lesson decks and practice decks in Google Slides, made by a classroom teacher to match the History Emporium games.", "/shop/") + f"""<body>
+<header class="shop">{nav("/shop/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">Teacher Shop</h1><p>Lesson and practice decks in Google Slides that match each game. Made by a 7th grade world history teacher.</p></div></header>
+<main class="wrap">
+  <div class="fullyear">
+    <div><div class="unit" style="color:var(--brass-lt)">Best value</div><h2>{e(fy['title'])}</h2><p>{e(fy['blurb'])}</p></div>
+    {buy({'kind': 'Get the bundle', 'price': fy['price'], 'url': fy['url']})}
+  </div>
+  <div class="shelf-head" style="margin-top:34px"><h2>Units</h2><p>Practice decks are student-ready: every activity has a space for students to type their answers.</p></div>
+  <div class="sgrid">{units_html}</div>
+  <div class="note"><p>Purchases are handled securely by Payhip. You'll get your files by email right away.</p></div>
+</main>
+{FOOT}""")
+
 # ---------- sitemap / robots ----------
-urls = ["/", "/teachers/", "/about/", "/privacy/"] + [f"/games/{g['slug']}/" for g in games]
+urls = ["/", "/teachers/", "/shop/", "/about/", "/privacy/"] + [f"/games/{g['slug']}/" for g in games]
 write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       "".join(f"  <url><loc>{SITE_URL}{u}</loc></url>\n" for u in urls) + "</urlset>\n")
 write("robots.txt", f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n")
