@@ -11,7 +11,7 @@ import json, html, os
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE_NAME = "Mr. Teacher's History Emporium"
-SITE_URL = "https://www.example.com"   # <- change to your real domain once you buy it
+SITE_URL = "https://mthe.net"
 YEAR = "2026"
 
 games = json.load(open(os.path.join(ROOT, "games.json"), encoding="utf-8"))
