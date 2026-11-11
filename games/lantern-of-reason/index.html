@@ -20,6 +20,7 @@
 <path d="M3 15 L8 5 H32 L37 15 Z" fill="#7d2121"/><path d="M8 5 L11 15 M14 5 L15.5 15 M20 5 V15 M26 5 L24.5 15 M32 5 L29 15" stroke="#f6efdf" stroke-width="2.4"/>
 <rect x="16" y="22" width="8" height="14" fill="#c9a24a"/><rect x="8" y="20" width="6" height="6" fill="#c9a24a"/><rect x="26" y="20" width="6" height="6" fill="#c9a24a"/></svg><span class="brand-text">History Emporium</span></a>
   <div class="title">Lantern of Reason<span>The Enlightenment · 1600s–1700s</span></div>
+  
   <button type="button" id="fs">⛶ Full screen</button>
   <a class="ghost" href="/games/the-last-king/" title="Next game: The Last King">Next ▸</a>
 </div>
@@ -31,6 +32,7 @@
     <div>
       <h2>Lantern of Reason</h2>
       <p>An Enlightenment quest. Explore the map, meet Hobbes, Locke, Montesquieu and Rousseau, and battle for big ideas.</p>
+      
       <div class="panel"><h3>What students learn</h3><p style="margin:0">Natural rights, the social contract, separation of powers and the thinkers behind them.</p></div>
     </div>
     <div class="panel"><h3>How to play</h3><p style="margin:0">Arrow keys or WASD to explore; click or tap to answer.</p>
@@ -47,7 +49,7 @@
   </div>
 </a>
 <a class="card" href="/games/beyond-the-horizon/" style="--c:#8a5a2b">
-  <div class="thumb" style="background-image:url(/assets/thumbs/beyond-the-horizon.webp)"></div>
+  <div class="thumb" style="background-image:url(/assets/thumbs/beyond-the-horizon.webp)"><span class="tbadge">▶ Trailer</span></div>
   <div class="body">
     <div class="unit">Age of Exploration</div>
     <h3>Beyond the Horizon</h3>
@@ -77,6 +79,11 @@
 <script>
 const f=document.getElementById('game');
 f.addEventListener('load',()=>{try{f.contentWindow.focus()}catch(e){}});
+const tr=document.getElementById('tr');
+if(tr){const show=t=>{f.src=t?tr.dataset.trailer:tr.dataset.game;tr.textContent=t?'🎮 Play game':'▶ Watch trailer';tr.dataset.on=t?'1':'';};
+  tr.addEventListener('click',()=>{show(!tr.dataset.on);window.scrollTo(0,0)});
+  const tl=document.getElementById('tl');if(tl)tl.addEventListener('click',ev=>{ev.preventDefault();show(true);window.scrollTo(0,0)});
+  if(location.hash==='#trailer')show(true);}
 document.getElementById('fs').addEventListener('click',()=>{
   const s=document.getElementById('stage');
   const r=s.requestFullscreen||s.webkitRequestFullscreen; if(r) r.call(s); f.focus();

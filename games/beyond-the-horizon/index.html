@@ -20,6 +20,7 @@
 <path d="M3 15 L8 5 H32 L37 15 Z" fill="#7d2121"/><path d="M8 5 L11 15 M14 5 L15.5 15 M20 5 V15 M26 5 L24.5 15 M32 5 L29 15" stroke="#f6efdf" stroke-width="2.4"/>
 <rect x="16" y="22" width="8" height="14" fill="#c9a24a"/><rect x="8" y="20" width="6" height="6" fill="#c9a24a"/><rect x="26" y="20" width="6" height="6" fill="#c9a24a"/></svg><span class="brand-text">History Emporium</span></a>
   <div class="title">Beyond the Horizon<span>Age of Exploration · 1487–1522</span></div>
+  <button type="button" id="tr" data-trailer="/games/beyond-the-horizon/trailer.html" data-game="/games/beyond-the-horizon/play.html">▶ Watch trailer</button>
   <button type="button" id="fs">⛶ Full screen</button>
   <a class="ghost" href="/games/lantern-of-reason/" title="Next game: Lantern of Reason">Next ▸</a>
 </div>
@@ -31,6 +32,7 @@
     <div>
       <h2>Beyond the Horizon</h2>
       <p>Sail uncharted waters with Dias, Columbus, da Gama and Magellan. Steer by compass, survive the storms and race your class around the world.</p>
+      <p><a class="btn" id="tl" href="#trailer">▶ Watch the trailer</a></p>
       <div class="panel"><h3>What students learn</h3><p style="margin:0">The great voyages of exploration, the explorers who led them, world geography and the motives and consequences of European expansion.</p></div>
     </div>
     <div class="panel"><h3>How to play</h3><p style="margin:0">Arrow keys or WASD to steer, or tap a point on the compass rose.</p>
@@ -77,6 +79,11 @@
 <script>
 const f=document.getElementById('game');
 f.addEventListener('load',()=>{try{f.contentWindow.focus()}catch(e){}});
+const tr=document.getElementById('tr');
+if(tr){const show=t=>{f.src=t?tr.dataset.trailer:tr.dataset.game;tr.textContent=t?'🎮 Play game':'▶ Watch trailer';tr.dataset.on=t?'1':'';};
+  tr.addEventListener('click',()=>{show(!tr.dataset.on);window.scrollTo(0,0)});
+  const tl=document.getElementById('tl');if(tl)tl.addEventListener('click',ev=>{ev.preventDefault();show(true);window.scrollTo(0,0)});
+  if(location.hash==='#trailer')show(true);}
 document.getElementById('fs').addEventListener('click',()=>{
   const s=document.getElementById('stage');
   const r=s.requestFullscreen||s.webkitRequestFullscreen; if(r) r.call(s); f.focus();

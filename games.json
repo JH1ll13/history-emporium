@@ -17,7 +17,8 @@
     "color": "#8a5a2b",
     "blurb": "Sail uncharted waters with Dias, Columbus, da Gama and Magellan. Steer by compass, survive the storms and race your class around the world.",
     "learn": "The great voyages of exploration, the explorers who led them, world geography and the motives and consequences of European expansion.",
-    "controls": "Arrow keys or WASD to steer, or tap a point on the compass rose."
+    "controls": "Arrow keys or WASD to steer, or tap a point on the compass rose.",
+    "trailer": "trailer.html"
   },
   {
     "slug": "lantern-of-reason",

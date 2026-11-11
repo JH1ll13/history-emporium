@@ -57,7 +57,7 @@ FOOT = f"""<footer><div class="wrap">
 
 def card(i, g, small=False):
     return f"""<a class="card" href="/games/{g['slug']}/" style="--c:{g['color']}">
-  <div class="thumb" style="background-image:url(/assets/thumbs/{g['slug']}.webp)">{'' if small else f'<span class="num">{e(g["years"])}</span>'}</div>
+  <div class="thumb" style="background-image:url(/assets/thumbs/{g['slug']}.webp)">{'' if small else f'<span class="num">{e(g["years"])}</span>'}{'<span class="tbadge">▶ Trailer</span>' if g.get('trailer') else ''}</div>
   <div class="body">
     <div class="unit">{e(g['unit'])}</div>
     <h3>{e(g['title'])}</h3>
@@ -111,6 +111,7 @@ for i, g in enumerate(games):
 <div class="bar">
   <a class="brand" href="/" title="Back to all games">{MARK}<span class="brand-text">History Emporium</span></a>
   <div class="title">{e(g['title'])}<span>{e(g['unit'])} · {e(g['years'])}</span></div>
+  {'<button type="button" id="tr" data-trailer="/games/'+g['slug']+'/'+g['trailer']+'" data-game="/games/'+g['slug']+'/play.html">▶ Watch trailer</button>' if g.get('trailer') else ''}
   <button type="button" id="fs">⛶ Full screen</button>
   <a class="ghost" href="/games/{nxt['slug']}/" title="Next game: {e(nxt['title'])}">Next ▸</a>
 </div>
@@ -122,6 +123,7 @@ for i, g in enumerate(games):
     <div>
       <h2>{e(g['title'])}</h2>
       <p>{e(g['blurb'])}</p>
+      {'<p><a class="btn" id="tl" href="#trailer">▶ Watch the trailer</a></p>' if g.get('trailer') else ''}
       <div class="panel"><h3>What students learn</h3><p style="margin:0">{e(g['learn'])}</p></div>
     </div>
     <div class="panel"><h3>How to play</h3><p style="margin:0">{e(g['controls'])}</p>
@@ -133,6 +135,11 @@ for i, g in enumerate(games):
 <script>
 const f=document.getElementById('game');
 f.addEventListener('load',()=>{{try{{f.contentWindow.focus()}}catch(e){{}}}});
+const tr=document.getElementById('tr');
+if(tr){{const show=t=>{{f.src=t?tr.dataset.trailer:tr.dataset.game;tr.textContent=t?'🎮 Play game':'▶ Watch trailer';tr.dataset.on=t?'1':'';}};
+  tr.addEventListener('click',()=>{{show(!tr.dataset.on);window.scrollTo(0,0)}});
+  const tl=document.getElementById('tl');if(tl)tl.addEventListener('click',ev=>{{ev.preventDefault();show(true);window.scrollTo(0,0)}});
+  if(location.hash==='#trailer')show(true);}}
 document.getElementById('fs').addEventListener('click',()=>{{
   const s=document.getElementById('stage');
   const r=s.requestFullscreen||s.webkitRequestFullscreen; if(r) r.call(s); f.focus();

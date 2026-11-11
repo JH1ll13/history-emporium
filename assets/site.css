@@ -105,3 +105,4 @@ footer a{color:var(--brass-lt);text-decoration:none;margin-right:14px}
   main.wrap{padding-top:58px}
   .links a{font-size:14px}
 }
+.tbadge{position:absolute;top:10px;right:10px;background:var(--oxblood);color:#fff;font-weight:700;font-size:12px;padding:3px 9px;border-radius:999px;letter-spacing:.04em}
