@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="/assets/fonts.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Empire Chase: Age of Imperialism</title>
+<style>
+:root{--bg:#0b1724;--panel:#13263a;--panel2:#1b3550;--ink:#f6efe0;--muted:#a9bccd;--gold:#ffc94a;--good:#43d18a;--bad:#ff5d5d;--accent:#5cc8ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;overflow:hidden;overscroll-behavior:none}
+button{font-family:inherit;cursor:pointer}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+#hud{display:flex;align-items:center;gap:10px;padding:8px 12px;background:linear-gradient(#10243a,#0d1d2f);border-bottom:1px solid #22405e;min-height:52px;flex-wrap:wrap}
+#hud .lvl{flex:1;min-width:120px;line-height:1.1}
+#hud .lvl b{font-family:Fredoka;font-size:16px;color:var(--gold);letter-spacing:.3px}
+#hud .lvl small{display:block;color:var(--muted);font-size:12px}
+.chip{background:#0a1828;border:1px solid #27486a;border-radius:10px;padding:4px 10px;font-weight:900;font-size:15px;white-space:nowrap}
+.chip .k{color:var(--muted);font-size:11px;font-weight:800;margin-right:4px}
+#lives{letter-spacing:2px}
+.ibtn{background:#1b3550;border:1px solid #2c5278;color:var(--ink);border-radius:10px;width:36px;height:34px;font-size:16px}
+#stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+#cv{display:block;border-radius:14px;box-shadow:0 10px 40px #0008,0 0 0 2px #24476a}
+#banner{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;pointer-events:none;z-index:3;flex-wrap:wrap;justify-content:center;width:max-content;max-width:96%}
+.pill{background:#0c1a2bdd;border:1px solid #2f5a82;border-radius:999px;padding:5px 12px;font-weight:900;font-size:14px;backdrop-filter:blur(4px)}
+#mission{color:#ffe7a3}
+#streak{color:#9ff0c4;display:none}
+#powerbar{width:90px;height:8px;border-radius:9px;background:#0007;overflow:hidden;display:none;border:1px solid #6fd1ff}
+#powerbar i{display:block;height:100%;background:linear-gradient(90deg,#6fd1ff,#c48bff)}
+#toast{position:absolute;bottom:12px;left:50%;transform:translateX(-50%) translateY(20px);background:#0c1a2bee;border:1px solid #ffd36a;color:#fff3cf;border-radius:14px;padding:8px 14px;font-weight:800;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:3;max-width:92%;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#pad{display:none;justify-content:center;padding:6px 0 calc(8px + env(safe-area-inset-bottom));background:#0d1d2f;border-top:1px solid #22405e}
+#pad .grid{display:grid;grid-template-columns:repeat(3,62px);grid-template-rows:repeat(2,50px);gap:6px}
+#pad button{background:#1b3550;border:1px solid #2f5a82;color:#fff;border-radius:14px;font-size:22px;touch-action:none}
+#pad button:active{background:#2b5a86}
+body.touch #pad{display:flex}
+/* overlays */
+.ov{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%,#14324ef2,#08121df7);display:none;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;padding:18px 12px 40px}
+.ov.show{display:flex}
+.card{background:var(--panel);border:1px solid #2a4c6f;border-radius:22px;padding:20px;max-width:760px;width:100%;box-shadow:0 20px 60px #0009;margin:auto}
+h1,h2,h3{font-family:Fredoka;margin:0}
+h1{font-size:clamp(30px,7vw,50px);line-height:1;color:var(--gold);text-shadow:0 4px 0 #8a5a12,0 8px 24px #0008}
+h2{font-size:26px;color:var(--gold)}
+h3{font-size:18px}
+.sub{color:var(--muted);font-weight:700}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{background:linear-gradient(#ffd45e,#f0a92a);color:#3a2300;border:0;border-radius:14px;padding:12px 20px;font-weight:900;font-size:17px;box-shadow:0 4px 0 #9c6512}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #9c6512}
+.btn.alt{background:#1f3e5e;color:#fff;box-shadow:0 4px 0 #0c2034;border:1px solid #33618d}
+.btn.sm{padding:8px 14px;font-size:14px}
+input[type=text]{background:#0a1828;border:2px solid #2f5a82;color:#fff;border-radius:12px;padding:10px 12px;font-size:17px;font-weight:800;font-family:inherit;width:190px}
+.sets{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:16px}
+.set{background:linear-gradient(160deg,#1c3a58,#122a41);border:1px solid #33618d;border-radius:18px;padding:16px;position:relative;overflow:hidden}
+.set .tag{font-size:12px;font-weight:900;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.set h3{font-size:22px;margin:4px 0 2px;color:#fff}
+.lvls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lv{background:#0b1c2e;border:2px solid #315a82;color:#fff;border-radius:12px;padding:6px 10px;font-weight:900;min-width:74px;text-align:left;font-size:13px;line-height:1.15}
+.lv small{display:block;color:#ffd36a;font-size:12px;letter-spacing:1px}
+.lv.locked{opacity:.38;cursor:not-allowed}
+.lv:not(.locked):hover{border-color:var(--gold)}
+.toggle{display:flex;align-items:center;gap:8px;font-weight:800;color:#dfe9f2;cursor:pointer;user-select:none}
+.toggle input{width:20px;height:20px;accent-color:#ffc94a}
+.terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+.term{background:#0d2033;border:1px solid #2c5278;border-left:5px solid var(--gold);border-radius:14px;padding:10px 12px}
+.term b{font-family:Fredoka;font-size:18px;color:#fff;display:block}
+.term span{color:#cfe0ee;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.c{border-radius:999px;padding:4px 10px;font-weight:800;font-size:13px;background:#0b1c2e;border:1px solid #315a82}
+.c i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+/* quiz */
+#quiz .card{max-width:620px}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qtag{font-weight:900;color:#ffd36a;letter-spacing:1px;font-size:13px;text-transform:uppercase}
+.qprompt{font-family:Fredoka;font-size:clamp(24px,6vw,36px);margin:14px 0 6px;color:#fff;line-height:1.15}
+.qprompt.def{font-family:Nunito;font-weight:800;font-size:clamp(19px,4.6vw,24px)}
+.timer{height:8px;background:#0a1828;border-radius:9px;overflow:hidden;margin:6px 0 14px}
+.timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#43d18a,#ffd34a,#ff6b6b);transform-origin:left}
+.opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#0d2033;border:2px solid #2f5a82;color:#fff;border-radius:14px;padding:13px 14px;font-size:17px;font-weight:800;margin-bottom:10px;transition:transform .08s}
+.opt:hover{border-color:#6aa9de}
+.opt .n{flex:none;width:28px;height:28px;border-radius:9px;background:#1f3e5e;display:grid;place-items:center;font-size:14px}
+.opt.ok{background:#124a33;border-color:var(--good)}
+.opt.no{background:#4a1820;border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.fb{min-height:24px;font-weight:800;font-size:16px;margin-top:4px}
+.fb .fact{display:block;color:#d6e6f3;font-weight:700;margin-top:4px}
+.quote{border-left:4px solid var(--gold);background:#0d2033;border-radius:12px;padding:12px 14px;margin:14px 0;font-size:17px}
+.quote q{font-family:Fredoka;font-size:20px;color:#fff}
+.quote small{display:block;color:var(--muted);margin-top:6px;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0}
+.stat{background:#0d2033;border-radius:12px;padding:10px;border:1px solid #2a4c6f}
+.stat .k{color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.6px}
+.stat .v{font-family:Fredoka;font-size:24px}
+.bigstars{font-size:44px;letter-spacing:6px;text-align:center;margin:6px 0}
+.bigstars .off{filter:grayscale(1);opacity:.25}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+td,th{padding:8px 6px;text-align:left;border-bottom:1px solid #22405e;font-weight:800}
+th{color:var(--muted);font-size:12px;text-transform:uppercase}
+tr.me td{color:var(--gold)}
+.tabs{display:flex;gap:6px;margin-top:10px}
+.tabs button{flex:1}
+.tabs .on{outline:3px solid var(--gold)}
+.howto li{margin:6px 0;font-size:16px}
+a{color:var(--accent)}
+.ovc{width:100%;display:block;border-radius:12px;margin-top:10px}
+.reveal{font-family:Fredoka;font-size:20px;color:#bff5d2;text-align:center;margin-top:8px}
+.prog{font-weight:900;color:#bff5d2;font-size:13px;margin-top:8px}
+@media (max-width:560px){#hud{gap:6px;padding:6px 8px}#hud .lvl{min-width:0}#hud .lvl small{display:none}#hud .lvl b{font-size:14px}.chip{font-size:14px;padding:3px 8px}.ibtn{width:32px}}
+.center{text-align:center}
+.mt{margin-top:14px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="hud">
+    <div class="lvl"><b id="hLvl">Empire Chase</b><small id="hSub">Age of Imperialism</small></div>
+    <div class="chip"><span class="k">SCORE</span><span id="hScore">0</span></div>
+    <div class="chip" id="lives">❤️❤️❤️</div>
+    <button class="ibtn" id="bPause" title="Pause (P)">⏸</button>
+    <button class="ibtn" id="bMute" title="Sound">🔊</button>
+  </header>
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="banner"><span class="pill" id="mission">🎯 Find: —</span><span class="pill" id="streak">🔥 x2</span><span class="pill" id="powerwrap" style="display:none">⚡<span id="powerbar" style="display:inline-block;vertical-align:middle;margin-left:6px"><i></i></span></span></div>
+    <div id="toast"></div>
+  </div>
+  <div id="pad"><div class="grid">
+    <span></span><button data-d="up">▲</button><span></span>
+    <button data-d="left">◀</button><button data-d="down">▼</button><button data-d="right">▶</button>
+  </div></div>
+</div>
+
+<!-- MENU -->
+<div class="ov show" id="menu"><div class="card">
+  <div class="row" style="justify-content:space-between;align-items:flex-start">
+    <div><h1>EMPIRE CHASE</h1><div class="sub" style="margin-top:8px;font-size:17px">Age of Imperialism · 1757–1914</div></div>
+    <div class="row"><button class="btn alt sm" id="bBoard">🏆 Leaderboard</button><button class="btn alt sm" id="bHow">❓ How to play</button></div>
+  </div>
+  <div class="row mt"><label class="sub" for="nameIn">Your name</label><input type="text" id="nameIn" maxlength="14" placeholder="Type your name" autocomplete="off">
+    <label class="toggle" title="Map labels hidden until you find each place. All points x1.5"><input type="checkbox" id="aceIn"> Expert mode: hide map labels (points ×1.5)</label></div>
+  <div class="sets" id="sets"></div>
+  <p class="sub" style="font-size:13px;margin:14px 0 0">You play the Chronicler — a reporter racing across the map to record the facts while rival empires chase you.</p>
+</div></div>
+
+<!-- BRIEFING -->
+<div class="ov" id="brief"><div class="card" id="briefCard"></div></div>
+<!-- QUIZ -->
+<div class="ov" id="quiz"><div class="card" id="quizCard"></div></div>
+<!-- RESULTS -->
+<div class="ov" id="result"><div class="card" id="resultCard"></div></div>
+<!-- BOARD -->
+<div class="ov" id="board"><div class="card" id="boardCard"></div></div>
+<!-- HOW -->
+<div class="ov" id="how"><div class="card">
+  <h2>How to play</h2>
+  <ul class="howto">
+    <li>🟡 Move with <b>arrow keys / WASD</b>, swipe the map, or use the on-screen pad.</li>
+    <li>✨ Eat every <b>fact dot</b> to clear the level.</li>
+    <li>⭐ Grab a <b>Source Star</b> to answer a quick question. Right answer = <b>power up</b> — the empires flee and you can catch them!</li>
+    <li>⚡ Answer in under 3 seconds for a <b>Lightning bonus</b>. Right answers in a row build a <b>streak multiplier</b> up to ×5.</li>
+    <li>🎯 Find the place in the mission banner. Each find freezes the empires for a moment.</li>
+    <li>🧠 Every level ends with a <b>Recall Check</b> that mixes in terms from earlier levels.</li>
+    <li>🏆 Three stars per level: clear it, score 80%+, or go perfect and find every place.</li>
+  </ul>
+  <p class="sub">Teacher tools: <a href="#" id="unlockAll">unlock all levels</a> · <a href="#" id="resetAll">reset this device</a></p>
+  <button class="btn mt" data-close="how">Got it</button>
+</div></div>
+<!-- PAUSE -->
+<div class="ov" id="pause"><div class="card center" style="max-width:380px">
+  <h2>Paused</h2>
+  <div class="row mt" style="justify-content:center"><button class="btn" id="bResume">▶ Resume</button><button class="btn alt" id="bQuit">Quit to menu</button></div>
+</div></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   GEOGRAPHY  (coarse coastlines, [longitude, latitude])
+   ===================================================================== */
+const POLY = {
+africa:[[-5.9,35.8],[-2,35.1],[1,36.5],[3.5,36.8],[8.6,36.9],[10.2,37.2],[11.1,36.8],[10.4,36],[11.1,35.2],[10.1,34.3],[11.5,33.1],[13.2,32.9],[15.2,32.3],[15.8,31.4],[18.9,30.4],[20.1,30.9],[20.1,32.1],[21.6,32.9],[23.1,32.6],[25.2,31.6],[27.4,31.4],[29.5,30.9],[31,31.6],[32.3,31.3],[34.25,31.3],[34.9,29.5],[34.3,27.75],[32.7,29.5],[33.6,27.3],[33.9,26.6],[35,24.5],[35.6,23.1],[36.9,21.9],[37.2,19.5],[38.5,18],[39.3,15.8],[40.2,15],[41.2,14],[42.5,12.5],[43.3,11.6],[44.6,10.4],[46,10.8],[47.9,11.2],[49.6,11.4],[51.3,11.8],[51.1,10.4],[50.8,9],[50,7.9],[49,6],[48,4.5],[46.4,2.4],[45,1.6],[43.5,0],[42,-1],[40.9,-2.2],[39.7,-4.4],[39.2,-6.5],[39.4,-8],[39.7,-10],[40.5,-10.8],[40.6,-14.2],[39.8,-16.3],[37,-17.7],[34.8,-19.8],[35.4,-22],[35.5,-24],[33,-25.4],[32.6,-26],[32.9,-26.9],[32.4,-28.6],[31,-29.9],[30,-31.3],[28,-32.7],[26,-33.8],[25,-34],[22.6,-34],[20,-34.8],[18.4,-34.2],[18.3,-33.4],[17.9,-32],[17.2,-30],[16.5,-28.6],[15.2,-26.6],[14.5,-22.9],[13.4,-20.9],[11.8,-17.3],[11.8,-15.8],[12.5,-13.6],[13.6,-12],[13.2,-10],[13.2,-8.8],[12.3,-6.1],[12,-5],[11.1,-3.9],[9.6,-2],[9.3,-0.7],[9.5,1],[9.8,2.8],[9.6,3.8],[8.7,4.5],[7,4.4],[5.9,4.3],[4.5,6.3],[2.7,6.4],[1,5.9],[-1,5],[-2.8,4.9],[-4,5.2],[-7.5,4.4],[-9,4.8],[-10.8,6.5],[-12.3,7.4],[-13.2,8.5],[-13.8,9.6],[-15,10.9],[-16.7,12.4],[-16.8,13.6],[-17.5,14.7],[-16.5,16.2],[-16.3,17],[-16.1,19],[-16.5,19.5],[-17,21],[-16,23.7],[-14.8,25.5],[-13.6,27.3],[-12.6,28],[-11,28.7],[-9.7,30],[-9.8,31.4],[-8.5,33.3],[-6.8,34.1],[-6.1,35.5]],
+madagascar:[[49.3,-12],[50.5,-15.5],[49.5,-17.5],[47.1,-25],[45.2,-25.5],[43.7,-23.5],[43.3,-21.5],[44.4,-19.5],[44,-17],[46.3,-15.6],[48,-13.5]],
+eurasia:[[-5.6,36],[-4.4,36.7],[-2.1,36.7],[-0.5,38.3],[0.2,38.8],[-0.3,39.5],[0.9,41],[3.2,41.9],[3.1,43],[4.8,43.4],[6.5,43.1],[7.6,43.8],[8.8,44.4],[10.2,43.9],[10.5,42.9],[12.2,41.7],[14,40.8],[15.7,40],[15.6,38.2],[16.6,38.4],[17.1,39.4],[16.6,40.1],[18.5,40.1],[18.4,40.6],[16.3,41.4],[15.1,41.9],[14.1,42.6],[12.4,44.2],[12.3,45.3],[13.7,45.6],[14.5,45.2],[16,43.5],[18.5,42.4],[19.5,41.8],[19.4,40.4],[20.2,39.6],[21.1,38.3],[21.6,36.9],[22.5,36.4],[22.9,36.6],[23.1,38.1],[24,38.2],[22.8,39.3],[22.6,40.4],[23.9,40.2],[24.6,40.9],[26,40.8],[26.2,40.05],[26.6,39.3],[26.8,38.4],[27.3,37.7],[27.3,37],[28.2,36.7],[29.6,36.2],[30.6,36.8],[32,36.4],[33.6,36.2],[34.7,36.8],[36,36.9],[35.8,35.9],[35.9,35],[35.5,34],[35,33.1],[34.9,32.5],[34.5,31.6],[34.25,31.3],[34.9,29.5],[35.2,28.1],[36.6,26],[37.9,24.2],[39.1,21.5],[40.5,19.2],[41.6,16.8],[42.7,15],[43.3,12.7],[45,12.8],[46.5,13.4],[48.7,14],[51.2,15.2],[52.2,15.9],[53.6,16.7],[55.4,17.7],[56.6,18.6],[57.8,19],[58.8,20.4],[59.8,22.4],[58.6,23.6],[57.2,23.9],[56.4,24.9],[56.3,26.3],[55.7,25.6],[54.6,24.4],[53.2,24.1],[51.6,24.2],[51.6,25.9],[50.8,24.8],[50.1,25.9],[50,26.6],[49.2,27.3],[48.4,28.5],[48,29.4],[48.5,29.9],[48.9,30.4],[50.2,30],[50.9,28.9],[51.5,27.9],[53.6,26.6],[55,26.7],[56.3,27.2],[57.3,25.8],[59.5,25.4],[61.6,25.2],[63.5,25.2],[66.6,25.4],[67.3,24.7],[68.3,23.6],[69.1,22.4],[70.3,20.9],[71.9,21],[72.6,21.3],[72.8,20],[72.8,19],[73.4,16.5],[74.1,14.8],[74.8,12.8],[75.6,11.2],[76.3,9.5],[77.5,8.1],[78.2,8.9],[79.3,10.3],[79.9,10.3],[79.8,11.7],[80.3,13.4],[80.1,15.2],[81.2,16.3],[82.3,16.6],[83.5,18],[84.8,19.2],[86.4,20],[86.9,21.2],[88.1,21.6],[89,21.8],[90.3,22],[91,22.6],[91.8,22.4],[92.2,21.1],[92.6,20.1],[93.7,19],[94.2,17.3],[94.4,16],[95.3,15.7],[96.5,16.6],[97.6,16.5],[97.7,15],[98.5,13.2],[98.5,10],[98.2,8.4],[98.6,7.9],[100.3,6.4],[100.4,5.3],[101.3,2.9],[103.5,1.3],[104.2,1.4],[103.4,4],[103.4,4.9],[102.2,6.2],[101,6.9],[100.4,7.3],[100,9.3],[99.2,10.3],[99.9,12.3],[100,13.4],[100.9,13.5],[101.3,12.7],[102.6,12],[103,11.1],[104.4,10.4],[104.8,8.7],[106.6,9.6],[107,10.4],[108,10.7],[109.2,11.5],[109.3,13],[108.9,15.3],[108.2,16.1],[107.1,17],[106.2,18.3],[105.7,19],[106.6,20.3],[107.4,21.2],[108.3,21.6],[109.6,21.6],[109.9,20.4],[110.5,20.3],[110.4,21.2],[111.5,21.5],[112.9,21.9],[113.6,22.4],[114.3,22.4],[115.5,22.8],[116.6,23.2],[117.5,23.8],[118.6,24.6],[119.6,25.6],[119.9,26.6],[120.7,28],[121.7,29.2],[121.9,30],[121.3,30.7],[121.9,31.5],[121,32.3],[120.3,34.4],[119.2,34.8],[120.3,36.1],[120.9,36.4],[122.5,36.9],[121.3,37.6],[120.4,37.6],[119,37.2],[118.2,38],[117.6,38.6],[117.7,39.1],[118.9,39.1],[119.8,39.9],[121.1,40.8],[122.1,40.6],[121.2,39.5],[121.2,38.8],[122,39.2],[123.2,39.7],[124.4,39.8],[125.1,39.4],[125,38.6],[125.4,37.7],[126.6,37.1],[126.4,36],[126.5,34.5],[127.5,34.7],[128.5,35],[129.2,35.2],[129.5,36],[129.4,37.1],[128.6,38.3],[127.6,39.6],[128.4,40],[129.7,40.9],[129.8,41.7],[130.7,42.3],[131.4,42.8],[132.4,43.3],[133.5,42.9],[135.3,43.9],[137.2,45.4],[138.6,47],[140.4,48.9],[140.6,51],[141.4,52.4],[140.9,53.5],[142,60],[160,62],[180,66],[180,72],[30,72],[28.5,60.5],[28,59.7],[23.5,59.2],[24,58.3],[21.8,57.3],[21.1,55.7],[20,54.9],[19,54.4],[18.6,54.7],[17.2,54.8],[14.6,54.1],[13.4,54.3],[11,54],[10,54.8],[10.6,56.4],[10.5,57.6],[9.9,57.6],[8.6,57.1],[8.1,56.5],[8.1,55.5],[8.7,54.9],[8.9,54],[8.5,53.6],[7,53.4],[6,53.4],[4.8,53],[4.1,52],[3.4,51.4],[2.5,51.1],[1.6,50.9],[1.6,50.2],[0.2,49.6],[-1.3,49.7],[-1.6,48.7],[-3,48.8],[-4.7,48.4],[-4.4,47.8],[-2.4,47.2],[-1.2,46.2],[-1.3,44.4],[-1.8,43.4],[-4,43.4],[-8,43.7],[-9.3,43],[-8.8,41.5],[-9.5,38.8],[-8.8,37],[-7.4,37.2],[-6.3,36.6]],
+scand:[[5,59],[5,62],[8,63],[14,67],[25,71],[30,69.5],[24,65.8],[21.5,64],[19,63],[17.5,61],[18.8,59.8],[16.8,58.5],[16.4,56.5],[14.3,55.4],[12.9,55.4],[12.6,56.2],[11.8,58],[10.7,59],[8,58],[6.6,58.1]],
+britain:[[-5.7,50.1],[1.4,51.2],[1.7,52.7],[0.2,53.5],[-0.2,54.5],[-1.6,55.6],[-2,57],[-1.8,57.6],[-3.3,58.6],[-5,58.6],[-5.5,57],[-6.2,56.3],[-5,55],[-3,54.9],[-3.2,53.4],[-4.6,53.3],[-4.2,52.3],[-5.3,51.8],[-3,51.4]],
+ireland:[[-6,52.1],[-6,54],[-5.5,54.6],[-7.3,55.3],[-8.5,54.5],[-10,53.5],[-10.3,51.8],[-8.2,51.6]],
+sicily:[[12.4,38],[15.6,38.3],[15.1,36.7],[12.4,37.6]],
+srilanka:[[79.9,9.8],[81.3,8.5],[81.8,7],[80.5,5.9],[79.8,6.9]],
+taiwan:[[120.1,23],[120.8,21.9],[121.9,24.9],[121.5,25.3],[120.7,24.5]],
+hainan:[[108.6,19.2],[110.5,18.3],[111,19.6],[110.2,20.1],[108.7,19.9]],
+luzon:[[120,16],[120.6,18.5],[122.2,18.5],[122,16],[124,13],[121,13.8]],
+kyushu:[[129.7,33.2],[130.2,31.4],[131.1,31.3],[131.9,32.8],[131,33.9],[129.9,33.6]],
+shikoku:[[132.4,33.4],[132.9,32.8],[134.2,33.3],[134.7,34.2],[133,34.1]],
+honshu:[[130.9,34],[131,34.4],[133,35.5],[135.5,35.7],[136.8,37.2],[138.5,37.5],[140,39.5],[140,41.2],[141.5,41.4],[142,39.5],[141,38.2],[140.9,36.8],[140.9,35.7],[139.8,35],[138.8,34.6],[137,34.6],[135.8,33.5],[135.1,34.3],[133.5,34.4],[132,33.9]],
+hokkaido:[[140.1,41.5],[141.2,41.8],[143.3,42],[145.5,43.3],[144.8,44],[141.9,45.5],[141.5,43.3],[140.4,43.3],[139.8,42.2]],
+caspian:[[46.8,44.5],[47.5,45.8],[49.2,46.6],[51.2,47],[53,46.5],[53,45],[51,44.5],[51.5,43],[52.7,42],[53,40],[54,38],[54,37.3],[51,36.6],[49,37.5],[48.9,38.5],[49.5,40.3],[48,42],[47.5,43]],
+black:[[29,41.2],[31,41.1],[33,42],[35,42],[38,41],[41.5,41.5],[41.7,42.5],[39,44.3],[37.5,45],[36.5,45.4],[35,45],[33.5,44.5],[32.5,45.4],[31,46.6],[30,45.5],[28.6,44],[27.8,42.5]]
+};
+const LANDS=['africa','madagascar','eurasia','scand','britain','ireland','sicily','srilanka','taiwan','hainan','luzon','kyushu','shikoku','honshu','hokkaido'].map(k=>POLY[k]);
+const LAKES=[POLY.caspian,POLY.black];
+function pip(x,y,poly){let ins=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+function isLand(lon,lat){for(const l of LAKES)if(pip(lon,lat,l))return false;for(const p of LANDS)if(pip(lon,lat,p))return true;return false;}
+
+/* =====================================================================
+   CONTENT
+   Each set is ONE continent map. Each level owns one region of it.
+   ===================================================================== */
+const ARABIA=[[34,32],[48,30.5],[48.5,29.8],[56.5,26.5],[60,22.5],[52,15],[43,12],[34,28]];
+const C={GB:'#ef4a4a',GB2:'#ff8a3d',FR:'#3d7bff',DE:'#8a95a8',BE:'#f2c230',PT:'#1fae6a',IT:'#2fd0b5',ES:'#e8b04a',RU:'#a874ff',RU2:'#d29bff',US:'#42c6ff',JP:'#ff6fae',QG:'#f2c230',QG2:'#e8a33a',FP:'#c99a1a',EIC:'#ff7a59'};
+const SETS=[
+{id:'africa',title:'The Scramble for Africa',tag:'Set 1',years:'1870–1914',continent:'Africa',
+ bbox:[-19,53,-36,38],cell:1.0,claim:[0,1,2,3,4],
+ labels:[{t:'ATLANTIC OCEAN',p:[-11,-10],o:1},{t:'INDIAN OCEAN',p:[47,-31],o:1},{t:'MEDITERRANEAN SEA',p:[17,35],o:1},{t:'RED SEA',p:[38.4,20.5],o:1},{t:'ARABIA',p:[46,23]}],
+ finale:'By 1914, Europeans ruled about 90% of Africa. Only Ethiopia and Liberia stayed independent. Many borders drawn by Europeans still shape Africa today.',
+ levels:[
+ {id:'a1',name:'Hungry Factories',region:'North Africa',years:'1870–1914',start:[10,24],
+  reg:(lo,la,c)=>c.af&&la>=15&&lo<32.2,
+  ghosts:[{n:'Britain',c:C.GB,s:[30,31]},{n:'France',c:C.FR,s:[3,36.5]},{n:'Italy',c:C.IT,s:[13.2,32.5]},{n:'Spain',c:C.ES,s:[-6,35]}],
+  marks:[{n:'Sahara Desert',p:[8,23],note:"World's largest hot desert"},{n:'Morocco',p:[-6,32],note:'Taken by France and Spain, 1912'},{n:'Algeria',p:[3,35.5],note:'French colony from 1830'},{n:'Tripoli',p:[13.2,32.5],note:'Libya — taken by Italy in 1911'},{n:'Cairo',p:[31.2,30],note:"Egypt's capital on the Nile; British control from 1882"}],
+  terms:[
+   {t:'Imperialism',d:'A strong nation taking control of weaker lands',f:"Europe's empires grew fastest from 1870 to 1914."},
+   {t:'Raw materials',d:'Natural resources factories need, like rubber and cotton',f:'Industrial Revolution factories were hungry for them.'},
+   {t:'Scramble for Africa',d:'The European race to grab African land',f:'By 1914 Europeans controlled about 90% of Africa.'},
+   {t:'Social Darwinism',d:'False, racist idea that "stronger" races should rule',f:'It twisted "survival of the fittest" to excuse conquest.'},
+   {t:"White Man's Burden",d:'Racist claim Europeans had a duty to "civilize" others',f:'Title of a Rudyard Kipling poem, 1899.'}],
+  quote:{q:"Take up the White Man's burden",by:'Rudyard Kipling, 1899',note:'Used to justify empire. Critics at the time wrote parodies mocking it.'}},
+ {id:'a2',name:'The Berlin Conference',region:'West Africa',years:'1884–1885',start:[-3,10],
+  reg:(lo,la,c)=>c.af&&la>=-12&&la<15&&lo<12,
+  ghosts:[{n:'France',c:C.FR,s:[-17.4,14.7]},{n:'Britain',c:C.GB,s:[3.4,6.5]},{n:'Germany',c:C.DE,s:[9.7,4]},{n:'Portugal',c:C.PT,s:[-15.6,11.9]}],
+  marks:[{n:'Dakar',p:[-17.4,14.7],note:'Capital of French West Africa'},{n:'Liberia',p:[-10.8,6.3],note:'Independent — founded by freed Black Americans'},{n:'Gold Coast',p:[-0.2,5.6],note:'British colony rich in gold and cocoa'},{n:'Lagos',p:[3.4,6.5],note:'British Nigeria'},{n:'Niger River',p:[2.1,13.5],note:"West Africa's great river"}],
+  terms:[
+   {t:'Berlin Conference',d:'1884–85 meeting where Europe divided up Africa',f:'Held in Germany. No African leaders were invited.'},
+   {t:'Colony',d:'Land ruled directly by a foreign country',f:'Example: French Algeria.'},
+   {t:'Protectorate',d:'Land with its own ruler, but controlled by a foreign power',f:'Example: Morocco under France, 1912.'},
+   {t:'Maxim gun',d:'Early machine gun that gave Europeans a huge advantage',f:'Invented by Hiram Maxim in 1884.'},
+   {t:'Quinine',d:'Medicine that protected Europeans from malaria',f:'Made from the bark of the cinchona tree.'}],
+  quote:{q:'Whatever happens, we have got / The Maxim gun, and they have not.',by:'Hilaire Belloc, The Modern Traveller, 1898',note:'A poet mocking how empires won by force, not fairness.'}},
+ {id:'a3',name:'Heart of the Congo',region:'Central Africa',years:'1874–1908',start:[22,-2],
+  reg:(lo,la,c)=>c.af&&la>=-12&&la<15&&lo>=12&&lo<31,
+  ghosts:[{n:'Belgium',c:C.BE,s:[12.5,-6]},{n:'Force Publique',c:C.FP,s:[16,-5]},{n:'France',c:C.FR,s:[15,2]},{n:'Portugal',c:C.PT,s:[16,-11]}],
+  marks:[{n:'Léopoldville',p:[15.3,-4.3],note:'Colonial capital; today Kinshasa'},{n:'Stanleyville',p:[25.2,0.5],note:'River station; today Kisangani'},{n:'Katanga',p:[27,-10.5],note:'Region rich in copper'},{n:'Lake Tanganyika',p:[29.4,-6],note:'Long lake on the eastern edge'}],
+  terms:[
+   {t:'Henry Stanley',d:'Explorer who mapped the Congo River',f:'Traveled the Congo 1874–77, then worked for King Leopold.'},
+   {t:'Leopold II',d:'Belgian king who owned the Congo personally',f:'He never once visited the Congo.'},
+   {t:'Congo Free State',d:"Leopold's private colony, known for cruelty",f:'It lasted 1885–1908; millions of Congolese died.'},
+   {t:'Rubber',d:'Raw material Congolese workers were forced to collect',f:'Bicycle and car tires made demand explode.'}],
+  quote:{q:'a slice of this magnificent African cake',by:'King Leopold II, letter, 1877',note:'Leopold saw Africa as something to carve up and take.'}},
+ {id:'a4',name:'Zulu, Boers & Rhodes',region:'Southern Africa',years:'1867–1902',start:[25,-21],
+  reg:(lo,la,c)=>c.af&&la<-12,
+  ghosts:[{n:'Britain',c:C.GB,s:[18.4,-33.9]},{n:'Britain',c:C.GB2,s:[31,-29.8]},{n:'Germany',c:C.DE,s:[17,-22.6]},{n:'Portugal',c:C.PT,s:[34.8,-19.8]}],
+  marks:[{n:'Cape Town',p:[18.4,-33.9],note:"Britain's Cape Colony"},{n:'Kimberley',p:[24.8,-28.7],note:'Diamonds found here, 1867'},{n:'Johannesburg',p:[28,-26.2],note:'Gold found here, 1886'},{n:'Zululand',p:[31.5,-28.3],note:'Homeland of the Zulu Kingdom'},{n:'Rhodesia',p:[31,-17.8],note:'Named for Cecil Rhodes; today Zimbabwe'}],
+  terms:[
+   {t:'Zulu Kingdom',d:'Powerful African kingdom that fought Britain',f:'Zulu warriors beat the British at Isandlwana in 1879.'},
+   {t:'Boers',d:'Dutch-descended farmers in South Africa',f:'"Boer" is the Dutch word for farmer.'},
+   {t:'Boer War',d:'1899–1902 war between Britain and the Boers',f:'Britain won and took over the Boer republics.'},
+   {t:'Cecil Rhodes',d:'British businessman who dreamed of "Cape to Cairo"',f:'He wanted British land from one end of Africa to the other.'}],
+  quote:{q:'I would annex the planets if I could.',by:'Cecil Rhodes (published 1902)',note:'Rhodes made a fortune in diamonds and pushed for endless expansion.'}},
+ {id:'a5',name:'Suez & Adwa',region:'Northeast & East Africa',years:'1869–1896',start:[35,5],
+  reg:(lo,la,c)=>c.af&&((la>=15&&lo>=32.2)||(la>=-12&&la<15&&lo>=31)),
+  ghosts:[{n:'Britain',c:C.GB,s:[33,28]},{n:'Italy',c:C.IT,s:[39.4,15.6]},{n:'France',c:C.FR,s:[43,11.6]},{n:'Italy',c:'#7fe3a0',s:[45.3,2.5]}],
+  marks:[{n:'Suez Canal',p:[32.5,30.6],note:'Opened 1869; Britain took control in 1882'},{n:'Khartoum',p:[32.5,15.6],note:'Sudan; under British-Egyptian rule'},{n:'Adwa',p:[38.9,14.2],note:'Ethiopia defeated Italy here, 1896'},{n:'Addis Ababa',p:[38.75,9],note:"Ethiopia's capital"},{n:'Mombasa',p:[39.7,-4],note:'Port of British East Africa (Kenya)'}],
+  terms:[
+   {t:'Suez Canal',d:'Canal linking the Mediterranean and Red Seas',f:'A shortcut from Britain to India.'},
+   {t:'Menelik II',d:'Emperor of Ethiopia who defeated Italy',f:'He bought modern rifles to defend Ethiopia.'},
+   {t:'Battle of Adwa',d:'1896 African victory that kept Ethiopia free',f:'Empress Taytu helped lead the Ethiopian forces.'},
+   {t:'Liberia',d:'West African nation founded by freed Black Americans',f:'With Ethiopia, still independent in 1914.'},
+   {t:'Resistance',d:'Fighting back against foreign rule',f:'Africans resisted colonial rule across the continent.'}],
+  quote:null}
+ ]},
+{id:'asia',title:'The Great Game & East Asia',tag:'Set 2',years:'1757–1910',continent:'Asia',
+ bbox:[40,146,5,55],cell:0.75,claim:[5,6,0,1,2,3,4],
+ labels:[{t:'ARABIAN SEA',p:[63,15],o:1},{t:'BAY OF BENGAL',p:[88,14],o:1},{t:'SOUTH CHINA SEA',p:[114,14],o:1},{t:'EAST CHINA SEA',p:[125.5,28],o:1},{t:'SEA OF JAPAN',p:[134.5,40.5],o:1},{t:'PACIFIC OCEAN',p:[141,27],o:1},{t:'YELLOW SEA',p:[123.5,35.6],o:1},{t:'CASPIAN SEA',p:[51,42],o:1},{t:'TIBET',p:[86,34]},{t:'MONGOLIA',p:[103,47]},{t:'RUSSIAN EMPIRE',p:[90,52]},{t:'ARABIA',p:[46,22]},{t:'SOUTHEAST ASIA',p:[101,13]}],
+ finale:"From 1839 to 1949, China suffered foreign wars and unequal treaties — its \"Century of Humiliation.\" Japan chose another path: it westernized fast, avoided being colonized, and became an empire itself.",
+ levels:[
+ {id:'b1',name:'Jewel in the Crown',region:'India',years:'1757–1877',start:[78,21],
+  reg:(lo,la,c)=>!c.af&&!c.jp&&lo>=66&&lo<=92.5&&la<30.5,
+  ghosts:[{n:'E. India Co.',c:C.EIC,s:[88.4,22.6]},{n:'Britain',c:C.GB,s:[72.9,19.1]},{n:'Britain',c:C.GB2,s:[80.3,13.1]}],
+  marks:[{n:'Delhi',p:[77.2,28.6],note:'Center of the 1857 rebellion'},{n:'Calcutta',p:[88.4,22.6],note:'Capital of British India until 1911'},{n:'Bombay',p:[72.9,19.1],note:'Major British port; today Mumbai'},{n:'Madras',p:[80.3,13.1],note:'Early Company fort; today Chennai'},{n:'Ceylon',p:[80.7,7.8],note:'British island colony; today Sri Lanka'}],
+  terms:[
+   {t:'East India Company',d:'British trading company that took over India',f:'It had its own private army.'},
+   {t:'Sepoys',d:'Indian soldiers in the British army',f:'Sepoys far outnumbered British troops.'},
+   {t:'Sepoy Rebellion',d:'1857 Indian uprising against British rule',f:'Sparked by rumors about greased rifle cartridges.'},
+   {t:'British Raj',d:'Direct rule of India by the British government',f:'Began in 1858, replacing the Company.'},
+   {t:'Jewel in the Crown',d:"Nickname for India, Britain's most valuable colony",f:'Queen Victoria became Empress of India in 1877.'}],
+  quote:{q:'As long as we rule India we are the greatest power in the world.',by:'Lord Curzon, Viceroy of India, 1901',note:'Why Britain feared any rival getting close to India.'}},
+ {id:'b2',name:'The Great Game',region:'Central Asia & Persia',years:'1830–1907',start:[62,34],
+  reg:(lo,la,c)=>!c.af&&!c.arab&&lo>=44&&lo<80&&la>=24&&la<=51,
+  ghosts:[{n:'Russia',c:C.RU,s:[55,50]},{n:'Russia',c:C.RU2,s:[72,47]},{n:'Britain',c:C.GB,s:[73,32]},{n:'Britain',c:C.GB2,s:[66,25.5]}],
+  marks:[{n:'Russian Empire',p:[58,49],note:'Russia pushed south into Central Asia'},{n:'Bukhara',p:[64.4,39.8],note:'Central Asian khanate taken over by Russia'},{n:'Kabul',p:[69.2,34.5],note:"Afghanistan's capital"},{n:'Khyber Pass',p:[71.6,33.6],note:'Mountain gateway into India'},{n:'Tehran',p:[51.4,35.7],note:'Persia — split into zones in 1907'}],
+  terms:[
+   {t:'Great Game',d:'Britain vs. Russia rivalry over Central Asia',f:'A contest of spies and mapmakers; the two never fought each other there.'},
+   {t:'Buffer state',d:'Neutral land that keeps two rivals apart',f:'Afghanistan was the buffer between Russia and British India.'},
+   {t:'Afghanistan',d:'Mountain land caught between Britain and Russia',f:'Afghans destroyed a retreating British army in 1842.'},
+   {t:'Khyber Pass',d:'Key mountain pass into India',f:'Armies and traders used it for centuries.'},
+   {t:'Anglo-Russian Convention',d:'1907 deal that ended the Great Game',f:'It split Persia into British and Russian zones.'}],
+  quote:{q:'Now I shall go far and far into the North, playing the Great Game.',by:'Rudyard Kipling, Kim, 1901',note:"Kipling's novel made the phrase \"Great Game\" famous."}},
+ {id:'b3',name:'The Opium Wars',region:'South China',years:'1839–1860',start:[108,24],
+  reg:(lo,la,c)=>!c.af&&!c.jp&&lo>=97&&lo<=123&&la>=18&&la<27,
+  ghosts:[{n:'Britain',c:C.GB,s:[114.2,22.3]},{n:'Britain',c:C.GB2,s:[119.3,26]},{n:'France',c:C.FR,s:[106.5,21]},{n:'USA',c:C.US,s:[118,24.5]}],
+  marks:[{n:'Canton',p:[113.3,23.1],note:'Only port open to British traders before 1842'},{n:'Hong Kong',p:[114.2,22.3],note:'British colony, 1842–1997'},{n:'Amoy',p:[118.1,24.5],note:'Treaty port opened 1842; today Xiamen'},{n:'Fuzhou',p:[119.3,26.1],note:'Treaty port opened 1842'}],
+  terms:[
+   {t:'Opium',d:'Addictive drug British traders sold in China',f:'Grown in British India and smuggled into China.'},
+   {t:'Lin Zexu',d:'Chinese official who destroyed British opium',f:'In 1839 he destroyed over 1,000 tons of it.'},
+   {t:'Opium War',d:'1839–42 war Britain won against China',f:'British steam gunboats overpowered Chinese ships.'},
+   {t:'Treaty of Nanjing',d:'1842 treaty giving Britain Hong Kong',f:'It also opened five ports to British trade.'},
+   {t:'Unequal treaty',d:'Treaty forced on a weaker country',f:'China was forced to sign many after 1842.'}],
+  quote:{q:'Our Celestial Empire possesses all things in prolific abundance',by:'Qianlong Emperor, letter to King George III, 1793',note:'China did not want British goods — so British traders turned to opium.'}},
+ {id:'b4',name:'Carving the Melon',region:'Yangtze Valley',years:'1850–1898',start:[110,30.5],
+  reg:(lo,la,c)=>!c.af&&!c.jp&&lo>=97&&lo<=123&&la>=27&&la<34.5,
+  ghosts:[{n:'Britain',c:C.GB,s:[121.5,31.2]},{n:'Britain',c:C.GB2,s:[114.3,30.6]},{n:'France',c:C.FR,s:[104,28]},{n:'Germany',c:C.DE,s:[120,34]}],
+  marks:[{n:'Nanjing',p:[118.8,32.1],note:'Capital of the Taiping rebels'},{n:'Shanghai',p:[121.5,31.2],note:'Foreign-run International Settlement'},{n:'Hankou',p:[114.3,30.6],note:'Treaty port on the Yangtze, opened 1861'},{n:'Chongqing',p:[106.5,29.6],note:'Upriver treaty port, opened 1891'}],
+  terms:[
+   {t:'Taiping Rebellion',d:'Huge 1850–64 civil war inside China',f:'More than 20 million people died.'},
+   {t:'Extraterritoriality',d:'Foreigners judged only by their own courts',f:'Foreigners in China were not punished by Chinese law.'},
+   {t:'Sphere of influence',d:'Area where one foreign power controls trade',f:'The Yangtze Valley was Britain\'s sphere.'},
+   {t:'Self-Strengthening',d:'Chinese effort to copy Western weapons and factories',f:'1861–1895: it built shipyards and arsenals.'}],
+  quote:{q:'Chinese learning as the essence, Western learning for practical use',by:'Zhang Zhidong, 1898',note:'The idea behind Self-Strengthening: keep tradition, borrow technology.'}},
+ {id:'b5',name:'Century of Humiliation',region:'North China',years:'1899–1949',start:[110,38],
+  reg:(lo,la,c)=>!c.af&&!c.jp&&lo>=97&&lo<121&&la>=34.5&&la<=45,
+  ghosts:[{n:'Japan',c:C.JP,s:[119,38]},{n:'Russia',c:C.RU,s:[118,44]},{n:'Germany',c:C.DE,s:[120.4,36.1]},{n:'Britain',c:C.GB,s:[117.5,39]}],
+  marks:[{n:'Beijing',p:[116.4,39.9],note:'Foreign embassies besieged here, 1900'},{n:'Shandong',p:[117.5,36.3],note:'Where the Boxer movement began; German sphere'},{n:'Yellow River',p:[113.5,34.9],note:'Huang He — "China\'s Sorrow" for its floods'},{n:'Gobi Desert',p:[105,42],note:'Dry northern frontier'}],
+  terms:[
+   {t:'Open Door Policy',d:'U.S. plan for equal trade rights in China',f:'Proposed by Secretary of State John Hay, 1899.'},
+   {t:'Boxer Rebellion',d:'1899–1901 uprising against foreigners in China',f:'An army from eight nations crushed it.'},
+   {t:'Qing dynasty',d:"China's last imperial dynasty",f:'It fell in 1912.'},
+   {t:'Century of Humiliation',d:'Chinese name for foreign domination, 1839–1949',f:'It began with the First Opium War.'}],
+  quote:{q:'Support the Qing, destroy the foreign.',by:'Boxer slogan, c. 1899',note:'The Boxers blamed foreigners and Christian missionaries for China\'s troubles.'}},
+ {id:'b6',name:'Black Ships',region:'Japan',years:'1853–1868',start:[137.5,36.5],
+  reg:(lo,la,c)=>c.jp,
+  ghosts:[{n:'USA',c:C.US,s:[140.5,36]},{n:'Britain',c:C.GB,s:[130.5,32.5]},{n:'Russia',c:C.RU,s:[142.5,43.5]},{n:'France',c:C.FR,s:[134,34]}],
+  marks:[{n:'Edo Bay',p:[139.8,35.4],note:'Perry anchored here, 1853'},{n:'Nagasaki',p:[129.9,32.75],note:'Dutch traders kept at Dejima island'},{n:'Kyoto',p:[135.8,35],note:"Emperor's home until 1868"},{n:'Hakodate',p:[140.7,41.8],note:'Port opened to U.S. ships, 1854'}],
+  terms:[
+   {t:'Isolation',d:"Japan's policy of closing itself off from foreigners",f:'For about 200 years only Dutch and Chinese traders could visit.'},
+   {t:'Matthew Perry',d:'U.S. commodore who forced Japan to open',f:'He arrived with steam-powered "black ships" in 1853.'},
+   {t:'Treaty of Kanagawa',d:'1854 treaty opening Japan to U.S. ships',f:'It opened the ports of Shimoda and Hakodate.'},
+   {t:'Meiji Restoration',d:'1868 return of power to Japan\'s emperor',f:'It ended over 260 years of shogun rule.'}],
+  quote:{q:'Knowledge shall be sought throughout the world',by:'Charter Oath of the Meiji Emperor, 1868',note:'Japan decided to learn from the West — fast.'}},
+ {id:'b7',name:'Japan Rising',region:'Korea & Manchuria',years:'1868–1910',start:[127.5,40],
+  reg:(lo,la,c)=>!c.af&&!c.jp&&lo>=121&&lo<=135&&la>=33&&la<=45,
+  ghosts:[{n:'Russia',c:C.RU,s:[131.9,43.1]},{n:'Russia',c:C.RU2,s:[121.4,39]},{n:'Qing China',c:C.QG,s:[123.5,42.5]},{n:'Qing China',c:C.QG2,s:[126.5,35]}],
+  marks:[{n:'Seoul',p:[127,37.5],note:'Korea — annexed by Japan, 1910'},{n:'Pyongyang',p:[125.75,39],note:'Japan beat China here, 1894'},{n:'Port Arthur',p:[121.2,38.8],note:'Russian base Japan captured, 1905'},{n:'Mukden',p:[123.4,41.8],note:'Japan beat Russia here, 1905'},{n:'Tsushima',p:[129.3,34.6],note:"Japan sank Russia's fleet nearby, 1905"}],
+  terms:[
+   {t:'Westernization',d:'Adopting Western ideas, technology and styles',f:'Japan built railroads, factories and a modern army.'},
+   {t:'Meiji Constitution',d:"Japan's 1889 constitution, modeled on Germany's",f:'It created an elected parliament, the Diet.'},
+   {t:'Sino-Japanese War',d:'1894–95 war Japan won against China',f:'Japan took Taiwan.'},
+   {t:'Russo-Japanese War',d:'1904–05 war where Japan beat Russia',f:'The first modern Asian victory over a European power.'}],
+  quote:{q:'Rich country, strong army',by:'Meiji-era slogan (fukoku kyōhei)',note:'Japan modernized to avoid China\'s fate — then built its own empire.'}}
+ ]}
+];
+SETS.forEach((S,si)=>S.levels.forEach((L,li)=>{L.si=si;L.li=li;L.terms.forEach(t=>t.lvl=li);}));
+const revealed=(L)=>(store.stars[L.id]||0)>0;
+const setDone=(S)=>S.levels.every(revealed);
+
+/* =====================================================================
+   UTIL
+   ===================================================================== */
+const $=s=>document.querySelector(s);
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+const shuffle=(a,r=Math.random)=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
+const DNAME={up:[0,-1],right:[1,0],down:[0,1],left:[-1,0]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let store={};
+try{store=JSON.parse(localStorage.getItem('empireChase1')||'{}')||{};}catch(e){store={};}
+store.unlock=store.unlock||{africa:0,asia:0};store.stars=store.stars||{};store.boards=store.boards||{africa:[],asia:[]};
+function save(){try{localStorage.setItem('empireChase1',JSON.stringify(store));}catch(e){}}
+
+/* =====================================================================
+   MAP BUILDER — one grid per continent, split into level regions
+   ===================================================================== */
+const JAPAN=[POLY.kyushu,POLY.shikoku,POLY.honshu,POLY.hokkaido];
+const MAPS={},LMAPS={};
+// continent overview raster (fog + region outlines only)
+function getMap(si){return MAPS[si]||(MAPS[si]=buildSetMap(SETS[si],si,{}));}
+// per-level playable maze, zoomed so every region has a similar number of tiles
+function getLevelMap(si,li){const k=si+'_'+li;if(LMAPS[k])return LMAPS[k];
+  const S=SETS[si],O=getMap(si);let cnt=0,lo0=1e9,lo1=-1e9,la0=1e9,la1=-1e9;
+  for(let i=0;i<O.cols*O.rows;i++){if(O.reg[i]!==li||!O.land[i])continue;cnt++;const [lo,la]=O.LL(i%O.cols,(i/O.cols)|0);lo0=Math.min(lo0,lo);lo1=Math.max(lo1,lo);la0=Math.min(la0,la);la1=Math.max(la1,la);}
+  const area=cnt*S.cell*S.cell;const cell=Math.max(0.3,Math.min(3,Math.sqrt(area/(S.levels[li].tiles||190))));
+  const pad=cell*1.6+S.cell/2;const midc=Math.cos((la0+la1)/2*Math.PI/180);
+  return LMAPS[k]=buildSetMap(S,si,{bbox:[lo0-pad/midc,lo1+pad/midc,la0-pad,la1+pad],cell,only:li});}
+function buildSetMap(S,si,o){
+  const [x0,x1,y0,y1]=o.bbox||S.bbox;const cellSz=o.cell||S.cell;const mid=(y0+y1)/2*Math.PI/180;const only=o.only;const lvl=only!=null;
+  const cols=Math.round((x1-x0)*Math.cos(mid)/cellSz),rows=Math.round((y1-y0)/cellSz);
+  const rnd=mulberry(si*7919+101+(lvl?only*131:0));
+  const n=cols*rows,I=(x,y)=>y*cols+x,inb=(x,y)=>x>=0&&y>=0&&x<cols&&y<rows;
+  const LL=(x,y)=>[x0+(x+0.5)/cols*(x1-x0),y1-(y+0.5)/rows*(y1-y0)];
+  const land=new Uint8Array(n),g=new Uint8Array(n),reg=new Int8Array(n).fill(-1); // g: 0 sea,1 floor,2 lane,3 hill,4 land outside play
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){let c=0;
+    for(const [ox,oy] of [[0.5,0.5],[0.22,0.22],[0.78,0.22],[0.22,0.78],[0.78,0.78]]){if(isLand(x0+(x+ox)/cols*(x1-x0),y1-(y+oy)/rows*(y1-y0)))c++;}
+    if(c<3)continue;const i=I(x,y);land[i]=1;g[i]=4;
+    const [lo,la]=LL(x,y);
+    const ctx={af:pip(lo,la,POLY.africa)||pip(lo,la,POLY.madagascar),jp:JAPAN.some(p=>pip(lo,la,p)),arab:pip(lo,la,ARABIA)};
+    if(!ctx.jp&&!ctx.af){ // cell majority-land but center in sea: check neighbours for Japan
+      for(const [ox,oy] of [[0.22,0.22],[0.78,0.22],[0.22,0.78],[0.78,0.78]]){const a=x0+(x+ox)/cols*(x1-x0),b=y1-(y+oy)/rows*(y1-y0);if(JAPAN.some(p=>pip(a,b,p))){ctx.jp=true;break;}}}
+    for(const li of S.claim){if(S.levels[li].reg(lo,la,ctx)){reg[i]=li;if(!lvl||li===only)g[i]=1;break;}}
+  }
+  if(!lvl){const I2=I;return {S,cols,rows,g,land,reg,I,inb,LL,bbox:[x0,x1,y0,y1],cent:S.levels.map((_,r)=>{let sx=0,sy=0,k=0;for(let i=0;i<n;i++)if(reg[i]===r&&land[i]){sx+=i%cols;sy+=(i/cols)|0;k++;}return [sx/Math.max(1,k),sy/Math.max(1,k)];}),floorsR:S.levels.map(()=>[]),passR:()=>false};}
+  // sea cells near a region belong to it (for sea lanes)
+  {const d=new Int8Array(n).fill(-1),q=[];for(let i=0;i<n;i++)if(reg[i]>=0&&land[i]){d[i]=0;q.push(i);}
+   for(let k=0;k<q.length;k++){const c=q[k];if(d[c]>=2)continue;const cx=c%cols,cy=(c/cols)|0;for(const e of DIRS){const nx=cx+e[0],ny=cy+e[1];if(!inb(nx,ny))continue;const ni=I(nx,ny);if(land[ni]||d[ni]>=0)continue;d[ni]=d[c]+1;reg[ni]=reg[c];q.push(ni);}}}
+  const pass=(x,y)=>inb(x,y)&&(g[I(x,y)]===1||g[I(x,y)]===2);
+  const passR=(x,y,r)=>pass(x,y)&&reg[I(x,y)]===r;
+  const degR=(x,y,r)=>DIRS.reduce((a,d)=>a+(passR(x+d[0],y+d[1],r)?1:0),0);
+  // pillars
+  for(let y=1;y<rows-1;y++)for(let x=1;x<cols-1;x++){const i=I(x,y),r=reg[i];
+    if(x%2===1&&y%2===1&&g[i]===1&&DIRS.every(d=>{const j=I(x+d[0],y+d[1]);return land[j]&&reg[j]===r;})&&rnd()<0.85)g[i]=3;}
+  for(let y=1;y<rows-1;y++)for(let x=1;x<cols-1;x++){
+    const i=I(x,y);if(g[i]!==3||rnd()>0.42)continue;const r=reg[i];const d=DIRS[Math.floor(rnd()*4)];const nx=x+d[0],ny=y+d[1];
+    if(!inb(nx,ny)||g[I(nx,ny)]!==1||reg[I(nx,ny)]!==r)continue;g[I(nx,ny)]=3;
+    let ok=true;for(const e of DIRS){const ax=nx+e[0],ay=ny+e[1];if(passR(ax,ay,r)&&degR(ax,ay,r)<2){ok=false;break;}}
+    if(!ok)g[I(nx,ny)]=1;}
+  // connect each region into one piece
+  const NL=S.levels.length;
+  for(let r=0;r<NL;r++){if(r!==only)continue;
+    for(let it=0;it<120;it++){
+      const comp=new Int32Array(n).fill(-1);const comps=[];
+      for(let i=0;i<n;i++){if(comp[i]>=0||reg[i]!==r||!(g[i]===1||g[i]===2))continue;const id=comps.length,list=[i];comp[i]=id;
+        for(let k=0;k<list.length;k++){const c=list[k],cx=c%cols,cy=(c/cols)|0;for(const d of DIRS){const nx=cx+d[0],ny=cy+d[1];if(passR(nx,ny,r)&&comp[I(nx,ny)]<0){comp[I(nx,ny)]=id;list.push(I(nx,ny));}}}
+        comps.push(list);}
+      if(comps.length<=1)break;
+      let mainId=0;comps.forEach((c,i)=>{if(c.length>comps[mainId].length)mainId=i;});
+      let other=-1,best=-1;comps.forEach((c,i)=>{if(i!==mainId&&c.length>best){best=c.length;other=i;}});
+      const oc=comps[other];
+      const drop=()=>{for(const c of oc)g[c]=land[c]?3:0;};
+      if(oc.length<3){drop();continue;}
+      const par=new Int32Array(n).fill(-2);const q=[];for(const c of oc){par[c]=-1;q.push(c);}let hit=-1;
+      for(let k=0;k<q.length&&hit<0;k++){const c=q[k],cx=c%cols,cy=(c/cols)|0;for(const d of shuffle(DIRS.slice(),rnd)){const nx=cx+d[0],ny=cy+d[1];if(!inb(nx,ny))continue;const ni=I(nx,ny);if(par[ni]!==-2||reg[ni]!==r)continue;par[ni]=c;if(comp[ni]===mainId){hit=ni;break;}q.push(ni);}}
+      if(hit<0){drop();continue;}
+      let c=par[hit];while(c>=0&&comp[c]!==other){if(g[c]===0)g[c]=2;else if(g[c]===3)g[c]=1;c=par[c];}
+    }
+  }
+  // fewer dead ends
+  for(let p2=0;p2<3;p2++)for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+    const i=I(x,y),r=reg[i];if(r<0||!pass(x,y)||degR(x,y,r)!==1)continue;
+    for(const d of shuffle(DIRS.slice(),rnd)){const hx=x+d[0],hy=y+d[1];if(!inb(hx,hy)||g[I(hx,hy)]!==3||reg[I(hx,hy)]!==r)continue;
+      let o=0;for(const e of DIRS){const ax=hx+e[0],ay=hy+e[1];if((ax!==x||ay!==y)&&passR(ax,ay,r))o++;}
+      if(o>=1){g[I(hx,hy)]=1;break;}}}
+  const floorsR=[],bounds=[],cent=[];
+  for(let r=0;r<NL;r++){const f=[];let bx0=1e9,by0=1e9,bx1=-1,by1=-1,sx=0,sy=0;
+    for(let i=0;i<n;i++){if(reg[i]!==r)continue;const x=i%cols,y=(i/cols)|0;if(g[i]===1||g[i]===2)f.push(i);if(land[i]){sx+=x;sy+=y;}
+      if(land[i]||g[i]===2){bx0=Math.min(bx0,x);by0=Math.min(by0,y);bx1=Math.max(bx1,x);by1=Math.max(by1,y);}}
+    const k=f.length?0:0;
+    let lc=0;for(let i=0;i<n;i++)if(reg[i]===r&&land[i])lc++;floorsR.push(f);bounds.push({x0:bx0,y0:by0,x1:bx1,y1:by1});cent.push([sx/Math.max(1,lc),sy/Math.max(1,lc)]);}
+  const toCellF=(lon,lat)=>[(lon-x0)/(x1-x0)*cols-0.5,(y1-lat)/(y1-y0)*rows-0.5];
+  function nearestR(lon,lat,r,avoid,filter){const [fx,fy]=toCellF(lon,lat);let b=-1,bd=1e9;for(const i of floorsR[r]){if(avoid&&avoid.has(i))continue;if(filter&&!filter(i))continue;const dx=i%cols-fx,dy=((i/cols)|0)-fy,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;b=i;}}return b;}
+  function bfsR(srcs,r){const d=new Int16Array(n).fill(-1);const q=[];for(const s of srcs){d[s]=0;q.push(s);}for(let k=0;k<q.length;k++){const c=q[k],cx=c%cols,cy=(c/cols)|0;for(const e of DIRS){const nx=cx+e[0],ny=cy+e[1];if(passR(nx,ny,r)&&d[I(nx,ny)]<0){d[I(nx,ny)]=d[c]+1;q.push(I(nx,ny));}}}return d;}
+  return {S,cols,rows,g,land,reg,I,inb,LL,pass,passR,degR,floorsR,bounds,cent,nearestR,bfsR,bbox:[x0,x1,y0,y1]};
+}
+
+function setupLevel(L){
+  const M=getLevelMap(L.si,L.li),r=L.li;
+  const used=new Set();
+  const start=M.nearestR(L.start[0],L.start[1],r);used.add(start);
+  const dStart=M.bfsR([start],r);
+  const marks=L.marks.map(m=>{const c=M.nearestR(m.p[0],m.p[1],r,used);used.add(c);return {...m,cell:c,found:false};});
+  marks.forEach((m,i)=>{const mx=m.cell%M.cols,my=(m.cell/M.cols)|0;m.up=marks.slice(0,i).some(o=>!o.up&&Math.abs(o.cell%M.cols-mx)<=2&&Math.abs(((o.cell/M.cols)|0)-my)<=1);});
+  const gUsed=new Set([start]);
+  const ghosts=L.ghosts.map((gd,i)=>{let c=M.nearestR(gd.s[0],gd.s[1],r,gUsed,ii=>dStart[ii]>=8);if(c<0)c=M.nearestR(gd.s[0],gd.s[1],r,gUsed);gUsed.add(c);return {...gd,home:c,idx:i};});
+  const starCells=[];
+  for(let s=0;s<L.terms.length;s++){let best=-1,bd=-1;const fields=[dStart,...starCells.map(c=>M.bfsR([c],r))];
+    for(const i of M.floorsR[r]){if(starCells.includes(i)||i===start||ghosts.some(g=>g.home===i))continue;let md=1e9;for(const f of fields)md=Math.min(md,f[i]);if(md>bd){bd=md;best=i;}}
+    starCells.push(best);}
+  return {M,r,floors:M.floorsR[r],start,marks,ghosts,starCells};
+}
+
+/* =====================================================================
+   AUDIO
+   ===================================================================== */
+let AC=null,muted=!!store.mute;
+function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){AC=null;}}
+function tone(f,dur=0.08,type='square',vol=0.06,slide=0,delay=0){if(!AC||muted)return;try{const t=AC.currentTime+delay;const o=AC.createOscillator(),gg=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+dur);gg.gain.setValueAtTime(vol,t);gg.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(gg);gg.connect(AC.destination);o.start(t);o.stop(t+dur+0.02);}catch(e){}}
+const SFX={
+ chomp:(()=>{let alt=0;return()=>{alt^=1;tone(alt?420:330,0.06,'triangle',0.05,alt?300:420);};})(),
+ star:()=>{tone(660,0.1,'sine',0.08);tone(990,0.14,'sine',0.07,0,0.08);},
+ good:()=>{[523,659,784,1046].forEach((f,i)=>tone(f,0.12,'triangle',0.07,0,i*0.07));},
+ bad:()=>{tone(220,0.25,'sawtooth',0.05,110);},
+ eat:()=>{tone(300,0.2,'square',0.05,1200);},
+ die:()=>{tone(700,0.9,'sawtooth',0.05,60);},
+ find:()=>{[784,988,1175].forEach((f,i)=>tone(f,0.15,'sine',0.08,0,i*0.09));},
+ clear:()=>{[523,659,784,659,784,1046].forEach((f,i)=>tone(f,0.16,'triangle',0.07,0,i*0.11));},
+ power:()=>{tone(200,0.35,'square',0.04,800);}
+};
+
+/* =====================================================================
+   GAME STATE
+   ===================================================================== */
+const cv=$('#cv'),ctx=cv.getContext('2d');
+let T=24,DPR=1,mapLayer=null;
+const G={state:'menu',paused:false,particles:[],pops:[]};
+let want=null;
+const SPEED=0.9;      // all movement 10% slower
+const ROAD=1.1;       // paths drawn 10% wider
+const TURN_GRACE=0.3; // turns within 30% of a tile of a junction still count
+
+function newRun(si,li){
+  G.si=si;G.S=SETS[si];G.score=0;G.lives=3;G.nextLife=10000;G.streak=0;G.ace=$('#aceIn').checked;
+  G.run={asked:0,correct:0,times:[],missed:[],seenLevels:[],startLevel:li};
+  startLevel(li);
+}
+function startLevel(li){
+  G.li=li;G.L=G.S.levels[li];
+  const s=setupLevel(G.L);Object.assign(G,s);G.pass=(x,y)=>G.M.passR(x,y,G.r);
+  G.dots=new Uint8Array(G.M.cols*G.M.rows);for(const i of G.floors)G.dots[i]=1;G.dots[G.start]=0;
+  G.stars=new Map();G.starCells.forEach((c,i)=>{G.stars.set(c,i);G.dots[c]=0;});
+  G.dotsLeft=G.floors.filter(i=>G.dots[i]).length+G.stars.size;
+  G.termOrder=shuffle(G.L.terms.map((_,i)=>i));G.termPtr=0;
+  G.lvl={asked:0,correct:0,times:[],score0:G.score,missed:[],found:0};
+  G.missions=shuffle(G.marks.slice());G.mIdx=0;
+  G.particles=[];G.pops=[];G.time=0;
+  if(!G.run.seenLevels.includes(li))G.run.seenLevels.push(li);
+  resize();showBrief();
+}
+function resetActors(){
+  G.player={x:G.start%G.M.cols,y:(G.start/G.M.cols)|0,dir:null,prog:0,mouth:0,face:[1,0]};
+  want=null;
+  const base=Math.min(5.2,4.0+0.12*(G.si*5+G.li));
+  G.gSpeed=base;
+  G.gh=G.ghosts.map((gd,i)=>({...gd,x:gd.home%G.M.cols,y:(gd.home/G.M.cols)|0,dir:null,prog:0,st:'wait',wait:1.2+i*2.6,fr:false,rt:Math.random()*5,rx:0,ry:0}));
+  G.power=0;G.freeze=0;G.ghostCombo=0;G.mode='scatter';G.modeT=5;G.ready=1.6;G.dying=0;
+  G.pField=G.M.bfsR([G.start],G.r);G.pCell=G.start;
+  G.homeFields=G.gh.map(g=>G.M.bfsR([g.home],G.r));
+}
+function addScore(v){v=Math.round(v*(G.ace?1.5:1));G.score+=v;if(G.score>=G.nextLife){G.nextLife+=10000;if(G.lives<5){G.lives++;toast('❤️ Extra life!');}}updHud();return v;}
+
+/* =====================================================================
+   MOVEMENT
+   ===================================================================== */
+function moveEnt(e,dist,decide,arrive){
+  let guard=0;
+  while(dist>1e-6&&guard++<12){
+    if(e.prog===0){const d=decide(e);if(!d){e.dir=null;return;}e.dir=d;}
+    const st=Math.min(dist,1-e.prog);e.prog+=st;dist-=st;
+    if(e.prog>=1-1e-6){e.x+=e.dir[0];e.y+=e.dir[1];e.prog=0;if(arrive&&arrive(e))return;}
+  }
+}
+const posOf=e=>[e.x+(e.dir?e.dir[0]*e.prog:0),e.y+(e.dir?e.dir[1]*e.prog:0)];
+function playerDecide(p){
+  const M=G.M;
+  if(want&&G.pass(p.x+want[0],p.y+want[1]))return want;
+  if(p.dir&&G.pass(p.x+p.dir[0],p.y+p.dir[1]))return p.dir;
+  return null;
+}
+function playerArrive(p){
+  const M=G.M,i=M.I(p.x,p.y);
+  if(i!==G.pCell){G.pCell=i;G.pField=M.bfsR([i],G.r);}
+  if(G.dots[i]){G.dots[i]=0;G.dotsLeft--;addScore(10);SFX.chomp();}
+  if(G.stars.has(i)){const ti=G.stars.get(i);G.stars.delete(i);G.dotsLeft--;burst(p.x,p.y,'#ffd54a',18);SFX.star();starQuestion();return true;}
+  const m=G.marks.find(m=>m.cell===i);
+  if(m){const tgt=G.missions[G.mIdx];
+    if(tgt&&tgt===m){m.found=true;G.lvl.found++;G.mIdx++;const v=addScore(300);G.freeze=2.2;SFX.find();burst(p.x,p.y,'#7cf0b0',22);pop(p.x,p.y,'+'+v,'#7cf0b0');toast('🎯 Found '+m.n+'! — '+m.note+' · Empires frozen!');updMission();}
+    else if(G.lastMark!==m){toast('📍 '+(m.found||!G.ace?m.n:'??? ')+' — '+m.note);}
+    G.lastMark=m;} else G.lastMark=null;
+  if(G.dotsLeft<=0){levelClear();return true;}
+  return false;
+}
+function ghostDecide(gh){
+  const M=G.M;const opts=DIRS.filter(d=>G.pass(gh.x+d[0],gh.y+d[1]));
+  if(!opts.length)return null;
+  let cand=gh.dir?opts.filter(d=>!(d[0]===-gh.dir[0]&&d[1]===-gh.dir[1])):opts;if(!cand.length)cand=opts;
+  if(gh.st==='eyes'){const f=G.homeFields[gh.idx];return argmin(cand,d=>{const v=f[M.I(gh.x+d[0],gh.y+d[1])];return v<0?999:v;});}
+  if(gh.fr)return cand[Math.floor(Math.random()*cand.length)];
+  const p=G.player;let tx,ty,useField=false;
+  if(G.mode==='scatter'){const B=M.bounds[G.r];const corners=[[B.x0,B.y0],[B.x1,B.y0],[B.x0,B.y1],[B.x1,B.y1]];[tx,ty]=corners[gh.idx%4];}
+  else{switch(gh.idx%4){
+    case 0:useField=true;break;
+    case 1:{const f=p.dir||p.face;tx=p.x+f[0]*4;ty=p.y+f[1]*4;break;}
+    case 2:{gh.rt-=0;if(!gh.rtx||Math.random()<0.08){const c=G.floors[Math.floor(Math.random()*G.floors.length)];gh.rtx=c%M.cols;gh.rty=(c/M.cols)|0;}if(Math.hypot(gh.x-p.x,gh.y-p.y)<7){useField=true;}else{tx=gh.rtx;ty=gh.rty;}break;}
+    case 3:{if(Math.hypot(gh.x-p.x,gh.y-p.y)>6)useField=true;else{const B=M.bounds[G.r];tx=B.x0;ty=B.y1;}break;}}}
+  if(useField){const f=G.pField;return argmin(cand,d=>{const v=f[M.I(gh.x+d[0],gh.y+d[1])];return (v<0?999:v)+Math.random()*0.3;});}
+  return argmin(cand,d=>Math.hypot(gh.x+d[0]-tx,gh.y+d[1]-ty)+Math.random()*0.2);
+}
+function argmin(a,f){let b=a[0],bv=Infinity;for(const x of a){const v=f(x);if(v<bv){bv=v;b=x;}}return b;}
+function ghostArrive(gh){if(gh.st==='eyes'&&G.M.I(gh.x,gh.y)===gh.home){gh.st='wait';gh.wait=1.0;gh.dir=null;gh.prog=0;return true;}return false;}
+function reverseEnt(e){if(!e.dir)return;if(e.prog>0){e.x+=e.dir[0];e.y+=e.dir[1];e.prog=1-e.prog;}e.dir=[-e.dir[0],-e.dir[1]];}
+
+/* =====================================================================
+   UPDATE
+   ===================================================================== */
+function update(dt){
+  G.time+=dt;
+  for(const p of G.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=0.94;p.vy*=0.94;p.life-=dt;}G.particles=G.particles.filter(p=>p.life>0);
+  for(const p of G.pops){p.y-=dt*1.2;p.life-=dt;}G.pops=G.pops.filter(p=>p.life>0);
+  if(G.state!=='play'||G.paused)return;
+  if(G.ready>0){G.ready-=dt;return;}
+  if(G.dying>0){G.dying-=dt;if(G.dying<=0)afterDeath();return;}
+  const p=G.player;
+  // mid-tile reverse
+  if(want&&p.dir&&want[0]===-p.dir[0]&&want[1]===-p.dir[1])reverseEnt(p);
+  else if(want&&p.dir&&p.prog>0&&p.prog<TURN_GRACE&&(want[0]!==p.dir[0]||want[1]!==p.dir[1])&&G.pass(p.x+want[0],p.y+want[1])){p.prog=0;p.dir=want;}
+  else if(want&&p.dir&&p.prog>1-TURN_GRACE&&(want[0]!==p.dir[0]||want[1]!==p.dir[1])&&want[0]!==-p.dir[0]&&G.pass(p.x+p.dir[0]+want[0],p.y+p.dir[1]+want[1])){p.x+=p.dir[0];p.y+=p.dir[1];p.prog=0;p.dir=want;if(playerArrive(p)||G.state!=='play')return;}
+  if(p.dir)p.face=p.dir;
+  const pspeed=(G.power>0?5.9:5.3)*SPEED;
+  moveEnt(p,pspeed*dt,playerDecide,playerArrive);
+  if(G.state!=='play')return;
+  if(p.dir)p.mouth+=dt*14;
+  // timers
+  if(G.power>0){G.power-=dt;if(G.power<=0){G.power=0;G.gh.forEach(g=>g.fr=false);}}
+  if(G.freeze>0)G.freeze-=dt;
+  if(G.power<=0){G.modeT-=dt;if(G.modeT<=0){G.mode=G.mode==='scatter'?'chase':'scatter';G.modeT=G.mode==='chase'?18:5;G.gh.forEach(g=>{if(g.st==='go'&&!g.fr)reverseEnt(g);});}}
+  for(const gh of G.gh){
+    if(gh.st==='wait'){gh.wait-=dt;if(gh.wait<=0){gh.st='go';}continue;}
+    if(G.freeze>0&&gh.st!=='eyes')continue;
+    const sp=(gh.st==='eyes'?9:gh.fr?2.7:G.gSpeed)*SPEED;
+    moveEnt(gh,sp*dt,ghostDecide,ghostArrive);
+  }
+  // collisions
+  const [px,py]=posOf(p);
+  for(const gh of G.gh){if(gh.st==='eyes')continue;const [gx,gy]=posOf(gh);if(Math.hypot(px-gx,py-gy)<0.62){
+    if(gh.fr){gh.fr=false;gh.st='eyes';const v=addScore(200*Math.pow(2,G.ghostCombo));G.ghostCombo=Math.min(G.ghostCombo+1,3);SFX.eat();burst(gx,gy,gh.c,16);pop(gx,gy,'+'+v,'#fff');}
+    else{die();return;}}}
+  updPower();
+}
+function die(){G.dying=1.3;G.lives--;SFX.die();burst(G.player.x,G.player.y,'#ffd54a',30);updHud();shake=8;}
+function afterDeath(){
+  if(G.lives<=0){gameOver();return;}
+  const keep=G.player;resetActors();G.ready=1.4;
+}
+let shake=0;
+function burst(x,y,c,n){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=1+Math.random()*4;G.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0.5+Math.random()*0.5,c});}}
+function pop(x,y,t,c){G.pops.push({x,y,t,c,life:1.1});}
+
+/* =====================================================================
+   QUESTIONS
+   ===================================================================== */
+function allSetTerms(){return G.S.levels.flatMap(l=>l.terms);}
+function makeQ(term,reverse){
+  const pool=allSetTerms().filter(t=>t!==term);
+  const same=shuffle(pool.filter(t=>t.lvl===term.lvl)),near=shuffle(pool.filter(t=>t.lvl!==term.lvl&&Math.abs(t.lvl-term.lvl)<=2)),far=shuffle(pool.filter(t=>Math.abs(t.lvl-term.lvl)>2));
+  const picks=[];for(const t of [...same.slice(0,1),...near,...same.slice(1),...far]){if(picks.length>=2)break;if(!picks.includes(t))picks.push(t);}
+  const opts=shuffle([term,...picks]);
+  return {term,reverse,opts,ans:opts.indexOf(term)};
+}
+let Q=null;
+function starQuestion(){
+  G.state='quiz';
+  let term=G.L.terms[G.termOrder[G.termPtr%G.termOrder.length]];G.termPtr++;
+  showQ({q:makeQ(term,Math.random()<0.35),tag:'⭐ Source Star',kind:'star',onDone:(ok)=>{
+    if(ok){G.power=Math.max(4.5,7.5-0.25*(G.si*5+G.li));G.ghostCombo=0;G.gh.forEach(g=>{if(g.st!=='eyes'){g.fr=true;if(g.st==='go')reverseEnt(g);}});SFX.power();toast('⚡ Power up! Catch the empires!');}
+    G.state='play';
+  }});
+}
+function showQ({q,tag,kind,onDone,idx,total}){
+  Q={q,kind,onDone,t0:performance.now(),done:false,limit:12000};
+  const t=q.term;
+  const prompt=q.reverse?`<div class="qprompt def">“${esc(t.d)}”</div><div class="sub">Which term is this?</div>`:`<div class="qprompt">${esc(t.t)}?</div>`;
+  const opts=q.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="n">${i+1}</span><span>${esc(q.reverse?o.t:o.d)}</span></button>`).join('');
+  $('#quizCard').innerHTML=`<div class="qhead"><span class="qtag">${tag}${total?` · ${idx+1}/${total}`:''}</span><span class="qtag" style="color:#9ff0c4">${G.streak>0?'🔥 streak '+G.streak:''}</span></div>
+   ${prompt}<div class="timer"><i id="qbar"></i></div>${opts}<div class="fb" id="fb"></div><div id="qnext"></div>`;
+  $('#quizCard').querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+  show('quiz');
+  tickQ();
+}
+function tickQ(){
+  if(!Q||Q.done)return;const el=performance.now()-Q.t0;const bar=$('#qbar');if(bar)bar.style.transform=`scaleX(${Math.max(0,1-el/Q.limit)})`;
+  if(el>=Q.limit){answer(-1);return;}requestAnimationFrame(tickQ);
+}
+function answer(i){
+  if(!Q||Q.done)return;Q.done=true;
+  const ms=performance.now()-Q.t0,ok=i===Q.q.ans,t=Q.q.term;
+  const btns=$('#quizCard').querySelectorAll('.opt');btns.forEach((b,j)=>{b.disabled=true;if(j===Q.q.ans)b.classList.add('ok');else if(j===i)b.classList.add('no');});
+  G.run.asked++;G.lvl.asked++;
+  let html;
+  if(ok){
+    G.run.correct++;G.lvl.correct++;G.run.times.push(ms);G.lvl.times.push(ms);G.streak++;
+    const mult=Math.min(5,G.streak);const base=Q.kind==='star'?200:250;const fast=ms<3000;
+    const v=addScore(base*mult+(fast?150:0));SFX.good();
+    html=`<span style="color:var(--good)">✓ Correct! +${v}</span> ${fast?'<span style="color:#ffd36a">⚡ Lightning '+(ms/1000).toFixed(1)+'s</span>':'<span class="sub">'+(ms/1000).toFixed(1)+'s</span>'}${mult>1?` <span style="color:#9ff0c4">🔥×${mult}</span>`:''}<span class="fact">💡 ${esc(t.f)}</span>`;
+  }else{
+    G.streak=0;SFX.bad();if(!G.run.missed.includes(t))G.run.missed.push(t);if(!G.lvl.missed.includes(t))G.lvl.missed.push(t);
+    html=`<span style="color:var(--bad)">${i<0?'⏰ Time!':'✗ Not quite.'}</span> <b>${esc(t.t)}</b> = ${esc(t.d)}<span class="fact">💡 ${esc(t.f)}</span>`;
+  }
+  $('#fb').innerHTML=html;updHud();
+  const go=()=>{if(!Q)return;const cb=Q.onDone;Q=null;hide('quiz');cb(ok);};
+  $('#qnext').innerHTML=`<button class="btn mt" id="qgo" ${ok?'':'disabled'}>Continue ▶</button>`;
+  const b=$('#qgo');b.onclick=go;
+  if(ok){Q.auto=setTimeout(()=>{if(Q&&Q.done)go();},1700);}else setTimeout(()=>{if(b)b.disabled=false;},1100);
+  Q.go=go;
+}
+function recallCheck(done){
+  // mix: missed this level, older-level terms (spacing), missed from run
+  const S=G.S,cur=G.li;const qs=[];
+  const add=t=>{if(t&&!qs.includes(t)&&qs.length<3)qs.push(t);};
+  shuffle(G.lvl.missed.slice()).slice(0,1).forEach(add);
+  shuffle(G.run.missed.filter(t=>t.lvl<cur)).slice(0,1).forEach(add);
+  const older=shuffle(S.levels.slice(0,cur).flatMap(l=>l.terms));older.slice(0,2).forEach(add);
+  shuffle(G.L.terms.slice()).forEach(add);
+  let k=0;
+  const next=()=>{if(k>=qs.length){done();return;}const t=qs[k];
+    showQ({q:makeQ(t,Math.random()<0.5),tag:'🧠 Recall Check',kind:'recall',idx:k,total:qs.length,onDone:()=>{k++;
+      if(t.lvl<cur&&G.run.missed.includes(t)&&G.lvl.asked){/* keep */}
+      next();}});};
+  next();
+}
+
+/* =====================================================================
+   FLOW SCREENS
+   ===================================================================== */
+function show(id){$('#'+id).classList.add('show');}
+function hide(id){$('#'+id).classList.remove('show');}
+function updHud(){
+  $('#hScore').textContent=G.score??0;$('#lives').textContent='❤️'.repeat(Math.max(0,G.lives||0))||'💀';
+  const s=$('#streak');if(G.streak>1){s.style.display='';s.textContent='🔥 streak ×'+Math.min(5,G.streak);}else s.style.display='none';
+}
+function updMission(){
+  const m=G.missions&&G.missions[G.mIdx];$('#mission').textContent=m?'🎯 Find: '+m.n:'🗺️ All places found!';
+}
+function updPower(){const w=$('#powerwrap');if(G.power>0){w.style.display='';$('#powerbar').style.display='inline-block';$('#powerbar i').style.width=(G.power/7.5*100)+'%';}else w.style.display='none';}
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2800);}
+
+function showBrief(){
+  const L=G.L,S=G.S;
+  $('#hLvl').textContent=L.name;$('#hSub').textContent=`${S.tag} · Level ${G.li+1}/${S.levels.length} · ${L.years}`;
+  $('#briefCard').innerHTML=`<div class="sub">${S.tag}: ${esc(S.title)} · Level ${G.li+1} of ${S.levels.length}</div>
+   <h2 style="font-size:32px;margin-top:4px">${esc(L.name)}</h2><div class="sub">📍 Region: <b style="color:#ffd54a">${esc(L.region)}</b> · ${L.years}</div>
+   <canvas class="ovc" id="briefOv" style="max-width:${S.id==='asia'?640:420}px;margin-left:auto;margin-right:auto"></canvas>
+   <div class="terms">${L.terms.map(t=>`<div class="term"><b>${esc(t.t)}</b><span>${esc(t.d)}</span></div>`).join('')}</div>
+   <h3>🎯 Places to find</h3><div class="chips">${L.marks.map(m=>`<span class="c">📍 ${esc(m.n)}</span>`).join('')}</div>
+   <h3 class="mt">👻 Rival empires</h3><div class="chips">${L.ghosts.map(g=>`<span class="c"><i style="background:${g.c}"></i>${esc(g.n)}</span>`).join('')}</div>
+   <p class="sub mt" style="font-size:14px">Read the terms — every ⭐ Source Star asks one of them.</p>
+   <div class="row mt"><button class="btn" id="bGo">Start ▶</button><button class="btn alt" id="bBriefMenu">Menu</button></div>`;
+  hide('result');show('brief');G.state='brief';
+  renderOverview($('#briefOv'),G.si,{cur:G.li});
+  $('#bGo').onclick=()=>{initAudio();hide('brief');resetActors();G.state='play';updHud();updMission();renderMap();};
+  $('#bBriefMenu').onclick=toMenu;
+  updHud();
+}
+function levelClear(){
+  G.state='clear';SFX.clear();
+  setTimeout(()=>recallCheck(showResults),900);
+}
+function showResults(){
+  G.state='result';
+  const L=G.L,lv=G.lvl;const acc=lv.asked?lv.correct/lv.asked:1;
+  const clearBonus=addScore(1000+G.lives*250);
+  let stars=1;if(acc>=0.8)stars=2;if(acc===1&&lv.found===G.marks.length)stars=3;
+  const prev=store.stars[L.id]||0;const wasDone=setDone(G.S);if(stars>prev)store.stars[L.id]=stars;
+  const nowDone=setDone(G.S);const nRev=G.S.levels.filter(revealed).length;
+  const S=G.S;if(store.unlock[S.id]<G.li+1)store.unlock[S.id]=Math.min(S.levels.length-1,G.li+1);save();
+  if(stars===3&&G.lives<5){G.lives++;}
+  const avg=lv.times.length?(lv.times.reduce((a,b)=>a+b,0)/lv.times.length/1000).toFixed(1)+'s':'—';
+  const last=G.li===S.levels.length-1;
+  const qt=L.quote?`<div class="quote"><q>${esc(L.quote.q)}</q><small>— ${esc(L.quote.by)}</small><div class="sub" style="margin-top:6px">${esc(L.quote.note)}</div></div>`:`<div class="quote"><b>Remember:</b> Ethiopia and Liberia were the only African nations still independent in 1914.</div>`;
+  $('#resultCard').innerHTML=`<div class="center"><div class="sub">Level ${G.li+1} complete</div><h2 style="font-size:30px">${esc(L.name)}</h2>
+   <div class="bigstars">${[1,2,3].map(i=>`<span class="${i<=stars?'':'off'}">⭐</span>`).join('')}</div>
+   <div class="sub">${stars===3?'Perfect! +1 life ❤️':stars===2?'Great! Go perfect and find every place for ⭐⭐⭐':'Score 80%+ on questions for ⭐⭐'}</div></div>
+   <div class="stats"><div class="stat"><div class="k">Level score</div><div class="v">${G.score-lv.score0}</div></div>
+   <div class="stat"><div class="k">Accuracy</div><div class="v">${Math.round(acc*100)}%</div></div>
+   <div class="stat"><div class="k">Avg answer</div><div class="v">${avg}</div></div>
+   <div class="stat"><div class="k">Places found</div><div class="v">${lv.found}/${G.marks.length}</div></div>
+   <div class="stat"><div class="k">Total score</div><div class="v" style="color:var(--gold)">${G.score}</div></div></div>
+   ${lv.missed.length?`<div class="sub">Review: ${lv.missed.map(t=>`<b style="color:#fff">${esc(t.t)}</b> — ${esc(t.d)}`).join(' · ')}</div>`:''}
+   <div class="reveal">${nowDone&&!wasDone?'🌍 All of '+esc(S.continent)+' revealed!':prev?'🗺️ '+esc(L.region)+' — explored again':'🗺️ '+esc(L.region)+' revealed!'} <span class="sub" style="font-size:15px">${nRev}/${S.levels.length} regions</span></div>
+   <canvas class="ovc" id="resOv" style="max-width:${S.id==='asia'?680:440}px;margin-left:auto;margin-right:auto"></canvas>
+   ${qt}
+   <div class="row mt">${last?`<button class="btn" id="bFin">Finish set 🏁</button>`:`<button class="btn" id="bNext">Next level ▶</button>`}<button class="btn alt" id="bRe">Replay level</button></div>`;
+  show('result');
+  if(!prev)animateReveal($('#resOv'),G.si,G.li,nowDone&&!wasDone);else renderOverview($('#resOv'),G.si,{cur:-1});
+  if(last)$('#bFin').onclick=()=>endRun(true);else $('#bNext').onclick=()=>{hide('result');startLevel(G.li+1);};
+  $('#bRe').onclick=()=>{hide('result');G.score=lv.score0;startLevel(G.li);};
+  updHud();
+}
+function gameOver(){G.state='over';endRun(false);}
+function endRun(won){
+  const S=G.S,name=($('#nameIn').value||'Player').trim().slice(0,14)||'Player';
+  const acc=G.run.asked?Math.round(G.run.correct/G.run.asked*100):0;
+  const avg=G.run.times.length?(G.run.times.reduce((a,b)=>a+b,0)/G.run.times.length/1000):0;
+  const entry={name,score:G.score,acc,avg:+avg.toFixed(1),lv:`L${G.run.startLevel+1}→L${G.li+1}`,ace:G.ace,won,d:Date.now()};
+  const b=store.boards[S.id];b.push(entry);b.sort((a,b)=>b.score-a.score);store.boards[S.id]=b.slice(0,15);save();
+  const rank=store.boards[S.id].indexOf(entry)+1;
+  hide('result');
+  $('#resultCard').innerHTML=`<div class="center"><div class="sub">${won?'SET COMPLETE':'GAME OVER'}</div><h2 style="font-size:34px">${won?'🏁 '+esc(S.title):'The empires caught you!'}</h2></div>
+   ${won?`<div class="quote">${esc(S.finale)}</div>`:''}
+   ${won?`<canvas class="ovc" id="finOv" style="max-width:${S.id==='asia'?680:440}px;margin:10px auto 0"></canvas>`:''}
+   <div class="stats"><div class="stat"><div class="k">Final score</div><div class="v" style="color:var(--gold)">${G.score}</div></div>
+   <div class="stat"><div class="k">Accuracy</div><div class="v">${acc}%</div></div><div class="stat"><div class="k">Avg answer</div><div class="v">${avg?avg.toFixed(1)+'s':'—'}</div></div>
+   <div class="stat"><div class="k">Rank</div><div class="v">${rank>0?'#'+rank:'—'}</div></div></div>
+   ${G.run.missed.length?`<div class="sub">Terms to review: ${G.run.missed.map(t=>`<b style="color:#fff">${esc(t.t)}</b>`).join(', ')}</div>`:''}
+   ${boardTable(S.id,entry)}
+   <div class="row mt">${won?'':`<button class="btn" id="bRetry">Try level ${G.li+1} again</button>`}<button class="btn alt" id="bMenu2">Menu</button></div>`;
+  show('result');
+  if(won)renderOverview($('#finOv'),G.si,{cur:-1});
+  if(!won)$('#bRetry').onclick=()=>{hide('result');newRun(G.si,G.li);};
+  $('#bMenu2').onclick=toMenu;
+}
+function boardTable(sid,me){
+  const b=store.boards[sid]||[];if(!b.length)return '<p class="sub">No scores yet — be the first!</p>';
+  return `<table><tr><th>#</th><th>Name</th><th>Score</th><th>Acc</th><th>⚡ Avg</th><th>Levels</th></tr>${b.slice(0,10).map((e,i)=>`<tr class="${e===me?'me':''}"><td>${i+1}</td><td>${esc(e.name)}${e.ace?' 🧭':''}${e.won?' 🏁':''}</td><td>${e.score}</td><td>${e.acc}%</td><td>${e.avg||'—'}s</td><td>${e.lv}</td></tr>`).join('')}</table>`;
+}
+function showBoard(sid){
+  sid=sid||'africa';
+  $('#boardCard').innerHTML=`<h2>🏆 Leaderboard</h2><div class="sub">Top scores on this device · 🧭 = expert mode · 🏁 = finished the set</div>
+   <div class="tabs">${SETS.map(S=>`<button class="btn alt sm ${S.id===sid?'on':''}" data-s="${S.id}">${esc(S.tag)}: ${esc(S.title)}</button>`).join('')}</div>${boardTable(sid)}
+   <button class="btn mt" data-close="board">Close</button>`;
+  $('#boardCard').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>showBoard(b.dataset.s));
+  $('#boardCard').querySelector('[data-close]').onclick=()=>hide('board');
+  show('board');
+}
+function renderMenu(){
+  $('#nameIn').value=store.name||'';$('#aceIn').checked=!!store.ace;
+  $('#sets').innerHTML=SETS.map((S,si)=>`<div class="set"><div class="tag">${S.tag} · ${S.years}</div><h3>${esc(S.title)}</h3>
+   <div class="lvls">${S.levels.map((L,li)=>{const lock=li>(store.unlock[S.id]||0);const st=store.stars[L.id]||0;
+     return `<button class="lv ${lock?'locked':''}" data-s="${si}" data-l="${li}" ${lock?'disabled':''}>${lock?'🔒 ':''}${li+1}. ${esc(L.name)}<small>${'★'.repeat(st)}${'☆'.repeat(3-st)} · ${esc(L.region)}</small></button>`;}).join('')}</div>
+   <canvas class="ovc" data-ov="${si}"></canvas><div class="prog">${setDone(S)?'🌍 All of '+esc(S.continent)+' revealed!':`🗺️ ${S.levels.filter(revealed).length}/${S.levels.length} regions of ${esc(S.continent)} revealed`}</div></div>`).join('');
+  requestAnimationFrame(()=>document.querySelectorAll('#sets canvas[data-ov]').forEach(cv2=>renderOverview(cv2,+cv2.dataset.ov,{cur:-1,fontScale:+cv2.dataset.ov?1.25:1.05})));
+  $('#sets').querySelectorAll('.lv').forEach(b=>b.onclick=()=>{if(b.disabled)return;
+    const nm=$('#nameIn').value.trim();if(!nm){$('#nameIn').focus();$('#nameIn').style.borderColor='#ff5d5d';return;}
+    store.name=nm;store.ace=$('#aceIn').checked;save();initAudio();hide('menu');newRun(+b.dataset.s,+b.dataset.l);});
+}
+function toMenu(){G.state='menu';G.paused=false;['brief','quiz','result','pause','board'].forEach(hide);if(Q&&Q.auto)clearTimeout(Q.auto);Q=null;renderMenu();show('menu');}
+
+/* =====================================================================
+   RENDERING
+   ===================================================================== */
+let V={x0:0,y0:0,w:1,h:1}; // play viewport in cells
+function resize(){
+  if(!G.M)return;const M=G.M,b=M.bounds[G.r];
+  V.x0=Math.max(0,b.x0-1);V.y0=Math.max(0,b.y0-1);const vx1=Math.min(M.cols-1,b.x1+1),vy1=Math.min(M.rows-1,b.y1+1);V.w=vx1-V.x0+1;V.h=vy1-V.y0+1;
+  const st=$('#stage');const w=st.clientWidth-12,h=st.clientHeight-12;
+  T=Math.max(10,Math.min(52,Math.floor(Math.min(w/V.w,h/V.h))));
+  DPR=Math.min(2,window.devicePixelRatio||1);
+  cv.width=V.w*T*DPR;cv.height=V.h*T*DPR;cv.style.width=V.w*T+'px';cv.style.height=V.h*T+'px';
+  renderMap();
+}
+function projT(M,lon,lat,t){const [x0,x1,y0,y1]=M.bbox;return [(lon-x0)/(x1-x0)*M.cols*t,(y1-lat)/(y1-y0)*M.rows*t];}
+function landPath(c,M,t){c.beginPath();for(const poly of LANDS){poly.forEach((pt,i)=>{const [x,y]=projT(M,pt[0],pt[1],t);i?c.lineTo(x,y):c.moveTo(x,y);});c.closePath();}}
+function drawBase(c,M,t,wx0,wy0,W,H){
+  const og=c.createLinearGradient(wx0,wy0,wx0+W,wy0+H);og.addColorStop(0,'#123e63');og.addColorStop(1,'#0d2b48');c.fillStyle=og;c.fillRect(wx0,wy0,W,H);
+  const r=mulberry(99);c.strokeStyle='rgba(160,220,255,.10)';c.lineWidth=Math.max(1,t*0.06);
+  const Wt=M.cols*t,Ht=M.rows*t;for(let i=0;i<M.cols*M.rows/6;i++){const x=r()*Wt,y=r()*Ht;if(x<wx0-t||x>wx0+W+t||y<wy0-t||y>wy0+H+t)continue;c.beginPath();c.arc(x,y,t*0.35,Math.PI*1.1,Math.PI*1.9);c.stroke();}
+  c.save();landPath(c,M,t);c.shadowColor='rgba(0,0,0,.45)';c.shadowBlur=t*0.6;c.fillStyle='#86a86a';c.fill();c.restore();
+  c.save();landPath(c,M,t);c.strokeStyle='#e9f3d2';c.lineWidth=Math.max(1,t*0.08);c.globalAlpha=.55;c.stroke();c.restore();
+  for(const lk of LAKES){c.beginPath();lk.forEach((pt,i)=>{const [x,y]=projT(M,pt[0],pt[1],t);i?c.lineTo(x,y):c.moveTo(x,y);});c.closePath();c.fillStyle='#164a72';c.fill();c.strokeStyle='rgba(233,243,210,.5)';c.lineWidth=1;c.stroke();}
+}
+function drawRoadsFor(c,M,t,r,alpha,hills,cells){
+  const ok=(x,y)=>M.passR(x,y,r);
+  if(hills){for(const i of cells){if(M.reg[i]!==r||M.g[i]!==3)continue;const cx=(i%M.cols+.5)*t,cy=((i/M.cols|0)+.5)*t;
+    c.fillStyle='rgba(60,90,50,.55)';c.beginPath();c.moveTo(cx-t*.32,cy+t*.22);c.lineTo(cx-t*.05,cy-t*.25);c.lineTo(cx+t*.12,cy);c.lineTo(cx+t*.22,cy-t*.12);c.lineTo(cx+t*.36,cy+t*.22);c.closePath();c.fill();
+    c.fillStyle='rgba(240,250,230,.55)';c.beginPath();c.moveTo(cx-t*.05,cy-t*.25);c.lineTo(cx-t*.12,cy-t*.12);c.lineTo(cx,cy-t*.14);c.closePath();c.fill();}}
+  c.save();c.globalAlpha=alpha;c.lineCap='round';
+  const pass=(col,wid,off,mode)=>{c.strokeStyle=col;c.fillStyle=col;c.lineWidth=wid;
+    for(const i of M.floorsR[r]){const x=i%M.cols,y=(i/M.cols)|0,v=M.g[i];const cx=(x+.5)*t,cy=(y+.5)*t+off;
+      if(mode==='all'||(mode==='lane'&&v===2)||(mode==='land'&&v===1)){c.beginPath();c.arc(cx,cy,wid/2,0,Math.PI*2);c.fill();}
+      for(const [dx,dy] of [[1,0],[0,1]]){if(!ok(x+dx,y+dy))continue;const v2=M.g[M.I(x+dx,y+dy)];
+        if(mode==='all'||(mode==='lane'&&(v===2||v2===2))||(mode==='land'&&v===1&&v2===1)){c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+dx*t,cy+dy*t);c.stroke();}}}};
+  if(alpha>0.9)pass('rgba(40,30,10,.35)',t*0.74*ROAD,t*0.06,'all');
+  pass('rgba(120,200,255,.55)',t*0.62*ROAD,0,'lane');
+  pass('#f1e4bf',t*0.66*ROAD,0,'land');
+  if(alpha>0.9){c.setLineDash([t*0.18,t*0.18]);c.strokeStyle='rgba(255,255,255,.75)';c.lineWidth=Math.max(1,t*0.06);
+    for(const i of M.floorsR[r]){if(M.g[i]!==2)continue;const x=i%M.cols,y=(i/M.cols)|0,cx=(x+.5)*t,cy=(y+.5)*t;for(const [dx,dy] of DIRS){if(ok(x+dx,y+dy)){c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+dx*t*.5,cy+dy*t*.5);c.stroke();}}}
+    c.setLineDash([]);}
+  c.restore();
+}
+// fog: status per cell. opts.cur = playable region (no fog); fade = {r, a} override
+function drawFog(c,M,t,x0,y0,w,h,opts){
+  const S=M.S,all=setDone(S)||opts.allClear;
+  const fog=document.createElement('canvas');fog.width=Math.ceil(w*t);fog.height=Math.ceil(h*t);const f=fog.getContext('2d');
+  for(let y=y0;y<y0+h;y++)for(let x=x0;x<x0+w;x++){const i=M.I(x,y),r=M.reg[i];
+    let a;
+    if(r>=0&&r===opts.cur)a=0;
+    else if(r>=0)a=revealed(S.levels[r])?(opts.dimOthers?0.32:0):0.86;
+    else a=M.land[i]?(all?0:0.86):(all?0:0.5);
+    if(opts.fade&&(r===opts.fade.r||(opts.fade.all&&r<0&&M.land[i])))a=0.86*opts.fade.a;
+    if(opts.fade&&opts.fade.all&&r<0&&!M.land[i])a=0.5*opts.fade.a;
+    if(a<=0)continue;f.fillStyle=`rgba(8,18,32,${a})`;const fx0=Math.floor((x-x0)*t),fy0=Math.floor((y-y0)*t);f.fillRect(fx0,fy0,Math.floor((x+1-x0)*t)-fx0,Math.floor((y+1-y0)*t)-fy0);}
+  c.save();try{c.filter=`blur(${Math.max(2,t*0.45)}px)`;}catch(e){}
+  c.drawImage(fog,x0*t,y0*t);c.restore();try{c.filter='none';}catch(e){}
+}
+function drawRegionNames(c,M,t,opts){
+  const S=M.S;c.textAlign='center';c.textBaseline='middle';
+  S.levels.forEach((L,r)=>{if(r===opts.cur&&!opts.showCur)return;const [cx,cy]=M.cent[r];if(opts.view&&(cx<opts.view.x0+2.5||cx>opts.view.x0+opts.view.w-3.5||cy<opts.view.y0+0.5||cy>opts.view.y0+opts.view.h-1.5))return;const x=(cx+.5)*t,y=(cy+.5)*t;
+    const rev=revealed(L)&&!(opts.fade&&opts.fade.r===r&&opts.fade.a>0.5);
+    const fs=opts.fontPx||Math.min(18,Math.max(10,t*(opts.nameScale||0.55)));
+    c.font=`800 ${fs}px Fredoka, Nunito, sans-serif`;
+    const txt=rev?'✓ '+L.region:(opts.numbers?`${r+1}. ${L.region}`:'🔒 '+L.region);
+    c.lineWidth=fs*0.28;c.strokeStyle='rgba(5,12,22,.85)';c.strokeText(txt,x,y);
+    c.fillStyle=r===opts.cur?'#ffd54a':rev?'#bff5d2':'rgba(220,232,245,.85)';c.fillText(txt,x,y);});
+}
+function drawLabels(c,M,t,fsO){
+  c.textAlign='center';c.textBaseline='middle';
+  for(const lb of M.S.labels){const [x,y]=projT(M,lb.p[0],lb.p[1],t);const fs=fsO||Math.max(9,t*0.48);c.font=`${lb.o?'italic 700':'900'} ${fs}px Nunito`;c.fillStyle=lb.o?'rgba(200,235,255,.5)':'rgba(40,60,30,.42)';
+    const ls=lb.o?lb.t.split(' '):[lb.t];ls.forEach((ln,k)=>c.fillText(ln,x,y+(k-(ls.length-1)/2)*fs*1.1));}
+}
+function renderMap(){
+  const M=G.M;if(!M)return;const W=V.w*T,H=V.h*T;
+  mapLayer=document.createElement('canvas');mapLayer.width=W*DPR;mapLayer.height=H*DPR;const c=mapLayer.getContext('2d');c.scale(DPR,DPR);
+  c.translate(-V.x0*T,-V.y0*T);
+  drawBase(c,M,T,V.x0*T,V.y0*T,W,H);
+  const cells=[];for(let y=V.y0;y<V.y0+V.h;y++)for(let x=V.x0;x<V.x0+V.w;x++)cells.push(M.I(x,y));
+  drawRoadsFor(c,M,T,G.r,1,true,cells);
+  drawLabels(c,M,T);
+  drawFog(c,M,T,V.x0,V.y0,V.w,V.h,{cur:G.r,dimOthers:true});
+  drawRegionNames(c,M,T,{cur:G.r,nameScale:0.5,view:V});
+  c.strokeStyle='rgba(255,255,255,.15)';c.lineWidth=2;c.strokeRect(V.x0*T+1,V.y0*T+1,W-2,H-2);
+}
+// whole-continent overview (menu, briefing, results)
+function renderOverview(canvas,si,opts={}){
+  const M=getMap(si);const cssW=canvas.clientWidth||canvas.parentElement.clientWidth||600;
+  const t=cssW/M.cols,cssH=M.rows*t;const dpr=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);canvas.style.height=cssH+'px';
+  const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+  drawBase(c,M,t,0,0,cssW,cssH);
+  const all=[];for(let i=0;i<M.cols*M.rows;i++)all.push(i);
+  M.S.levels.forEach((L,r)=>{if(revealed(L)||r===opts.cur)overviewRoads(c,M,t,si,r,r===opts.cur?0.7:0.5);});
+  const fpx=Math.max(9,cssW/(M.S.id==='asia'?52:34))*(opts.fontScale||1);
+  drawLabels(c,M,t,fpx*0.8);
+  drawFog(c,M,t,0,0,M.cols,M.rows,{cur:opts.cur,fade:opts.fade,allClear:opts.allClear});
+  if(opts.cur!=null&&opts.cur>=0){ // outline current region
+    c.strokeStyle='#ffd54a';c.lineWidth=Math.max(1.5,t*0.18);c.shadowColor='#ffd54a';c.shadowBlur=t*0.8;c.beginPath();
+    for(let y=0;y<M.rows;y++)for(let x=0;x<M.cols;x++){const i=M.I(x,y);if(M.reg[i]!==opts.cur||!(M.land[i]||M.g[i]===2))continue;
+      const inR=(xx,yy)=>M.inb(xx,yy)&&M.reg[M.I(xx,yy)]===opts.cur&&(M.land[M.I(xx,yy)]||M.g[M.I(xx,yy)]===2);
+      if(!inR(x,y-1)){c.moveTo(x*t,y*t);c.lineTo((x+1)*t,y*t);}if(!inR(x,y+1)){c.moveTo(x*t,(y+1)*t);c.lineTo((x+1)*t,(y+1)*t);}
+      if(!inR(x-1,y)){c.moveTo(x*t,y*t);c.lineTo(x*t,(y+1)*t);}if(!inR(x+1,y)){c.moveTo((x+1)*t,y*t);c.lineTo((x+1)*t,(y+1)*t);}}
+    c.stroke();c.shadowBlur=0;}
+  drawRegionNames(c,M,t,{cur:opts.cur,showCur:true,numbers:true,fontPx:fpx,fade:opts.fade});
+  c.strokeStyle='rgba(255,255,255,.18)';c.lineWidth=2;c.strokeRect(1,1,cssW-2,cssH-2);
+}
+function overviewRoads(c,O,t,si,r,alpha){const LM=getLevelMap(si,r);const [px0,py0]=projT(O,LM.bbox[0],LM.bbox[3],t),[px1,py1]=projT(O,LM.bbox[1],LM.bbox[2],t);
+  c.save();c.translate(px0,py0);c.scale((px1-px0)/LM.cols,(py1-py0)/LM.rows);drawRoadsFor(c,LM,1,r,alpha,false,[]);c.restore();}
+function animateReveal(canvas,si,r,allToo){
+  const t0=performance.now();const dur=1600;
+  const step=now=>{if(!canvas.isConnected)return;const k=Math.min(1,(now-t0-350)/dur);const a=k<0?1:1-k*k*(3-2*k);
+    renderOverview(canvas,si,{cur:-1,fade:{r,a,all:allToo},allClear:allToo&&a<=0});if(k<1)requestAnimationFrame(step);};
+  requestAnimationFrame(step);
+}
+
+function drawGhost(x,y,gh,t){
+  const r=T*0.42;const eyes=gh.st==='eyes';let col=gh.c;
+  if(gh.fr){const flash=G.power<2&&Math.floor(t*6)%2===0;col=flash?'#f4f4ff':'#2741c7';}
+  ctx.save();ctx.translate(x,y);
+  if(gh.st==='wait'&&!eyes)ctx.translate(0,Math.sin(t*5+gh.idx)*T*0.06);
+  if(!eyes){
+    ctx.shadowColor=gh.fr?'#5d7bff':col;ctx.shadowBlur=T*0.35;
+    ctx.fillStyle=col;ctx.beginPath();ctx.arc(0,-r*0.1,r,Math.PI,0);ctx.lineTo(r,r*0.85);
+    const bumps=3,w=2*r/bumps,ph=Math.sin(t*10)*r*0.08;
+    for(let i=0;i<bumps;i++){const bx=r-i*w;ctx.quadraticCurveTo(bx-w/4,r*0.6+ph,bx-w/2,r*0.85);ctx.quadraticCurveTo(bx-3*w/4,r*1.05-ph,bx-w,r*0.85);}
+    ctx.closePath();ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(255,255,255,.18)';ctx.beginPath();ctx.ellipse(-r*0.35,-r*0.55,r*0.25,r*0.14,-0.5,0,Math.PI*2);ctx.fill();
+  }
+  const d=gh.dir||[0,0];
+  if(gh.fr&&!eyes){ctx.fillStyle='#ffd0d0';[-1,1].forEach(s=>{ctx.beginPath();ctx.arc(s*r*0.33,-r*0.2,r*0.12,0,Math.PI*2);ctx.fill();});
+    ctx.strokeStyle='#ffd0d0';ctx.lineWidth=r*0.09;ctx.beginPath();for(let i=0;i<=4;i++){const xx=-r*0.5+i*r*0.25,yy=r*0.3+(i%2?-1:1)*r*0.08;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);}ctx.stroke();}
+  else{[-1,1].forEach(s=>{ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(s*r*0.35,-r*0.2,r*0.24,r*0.3,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1b2a6b';ctx.beginPath();ctx.arc(s*r*0.35+d[0]*r*0.11,-r*0.2+d[1]*r*0.13,r*0.12,0,Math.PI*2);ctx.fill();});}
+  ctx.restore();
+  if(!eyes&&!gh.fr){ctx.font=`900 ${Math.max(9,T*0.32)}px Nunito`;ctx.textAlign='center';ctx.textBaseline='middle';const tw=ctx.measureText(gh.n).width+8;
+    ctx.fillStyle='rgba(10,20,35,.75)';roundRect(x-tw/2,y-r*1.75-T*0.18,tw,T*0.36,T*0.15);ctx.fill();ctx.fillStyle=gh.c;ctx.fillText(gh.n,x,y-r*1.75);}
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function drawPlayer(x,y,p,t){
+  const r=T*0.44;let a=(Math.sin(p.mouth)*0.5+0.5)*0.32*Math.PI+0.04;
+  let scale=1,spin=0;if(G.dying>0){const k=1-G.dying/1.3;a=0.04+k*Math.PI*0.95;scale=1-k*0.6;}
+  const f=p.face||[1,0];const ang=Math.atan2(f[1],f[0]);
+  ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.rotate(ang+spin);
+  ctx.shadowColor='#ffd54a';ctx.shadowBlur=T*0.5;
+  const gr=ctx.createRadialGradient(-r*0.3,-r*0.35,r*0.1,0,0,r);gr.addColorStop(0,'#fff3a6');gr.addColorStop(1,G.power>0?'#ffb02e':'#ffc928');
+  ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,a,Math.PI*2-a);ctx.closePath();ctx.fill();ctx.shadowBlur=0;
+  // globe meridians
+  ctx.save();ctx.clip();ctx.strokeStyle='rgba(160,100,10,.35)';ctx.lineWidth=Math.max(1,r*0.08);
+  ctx.beginPath();ctx.ellipse(0,0,r*0.45,r,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(-r,0);ctx.lineTo(r,0);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(0,0,r,r*0.45,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+  ctx.fillStyle='#3b2400';ctx.beginPath();ctx.arc(r*0.12,-r*0.5,r*0.11,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function drawStar(x,y,t){
+  const r=T*0.36*(1+Math.sin(t*5)*0.08);ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(t*2)*0.2);
+  ctx.shadowColor='#ffe066';ctx.shadowBlur=T*0.7;ctx.fillStyle='#ffd54a';ctx.beginPath();
+  for(let i=0;i<10;i++){const rr=i%2?r*0.45:r,an=-Math.PI/2+i*Math.PI/5;ctx.lineTo(Math.cos(an)*rr,Math.sin(an)*rr);}ctx.closePath();ctx.fill();
+  ctx.shadowBlur=0;ctx.strokeStyle='#a36a00';ctx.lineWidth=Math.max(1,T*0.05);ctx.stroke();ctx.restore();
+}
+function drawFlag(m,t){
+  const M=G.M,x=(m.cell%M.cols+.5)*T,y=((m.cell/M.cols|0)+.5)*T;
+  ctx.strokeStyle='#3a2a14';ctx.lineWidth=Math.max(1.5,T*0.07);ctx.beginPath();ctx.moveTo(x-T*0.18,y+T*0.32);ctx.lineTo(x-T*0.18,y-T*0.42);ctx.stroke();
+  const wv=Math.sin(t*4+m.cell)*T*0.04;ctx.fillStyle=m.found?'#33d17a':'#ff5a4e';ctx.beginPath();ctx.moveTo(x-T*0.16,y-T*0.42);ctx.lineTo(x+T*0.3,y-T*0.3+wv);ctx.lineTo(x-T*0.16,y-T*0.14);ctx.closePath();ctx.fill();
+  if(m.found){ctx.fillStyle='#fff';ctx.font=`900 ${T*0.22}px Nunito`;ctx.textAlign='center';ctx.fillText('✓',x+T*0.02,y-T*0.27);}
+  const ly=m.up?y-T*0.82:y+T*0.36;
+  if(!G.ace||m.found){ctx.font=`800 ${Math.max(9,T*0.3)}px Nunito`;ctx.textAlign='center';ctx.textBaseline='middle';const tw=ctx.measureText(m.n).width+8;
+    ctx.fillStyle=m.found?'rgba(20,80,45,.85)':'rgba(55,20,15,.78)';roundRect(x-tw/2,ly,tw,T*0.34,T*0.12);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(m.n,x,ly+T*0.17);}
+  else{ctx.font=`900 ${Math.max(9,T*0.3)}px Nunito`;ctx.fillStyle='rgba(55,20,15,.78)';roundRect(x-T*0.22,ly,T*0.44,T*0.34,T*0.12);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('?',x,ly+T*0.17);}
+}
+function draw(){
+  const t=performance.now()/1000;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  if(!G.M||!mapLayer){ctx.clearRect(0,0,cv.width,cv.height);return;}
+  const W=V.w*T,H=V.h*T,M=G.M;
+  ctx.save();if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=0.88;if(shake<0.3)shake=0;}
+  ctx.drawImage(mapLayer,0,0,W,H);
+  ctx.save();ctx.translate(-V.x0*T,-V.y0*T);
+  // dots
+  for(const i of G.floors){if(!G.dots[i])continue;const x=(i%M.cols+.5)*T,y=((i/M.cols|0)+.5)*T;ctx.fillStyle=M.g[i]===2?'#d9f4ff':'#7a5a1e';ctx.beginPath();ctx.arc(x,y,Math.max(1.8,T*0.085),0,Math.PI*2);ctx.fill();}
+  for(const m of G.marks)drawFlag(m,t);
+  for(const [c] of G.stars)drawStar((c%M.cols+.5)*T,((c/M.cols|0)+.5)*T,t);
+  if(G.gh)for(const gh of G.gh){const [gx,gy]=posOf(gh);drawGhost((gx+.5)*T,(gy+.5)*T,gh,t);}
+  if(G.player){const [px,py]=posOf(G.player);drawPlayer((px+.5)*T,(py+.5)*T,G.player,t);}
+  for(const p of G.particles){ctx.globalAlpha=Math.max(0,Math.min(1,p.life*2));ctx.fillStyle=p.c;ctx.beginPath();ctx.arc((p.x+.5)*T,(p.y+.5)*T,T*0.09,0,Math.PI*2);ctx.fill();}
+  ctx.globalAlpha=1;
+  for(const p of G.pops){ctx.globalAlpha=Math.min(1,p.life*1.5);ctx.font=`900 ${Math.max(12,T*0.5)}px Fredoka`;ctx.textAlign='center';ctx.fillStyle='#000';ctx.fillText(p.t,(p.x+.5)*T+1,(p.y+.5)*T+1);ctx.fillStyle=p.c;ctx.fillText(p.t,(p.x+.5)*T,(p.y+.5)*T);}
+  ctx.globalAlpha=1;ctx.restore();
+  if(G.state==='play'&&G.ready>0){banner(G.ready>0.5?'READY!':'GO!','#ffd54a');}
+  if(G.freeze>0&&G.state==='play'){ctx.fillStyle='rgba(150,220,255,.12)';ctx.fillRect(0,0,W,H);}
+  if(G.state==='clear')banner('LEVEL CLEAR!','#7cf0b0');
+  ctx.restore();
+}
+function banner(txt,col){const W=V.w*T,H=V.h*T;ctx.font=`700 ${Math.max(22,T*1.3)}px Fredoka`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=T*0.25;ctx.strokeStyle='#0b1724';ctx.strokeText(txt,W/2,H/2);ctx.fillStyle=col;ctx.fillText(txt,W/2,H/2);}
+
+let lastT=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;try{update(dt);draw();}catch(e){console.error(e);}requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+
+/* =====================================================================
+   INPUT
+   ===================================================================== */
+const KEYS={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
+window.addEventListener('keydown',e=>{
+  if(document.activeElement&&document.activeElement.tagName==='INPUT')return;
+  if($('#quiz').classList.contains('show')&&Q){
+    if(!Q.done&&['Digit1','Digit2','Digit3','Numpad1','Numpad2','Numpad3'].includes(e.code)){answer(+e.code.slice(-1)-1);e.preventDefault();return;}
+    if(Q.done&&(e.code==='Enter'||e.code==='Space')){const b=$('#qgo');if(b&&!b.disabled)b.click();e.preventDefault();return;}
+  }
+  if(KEYS[e.code]){want=DNAME[KEYS[e.code]];e.preventDefault();}
+  if((e.code==='KeyP'||e.code==='Escape')&&G.state==='play')togglePause();
+});
+document.querySelectorAll('#pad button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();want=DNAME[b.dataset.d];}));
+let ts=null;
+$('#stage').addEventListener('touchstart',e=>{const t=e.touches[0];ts={x:t.clientX,y:t.clientY};},{passive:true});
+$('#stage').addEventListener('touchmove',e=>{if(!ts)return;const t=e.touches[0],dx=t.clientX-ts.x,dy=t.clientY-ts.y;
+  if(Math.hypot(dx,dy)>18){want=Math.abs(dx)>Math.abs(dy)?(dx>0?DNAME.right:DNAME.left):(dy>0?DNAME.down:DNAME.up);ts={x:t.clientX,y:t.clientY};}e.preventDefault();},{passive:false});
+if(window.matchMedia&&matchMedia('(pointer:coarse)').matches)document.body.classList.add('touch');
+function togglePause(){if(G.state!=='play')return;G.paused=!G.paused;G.paused?show('pause'):hide('pause');}
+$('#bPause').onclick=togglePause;$('#bResume').onclick=togglePause;$('#bQuit').onclick=toMenu;
+$('#bMute').onclick=()=>{muted=!muted;store.mute=muted;save();$('#bMute').textContent=muted?'🔇':'🔊';};$('#bMute').textContent=muted?'🔇':'🔊';
+$('#bBoard').onclick=()=>showBoard('africa');
+$('#bHow').onclick=()=>show('how');
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>hide(b.dataset.close));
+$('#unlockAll').onclick=e=>{e.preventDefault();SETS.forEach(S=>store.unlock[S.id]=S.levels.length-1);save();renderMenu();hide('how');};
+$('#resetAll').onclick=e=>{e.preventDefault();store={unlock:{africa:0,asia:0},stars:{},boards:{africa:[],asia:[]}};save();renderMenu();hide('how');};
+$('#nameIn').addEventListener('input',()=>{$('#nameIn').style.borderColor='';});
+window.addEventListener('resize',()=>resize());
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&G.state==='play'&&!G.paused)togglePause();});
+renderMenu();
+// expose for testing
+window.__G=G;window.__SETS=SETS;window.__setupLevel=setupLevel;window.__newRun=newRun;window.__startLevel=startLevel;window.__resetActors=resetActors;window.__star=starQuestion;window.__clear=levelClear;window.__die=die;
+</script>
+</body>
+</html>

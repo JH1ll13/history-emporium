@@ -1,0 +1,107 @@
+:root{
+  --walnut:#2a1a12; --walnut-2:#3a2519; --oxblood:#7d2121; --brass:#c9a24a; --brass-lt:#e8cf8a;
+  --cream:#f6efdf; --paper:#fffaf0; --ink:#23180f; --muted:#6b5a48; --line:#e2d5bb;
+  --display:'Cinzel Decorative', Georgia, serif;
+  --body:'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--body);color:var(--ink);background:var(--cream);line-height:1.5;font-size:17px}
+a{color:var(--oxblood)}
+img{max-width:100%;display:block}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* ---------- storefront header ---------- */
+.shop{background:
+  radial-gradient(ellipse at 50% -40%, rgba(201,162,74,.28), transparent 60%),
+  repeating-linear-gradient(90deg, var(--walnut) 0 46px, var(--walnut-2) 46px 48px);
+  color:var(--cream);border-bottom:6px solid var(--brass);position:relative}
+.shop::after{content:"";position:absolute;left:0;right:0;bottom:-16px;height:10px;
+  background:repeating-linear-gradient(90deg,var(--oxblood) 0 34px,var(--cream) 34px 68px);
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+.topnav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;padding-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--cream);text-decoration:none;font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.02em}
+.brand-mark{width:34px;height:34px;flex:none}
+.links{display:flex;gap:6px;flex-wrap:wrap}
+.links a{color:var(--brass-lt);text-decoration:none;font-weight:700;font-size:15px;padding:6px 12px;border-radius:999px}
+.links a:hover,.links a[aria-current]{background:rgba(232,207,138,.14);color:#fff}
+.sign{text-align:center;padding-top:28px;padding-bottom:54px}
+.sign .est{font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--brass-lt);font-weight:700}
+.sign h1{font-family:var(--display);font-weight:900;margin:.15em 0 .1em;line-height:1.05;
+  font-size:clamp(34px,6.4vw,76px);color:var(--brass-lt);text-shadow:0 2px 0 #6e5320,0 4px 18px rgba(0,0,0,.45)}
+.sign h1 small{display:block;font-size:.42em;color:var(--cream);font-weight:700;letter-spacing:.06em;text-shadow:none}
+.sign p{max-width:620px;margin:10px auto 0;color:#e9dcc2;font-size:18px}
+
+/* ---------- game shelf ---------- */
+main.wrap{padding-top:64px;padding-bottom:30px}
+.shelf-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 18px;flex-wrap:wrap}
+.shelf-head h2{font-family:var(--display);font-size:26px;margin:0;color:var(--walnut)}
+.shelf-head p{margin:0;color:var(--muted);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:22px}
+.card{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  text-decoration:none;color:inherit;display:flex;flex-direction:column;box-shadow:0 1px 0 var(--line),0 8px 22px -14px rgba(42,26,18,.45);
+  transition:transform .15s ease, box-shadow .15s ease}
+.card:hover,.card:focus-visible{transform:translateY(-4px);box-shadow:0 1px 0 var(--line),0 18px 30px -16px rgba(42,26,18,.55)}
+.card:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
+.thumb{aspect-ratio:16/10;background:#222 center/cover no-repeat;position:relative}
+.num{position:absolute;bottom:10px;left:10px;background:rgba(20,12,8,.82);color:var(--brass-lt);font-weight:700;
+  font-size:13px;padding:3px 9px;border-radius:999px;letter-spacing:.04em}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1;border-top:5px solid var(--c,#555)}
+.unit{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--c,#555)}
+.card h3{margin:0;font-size:21px;line-height:1.2}
+.card p{margin:0;color:var(--muted);font-size:15px;flex:1}
+.play{align-self:flex-start;margin-top:8px;background:var(--oxblood);color:#fff;font-weight:700;font-size:15px;padding:7px 16px;border-radius:999px}
+.card:hover .play{background:#9a2a2a}
+
+.note{margin:44px 0 0;background:var(--paper);border:1px dashed #cdb98f;border-radius:14px;padding:18px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.note p{margin:0}
+.btn{display:inline-block;background:var(--walnut);color:var(--cream);text-decoration:none;font-weight:700;padding:9px 18px;border-radius:999px}
+
+/* ---------- prose pages ---------- */
+.prose{max-width:760px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:28px 30px;margin:0 auto}
+.prose h2{font-family:var(--display);color:var(--walnut);margin-top:0}
+.prose h3{margin-bottom:.3em}
+.prose li{margin:.25em 0}
+
+/* ---------- footer ---------- */
+footer{background:var(--walnut);color:#d8c9ab;margin-top:50px;padding:26px 0;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{color:var(--brass-lt);text-decoration:none;margin-right:14px}
+
+/* ---------- player page ---------- */
+.player-body{background:#140d09}
+.bar{display:flex;align-items:center;gap:12px;padding:8px 14px;background:var(--walnut);border-bottom:3px solid var(--brass);color:var(--cream);height:54px}
+.bar .brand{font-size:15px}
+.bar .brand-mark{width:28px;height:28px}
+.bar .title{flex:1;text-align:center;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .title span{color:var(--brass-lt);font-weight:400;margin-left:8px;font-size:14px}
+.bar button,.bar a.ghost{background:transparent;border:1px solid rgba(232,207,138,.5);color:var(--brass-lt);font:700 14px var(--body);
+  padding:6px 12px;border-radius:999px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.bar button:hover,.bar a.ghost:hover{background:rgba(232,207,138,.14)}
+.stage{height:calc(100vh - 54px);height:calc(100dvh - 54px);background:#000}
+.stage iframe{width:100%;height:100%;border:0;display:block}
+.about-game{background:var(--cream);padding:36px 0}
+.about-game .cols{display:grid;grid-template-columns:2fr 1fr;gap:22px}
+.about-game h2{font-family:var(--display);color:var(--walnut);margin:0 0 6px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.panel h3{margin:0 0 6px;font-size:16px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.more{margin-top:26px}
+.more .grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+.more .card h3{font-size:17px}
+.more .card p{display:none}
+
+@media (max-width:760px){
+  .about-game .cols{grid-template-columns:1fr}
+  .bar .title span{display:none}
+  .bar .brand-text{display:none}
+  .links a{padding:6px 8px}
+}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+.player-body footer{margin-top:0}
+@media (max-width:600px){
+  .topnav .brand span{display:none}
+  .sign .est{font-size:11px;letter-spacing:.18em}
+  .sign{padding-top:18px;padding-bottom:46px}
+  main.wrap{padding-top:58px}
+  .links a{font-size:14px}
+}

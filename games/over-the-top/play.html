@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="/assets/fonts.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Over the Top: The Great War</title>
+<style>
+:root{--ink:#241d12;--paper:#efe4c8;--paper2:#e0cfa3;--olive:#4b5320;--olive2:#6b7334;--khaki:#8a7d4f;--mud:#4a3a28;--mud2:#2e241a;--poppy:#c8102e;--gold:#e0b030;--steel:#2f363b;--blue:#3d5a80}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#16120c;color:var(--paper);font-family:Oswald,system-ui,sans-serif;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none}
+.screen{display:none;min-height:100vh;width:100%}
+.screen.active{display:block}
+.type{font-family:'Special Elite',monospace}
+/* ---------- TITLE ---------- */
+#scr-title{position:relative;overflow:hidden}
+#titleCanvas{position:absolute;inset:0;width:100%;height:100%}
+.titleBox{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px}
+.titleBox h1{font-size:clamp(48px,10vw,120px);font-weight:700;letter-spacing:4px;line-height:.9;color:#f4e6c2;text-shadow:0 4px 0 #000,0 0 40px rgba(200,16,46,.45)}
+.titleBox h1 span{color:var(--poppy)}
+.titleBox .sub{font-family:'Special Elite';font-size:clamp(16px,2.4vw,24px);margin:14px 0 30px;color:#e6d5a8;text-shadow:0 2px 4px #000}
+.bigbtn{background:linear-gradient(#d4202f,#8f0b1d);color:#fff;font-size:24px;font-weight:600;letter-spacing:2px;padding:14px 44px;border-radius:6px;box-shadow:0 6px 0 #4d0610,0 10px 30px rgba(0,0,0,.6);text-transform:uppercase;transition:transform .1s}
+.bigbtn:hover{transform:translateY(-2px)}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #4d0610}
+.ghost{background:rgba(20,16,10,.7);color:var(--paper);border:2px solid #b9a36d;padding:10px 22px;border-radius:6px;font-size:17px;letter-spacing:1px;text-transform:uppercase}
+.ghost:hover{background:rgba(60,48,28,.9)}
+.titleRow{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+.rankTag{margin-top:22px;font-family:'Special Elite';color:#d9c58f;font-size:16px;text-shadow:0 1px 3px #000}
+/* ---------- PAPER PANELS ---------- */
+.paperBg{background:#1b1610 radial-gradient(ellipse at center,#2b2216 0%,#120e09 80%)}
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.topbar h2{font-size:30px;letter-spacing:2px;text-transform:uppercase}
+.paper{background:var(--paper);color:var(--ink);border-radius:4px;box-shadow:0 8px 30px rgba(0,0,0,.5),inset 0 0 60px rgba(120,90,40,.35);position:relative}
+.paper::before{content:"";position:absolute;inset:0;border-radius:4px;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 28px,rgba(120,90,40,.07) 28px 29px)}
+/* ---------- MAP ---------- */
+.mapGrid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+@media(max-width:860px){.mapGrid{grid-template-columns:1fr}}
+#mapSvg{width:100%;height:auto;display:block;border-radius:4px}
+.blist{display:flex;flex-direction:column;gap:8px}
+.bitem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;background:rgba(36,29,18,.08);border:2px solid transparent;cursor:pointer;color:var(--ink);text-align:left;width:100%}
+.bitem:hover:not(.locked){border-color:var(--poppy);background:rgba(200,16,46,.08)}
+.bitem.locked{opacity:.45;cursor:not-allowed}
+.bitem .num{width:34px;height:34px;border-radius:50%;background:var(--olive);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.bitem.locked .num{background:#777}
+.bitem .bt{flex:1}
+.bitem .bt b{display:block;font-size:17px;line-height:1.1}
+.bitem .bt small{font-family:'Special Elite';font-size:13px;opacity:.8}
+.stars{color:#b08a1a;letter-spacing:2px;font-size:18px;white-space:nowrap}
+.stars i{font-style:normal;color:#c9bb94}
+.teacher{font-size:13px;opacity:.7;margin-top:8px;color:var(--ink);display:flex;gap:6px;align-items:center;font-family:'Special Elite'}
+/* ---------- BRIEF ---------- */
+.brief{padding:26px 30px;max-width:900px;margin:10px auto}
+.stamp{position:absolute;top:18px;right:22px;border:3px solid var(--poppy);color:var(--poppy);padding:4px 12px;font-weight:700;transform:rotate(6deg);letter-spacing:2px;opacity:.85;font-size:18px}
+.brief h3{font-size:34px;line-height:1.05;text-transform:uppercase;letter-spacing:1px;max-width:80%}
+.brief .meta{font-family:'Special Elite';margin:6px 0 14px;font-size:16px;color:#5a4a2c}
+.brief p{font-family:'Special Elite';font-size:17px;line-height:1.55;margin-bottom:12px}
+.heroBox{display:flex;gap:16px;align-items:flex-start;background:rgba(75,83,32,.12);border-left:6px solid var(--olive);padding:14px;margin:14px 0;border-radius:3px}
+.heroBox canvas{flex:none;border-radius:4px;background:#2c2416}
+.heroBox h4{font-size:20px;text-transform:uppercase;letter-spacing:1px}
+.heroBox .ab{display:inline-block;margin-top:6px;background:var(--olive);color:#fff;padding:3px 10px;border-radius:3px;font-size:14px;letter-spacing:.5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 16px}
+.chip{background:var(--ink);color:var(--paper);padding:3px 9px;border-radius:12px;font-size:13px;letter-spacing:.3px}
+.newMech{background:#fff3cf;border:2px dashed #b08a1a;padding:10px 14px;border-radius:4px;font-family:'Special Elite';font-size:15px;margin-bottom:16px}
+.briefBtns{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.ghostDark{background:transparent;color:var(--ink);border:2px solid var(--ink);padding:10px 20px;border-radius:6px;font-size:16px;text-transform:uppercase}
+/* ---------- BATTLE ---------- */
+#scr-battle{background:#120e09}
+.bgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto auto auto;gap:8px;padding:8px;max-width:1500px;margin:0 auto}
+.hud{grid-column:1/3;display:flex;align-items:center;gap:12px;background:linear-gradient(#2c2416,#1d170f);border:1px solid #4a3d25;border-radius:6px;padding:6px 12px;flex-wrap:wrap}
+.hud .bname{font-size:16px;text-transform:uppercase;letter-spacing:1px;color:#e8d7a6;line-height:1.1}
+.hud .bname small{display:block;font-family:'Special Elite';font-size:12px;color:#b9a675;text-transform:none;letter-spacing:0}
+.tug{flex:1;min-width:220px;display:flex;align-items:center;gap:8px}
+.tug .lab{font-size:12px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+.bar{flex:1;height:16px;background:#0b0906;border:1px solid #5a4a2c;border-radius:9px;overflow:hidden;position:relative}
+.bar>div{height:100%;transition:width .3s}
+#barP{background:linear-gradient(90deg,#3d5a80,#6f9ad0)}
+#barE{background:linear-gradient(90deg,#8a8f7c,#5d6152);margin-left:auto}
+.bar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;text-shadow:0 1px 2px #000}
+.timer{font-size:22px;font-weight:600;min-width:62px;text-align:center;color:#f1e3b8}
+.supply{display:flex;align-items:center;gap:6px;background:#0b0906;border:1px solid #6b5a33;border-radius:16px;padding:2px 12px 2px 6px;font-size:22px;font-weight:700;color:var(--gold)}
+.supply .ic{width:22px;height:22px}
+.hbtn{background:#3a3020;color:#f1e3b8;width:36px;height:36px;border-radius:6px;font-size:18px}
+.fieldwrap{position:relative;grid-column:1;border-radius:6px;overflow:hidden;border:2px solid #3b301f;background:#3e3122;touch-action:manipulation}
+#field{display:block;width:100%;aspect-ratio:1000/520;cursor:crosshair}
+#coach{position:absolute;left:50%;top:10px;transform:translateX(-50%);max-width:88%;background:rgba(239,228,200,.96);color:var(--ink);font-family:'Special Elite';font-size:15px;padding:8px 14px;border-radius:4px;border-left:6px solid var(--poppy);box-shadow:0 4px 16px rgba(0,0,0,.5);display:none;pointer-events:none;text-align:left;line-height:1.35}
+#banner{position:absolute;left:0;right:0;top:42%;text-align:center;pointer-events:none;font-size:clamp(20px,3.4vw,40px);font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;text-shadow:0 3px 0 #000,0 0 20px rgba(200,16,46,.8);opacity:0;transition:opacity .3s}
+.cmd{grid-column:1;display:grid;grid-template-columns:auto auto 1fr auto;gap:8px;align-items:stretch}
+.panel{background:linear-gradient(#2a2216,#1c160e);border:1px solid #4a3d25;border-radius:6px;padding:8px 10px}
+.panel h5{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#b9a675;margin-bottom:6px;font-weight:500}
+.sectors{display:flex;gap:4px}
+.sectors button{width:38px;height:38px;border-radius:5px;background:#3a3020;color:#e8d7a6;font-size:17px;font-weight:600;border:2px solid transparent}
+.sectors button.on{background:var(--gold);color:#241d12;border-color:#fff3c2}
+.otop{display:flex;gap:6px;align-items:center}
+.whistle{background:linear-gradient(#d4202f,#8f0b1d);color:#fff;font-weight:700;font-size:17px;letter-spacing:1px;padding:0 14px;height:42px;border-radius:6px;box-shadow:0 3px 0 #4d0610;text-transform:uppercase}
+.whistle:disabled{filter:grayscale(1) brightness(.6);cursor:not-allowed}
+.small{background:#3a3020;color:#e8d7a6;height:42px;padding:0 10px;border-radius:6px;font-size:13px;text-transform:uppercase}
+.reserve{font-size:13px;color:#e8d7a6;line-height:1.1;text-align:center;min-width:54px}
+.reserve b{font-size:22px;display:block;color:#fff}
+.arty{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.arty .stat{font-size:13px;color:#e8d7a6;text-align:center;line-height:1.1}
+.arty .stat b{font-size:20px;display:block;color:#fff}
+.arty input[type=range]{flex:1;min-width:110px;accent-color:var(--poppy)}
+.tog{background:#3a3020;color:#e8d7a6;height:38px;padding:0 12px;border-radius:6px;font-weight:600;font-size:14px;letter-spacing:1px;text-transform:uppercase;border:2px solid transparent}
+.tog.on{background:var(--poppy);color:#fff;border-color:#ffb3bd;animation:pulse 1s infinite}
+.tog.creep.on{background:#c77d12;border-color:#ffd38a}
+@keyframes pulse{50%{box-shadow:0 0 14px rgba(255,80,80,.8)}}
+.presets{display:flex;gap:4px}
+.presets button{background:#2a2216;border:1px solid #5a4a2c;color:#cbb886;font-size:11px;padding:4px 6px;border-radius:4px;text-transform:uppercase}
+.heroBtn{position:relative;overflow:hidden;width:120px;border-radius:6px;background:#2a2216;color:#e8d7a6;border:2px solid #5a4a2c;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:4px}
+.heroBtn .fill{position:absolute;left:0;bottom:0;width:100%;background:linear-gradient(#e0b030,#9c7414);opacity:.35;transition:height .3s}
+.heroBtn span{position:relative;display:block;line-height:1.15}
+.heroBtn b{display:block;font-size:14px;color:#fff}
+.heroBtn.ready{border-color:var(--gold);animation:glow 1s infinite}
+.heroBtn.ready .fill{opacity:.85}
+.heroBtn.ready span,.heroBtn.ready b{color:#241d12}
+@keyframes glow{50%{box-shadow:0 0 18px rgba(224,176,48,.9)}}
+.side{grid-column:2;grid-row:2/4;display:flex;flex-direction:column;gap:8px}
+.qcard{background:var(--paper);color:var(--ink);border-radius:6px;padding:12px;box-shadow:inset 0 0 40px rgba(120,90,40,.3);position:relative}
+.qhead{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#6a5630;margin-bottom:6px}
+.streak{font-weight:700;color:var(--poppy);font-size:14px}
+.qtext{font-size:21px;font-weight:600;line-height:1.15;min-height:52px;margin-bottom:8px}
+.qtext small{display:block;font-size:12px;letter-spacing:1px;color:#7a6438;font-weight:500;text-transform:uppercase;margin-bottom:2px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{background:#fffaf0;color:var(--ink);text-align:left;padding:9px 10px;border-radius:5px;border:2px solid #c9b78a;font-size:15px;line-height:1.2;font-family:Oswald;transition:background .1s}
+.opt:hover:not(:disabled){border-color:var(--olive);background:#f4f0d8}
+.opt kbd{display:inline-block;width:20px;height:20px;line-height:18px;text-align:center;border-radius:3px;background:var(--ink);color:var(--paper);font-size:12px;margin-right:8px;font-family:Oswald}
+.opt.right{background:#c9e6b3;border-color:#4e8a2a}
+.opt.wrong{background:#f3c0c0;border-color:#b02020}
+.opt:disabled{cursor:default}
+.qfb{height:20px;margin-top:6px;font-size:14px;font-weight:600;text-align:center}
+.lock{position:absolute;inset:0;background:rgba(36,29,18,.0);pointer-events:none}
+.shop{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sbtn{display:flex;align-items:center;gap:7px;background:linear-gradient(#3a3020,#2a2216);color:#efe0b4;border:2px solid #5a4a2c;border-radius:6px;padding:6px;text-align:left;font-size:13px;line-height:1.1}
+.sbtn svg{width:30px;height:30px;flex:none}
+.sbtn b{display:block;font-size:14px}
+.sbtn .c{color:var(--gold);font-weight:700}
+.sbtn:disabled{opacity:.4;cursor:not-allowed}
+.sbtn.sel{border-color:var(--gold);background:#5a4a20}
+.sbtn.flash{animation:fl .4s}
+@keyframes fl{50%{background:#7a6a20}}
+.overlay{position:fixed;inset:0;background:rgba(10,8,5,.82);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{max-width:520px;width:100%;padding:24px;text-align:center}
+.modal h3{font-size:30px;text-transform:uppercase;margin-bottom:10px}
+.modal .btns{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+@media(max-width:980px){
+ .bgrid{grid-template-columns:1fr}
+ .hud{grid-column:1;order:0}
+ .fieldwrap{order:1}
+ .side{display:contents}
+ .qcard{order:2}
+ .cmd{order:3}
+ .shop{order:4}
+ .cmd{grid-template-columns:1fr 1fr}
+ .cmd .artyP{grid-column:1/3}
+}
+@media(max-width:520px){
+ .qtext{font-size:18px}
+ .cmd{grid-template-columns:1fr}
+ .cmd .artyP{grid-column:1}
+ .hud .bname{display:none}
+}
+/* ---------- RESULT ---------- */
+.result{max-width:880px;margin:10px auto;padding:26px 30px}
+.result h3{font-size:56px;text-align:center;letter-spacing:4px;line-height:1}
+.result .rsub{text-align:center;font-family:'Special Elite';font-size:18px;margin:6px 0 10px}
+.bigstars{text-align:center;font-size:52px;letter-spacing:8px;color:#b08a1a}
+.bigstars i{font-style:normal;color:#cbbd96}
+.rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}
+@media(max-width:600px){.rgrid{grid-template-columns:repeat(2,1fr)}}
+.rstat{background:rgba(36,29,18,.08);border-radius:4px;padding:10px;text-align:center}
+.rstat b{display:block;font-size:28px}
+.rstat small{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#6a5630}
+.histnote{font-family:'Special Elite';font-size:16px;line-height:1.5;background:rgba(75,83,32,.12);border-left:6px solid var(--olive);padding:12px 14px;margin:12px 0}
+.review{margin:12px 0}
+.review h4{text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.review li{list-style:none;padding:6px 0;border-bottom:1px dashed #b9a675;font-size:15px}
+.review li b{color:#8f0b1d}
+.honor{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.honor input{font-family:Oswald;font-size:18px;padding:6px 10px;border:2px solid var(--ink);border-radius:4px;width:150px;text-transform:uppercase;background:#fffaf0}
+.board{width:100%;border-collapse:collapse;margin-top:6px;font-size:15px}
+.board td{padding:4px 6px;border-bottom:1px solid #cdbd92}
+.board tr.me td{background:#f7e3a0;font-weight:700}
+/* ---------- MANUAL ---------- */
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tabs button{background:#3a3020;color:#e8d7a6;padding:8px 16px;border-radius:5px;text-transform:uppercase;letter-spacing:1px}
+.tabs button.on{background:var(--paper);color:var(--ink)}
+.manualBody{padding:20px 24px}
+.manualBody h4{font-size:20px;text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px;border-bottom:2px solid var(--ink)}
+.term{display:grid;grid-template-columns:200px 1fr 60px;gap:10px;padding:5px 0;border-bottom:1px dashed #c4b183;font-size:15px}
+.term b{font-size:16px}
+.term .m{color:#b08a1a;text-align:right}
+@media(max-width:600px){.term{grid-template-columns:1fr 50px}.term span{grid-column:1/3;grid-row:2}}
+.hcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.hcard{background:rgba(36,29,18,.07);border-radius:4px;padding:12px;border:2px solid #c4b183}
+.hcard.locked{opacity:.5}
+.hcard h5{font-size:18px;text-transform:uppercase}
+.hcard .ht{font-family:'Special Elite';font-size:13px;color:#6a5630;margin-bottom:6px}
+.hcard p{font-family:'Special Elite';font-size:14px;line-height:1.45}
+.howto{font-family:'Special Elite';font-size:16px;line-height:1.55}
+.howto li{margin:6px 0 6px 20px}
+</style>
+</head>
+<body>
+
+<!-- =============== TITLE =============== -->
+<section id="scr-title" class="screen active">
+  <canvas id="titleCanvas"></canvas>
+  <div class="titleBox">
+    <h1>OVER<br>THE <span>TOP</span></h1>
+    <div class="sub">A Great War Trench Strategy Game &middot; 1914&ndash;1918</div>
+    <button class="bigbtn" id="btnPlay">Enlist</button>
+    <div class="titleRow">
+      <button class="ghost" data-go="manual" data-tab="howto">How to Play</button>
+      <button class="ghost" data-go="manual" data-tab="terms">Field Manual</button>
+      <button class="ghost" data-go="manual" data-tab="heroes">Hall of Heroes</button>
+    </div>
+    <div class="rankTag" id="rankTag"></div>
+  </div>
+</section>
+
+<!-- =============== CAMPAIGN MAP =============== -->
+<section id="scr-map" class="screen paperBg">
+  <div class="wrap">
+    <div class="topbar">
+      <h2>The Campaign</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="ghost" data-go="manual" data-tab="terms">Field Manual</button>
+        <button class="ghost" data-go="manual" data-tab="heroes">Heroes</button>
+        <button class="ghost" data-go="title">Menu</button>
+      </div>
+    </div>
+    <div class="mapGrid">
+      <div class="paper" style="padding:10px"><div id="mapHolder"></div></div>
+      <div class="paper" style="padding:14px">
+        <div style="font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;color:#5a4a2c">Choose your battle</div>
+        <div class="blist" id="blist"></div>
+        <label class="teacher"><input type="checkbox" id="teacherChk"> Teacher mode: unlock every battle</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== BRIEFING =============== -->
+<section id="scr-brief" class="screen paperBg">
+  <div class="wrap"><div class="paper brief" id="briefBox"></div></div>
+</section>
+
+<!-- =============== BATTLE =============== -->
+<section id="scr-battle" class="screen">
+  <div class="bgrid">
+    <div class="hud">
+      <div class="bname" id="hudName"></div>
+      <div class="tug">
+        <span class="lab" style="color:#8fb3e6">Your line</span>
+        <div class="bar"><div id="barP" style="width:100%"></div><span id="barPt">100</span></div>
+        <div class="bar"><div id="barE" style="width:100%"></div><span id="barEt">100</span></div>
+        <span class="lab" style="color:#b9bca8">Enemy line</span>
+      </div>
+      <div class="timer" id="hudTime">4:00</div>
+      <div class="supply" title="Supply: earn it by answering questions"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="1.5" fill="#8a6a2a" stroke="#e0b030" stroke-width="1.5"/><path d="M3 11h18M12 7v13" stroke="#e0b030" stroke-width="1.5"/><path d="M8 7l4-4 4 4" fill="none" stroke="#e0b030" stroke-width="1.5"/></svg><span id="hudSupply">0</span></div>
+      <button class="hbtn" id="btnMute" title="Sound">🔊</button>
+      <button class="hbtn" id="btnPause" title="Pause">❚❚</button>
+    </div>
+
+    <div class="fieldwrap">
+      <canvas id="field" width="1000" height="520"></canvas>
+      <div id="coach"></div>
+      <div id="banner"></div>
+    </div>
+
+    <div class="cmd">
+      <div class="panel">
+        <h5>Sector</h5>
+        <div class="sectors" id="sectors"></div>
+      </div>
+      <div class="panel">
+        <h5>Infantry</h5>
+        <div class="otop">
+          <div class="reserve"><b id="resN">0</b>squads</div>
+          <button class="whistle" id="btnTop">Over the Top!</button>
+          <button class="small" id="btnAll" title="Send every squad in reserve">All</button>
+        </div>
+      </div>
+      <div class="panel artyP">
+        <h5>Artillery &mdash; tap the battlefield to aim</h5>
+        <div class="arty">
+          <div class="stat"><b id="batN">1</b>guns</div>
+          <div class="stat"><b id="shN">0</b>shells</div>
+          <input type="range" id="range" min="150" max="915" value="880" aria-label="Artillery range">
+          <div class="presets">
+            <button data-r="905">Their trench</button>
+            <button data-r="720">Their wire</button>
+            <button data-r="500">Mid</button>
+          </div>
+          <button class="tog" id="btnFire">Fire</button>
+          <button class="tog creep" id="btnCreep" title="Barrage walks forward at infantry pace">Creep</button>
+        </div>
+      </div>
+      <button class="heroBtn" id="btnHero"><div class="fill" id="heroFill" style="height:0%"></div><span>Hero<b id="heroName">—</b><small id="heroPct">0%</small></span></button>
+    </div>
+
+    <aside class="side">
+      <div class="qcard">
+        <div class="qhead"><span>Field Intelligence</span><span class="streak" id="streak"></span></div>
+        <div class="qtext" id="qtext"></div>
+        <div class="opts" id="opts"></div>
+        <div class="qfb" id="qfb"></div>
+      </div>
+      <div class="shop" id="shop"></div>
+    </aside>
+  </div>
+</section>
+
+<!-- =============== RESULT =============== -->
+<section id="scr-result" class="screen paperBg">
+  <div class="wrap"><div class="paper result" id="resultBox"></div></div>
+</section>
+
+<!-- =============== MANUAL =============== -->
+<section id="scr-manual" class="screen paperBg">
+  <div class="wrap">
+    <div class="topbar"><h2 id="manTitle">Field Manual</h2><button class="ghost" id="manBack">Back</button></div>
+    <div class="tabs" id="manTabs">
+      <button data-tab="howto">How to Play</button><button data-tab="terms">Terms &amp; Figures</button><button data-tab="heroes">Hall of Heroes</button>
+    </div>
+    <div class="paper manualBody" id="manBody"></div>
+  </div>
+</section>
+
+<div class="overlay" id="pauseOv"><div class="paper modal"><h3>Cease Fire</h3><p class="type">The battle is paused.</p><div class="btns"><button class="bigbtn" id="btnResume" style="font-size:18px;padding:10px 26px">Resume</button><button class="ghostDark" id="btnRestart">Restart</button><button class="ghostDark" id="btnQuit">Retreat to Map</button></div></div></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   OVER THE TOP — a WWI trench strategy + recall game for 7th grade
+   ===================================================================== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const rand=(a,b)=>a+Math.random()*(b-a), pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* ---------------- SAVE ---------------- */
+const SAVE_KEY='overthetop_v1';
+let save={unlocked:1,stars:{},best:{},board:{},mastery:{},heroes:[],teacher:false,name:''};
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s)save=Object.assign(save,s)}catch(e){}
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save))}catch(e){}}
+
+/* ---------------- CONTENT ---------------- */
+const I=(t,d,c)=>({t,d,c});
+const Q=(q,a,w)=>({q,a,w,c:'q'});
+
+const BATTLES=[
+{id:'marne',name:'First Battle of the Marne',short:'The Marne',year:'September 1914',where:'Near Paris, France',lat:48.96,lon:2.88,
+ player:'fr14',enemy:'de14',ground:{base:'#5d5a34',green:.55,craters:6},
+ story:["August 1914. Germany's <b>Schlieffen Plan</b> sends huge armies through neutral <b>Belgium</b> toward Paris. By September, German soldiers are only about 30 miles from the French capital.",
+        "France and Britain must stop them at the <b>Marne River</b> &mdash; or Paris falls. Whoever wins, both armies will soon start digging the trenches of the <b>Western Front</b>."],
+ hero:{name:'The Taxis of the Marne',title:'Paris, September 1914',portrait:'taxi',
+   story:"General Joseph Gallieni, defender of Paris, needed soldiers at the front <i>fast</i>. His answer: Paris taxicabs! Hundreds of taxis carried about 6,000 soldiers to the battle. The Allies stopped the German advance, and the Schlieffen Plan failed.",
+   ability:{key:'taxis',name:'Taxis!',desc:'+3 infantry squads rush to your trench'}},
+ newMech:"<b>Basic training.</b> Answer questions to earn supply. Build machine guns, aim your artillery, and send your infantry <i>over the top</i> while the enemy machine gun is pinned down by your shells.",
+ enemyAI:{income:6.0,mg0:[1,2,3],maxMG:4,maxBatt:1,wire0:2,maxWire:4,mines:0,squads:1,every:40,first:65,counter:0,gas:0},
+ history:"The First Battle of the Marne (September 6&ndash;12, 1914) saved Paris. The Germans pulled back to the Aisne River and dug in. Each side then tried to get around the other all the way to the sea &mdash; the &ldquo;Race to the Sea.&rdquo; By the end of 1914, trenches ran from the North Sea to Switzerland.",
+ items:[
+  Q('What does MAIN stand for?','Militarism, Alliances, Imperialism, Nationalism',['Money, Armies, Industry, Navies','Monarchy, Allies, Islands, Neutrality','Mobilization, Artillery, Infantry, Nations']),
+  I('Militarism','Building a powerful military and being ready to use it','term'),
+  I('Alliance','An agreement between nations to defend each other','term'),
+  I('Imperialism','Building an empire by taking control of other lands','term'),
+  I('Nationalism','Extreme pride in and loyalty to your own nation','term'),
+  I('Franz Ferdinand',"Heir to Austria-Hungary's throne, assassinated in 1914",'figure'),
+  I('Gavrilo Princip','Bosnian Serb who assassinated Franz Ferdinand','figure'),
+  Q('Where was Franz Ferdinand assassinated?','Sarajevo, Bosnia',['Paris, France','Berlin, Germany','London, Britain']),
+  Q('Allied Powers?','France, Britain, Russia (later the U.S.)',['Germany, Austria-Hungary, Ottoman Empire','Spain, Portugal, Sweden','Germany, Russia, Japan']),
+  Q('Central Powers?','Germany, Austria-Hungary, Ottoman Empire, Bulgaria',['France, Britain, Russia','Belgium, Serbia, Italy','U.S., Canada, Australia']),
+  I('Schlieffen Plan',"Germany's plan to beat France fast by marching through Belgium",'term'),
+  I('Kaiser Wilhelm II','Emperor of Germany during WWI','figure'),
+  I('Mobilization','Getting an army ready for war','term'),
+  Q('The Battle of the Marne stopped Germany from capturing…','Paris',['London','Brussels','Moscow']),
+  Q('Which neutral country did Germany invade to reach France?','Belgium',['Switzerland','Spain','Sweden']),
+  I('Western Front','The line of trenches across Belgium and France','term'),
+  I('Trench warfare','Fighting from long ditches dug into the ground','term')
+ ]},
+{id:'ypres',name:'Second Battle of Ypres',short:'Ypres',year:'April 1915',where:'Flanders, Belgium',lat:50.85,lon:2.88,
+ player:'ca',enemy:'de14',ground:{base:'#55503a',green:.3,craters:22},gas:true,
+ story:["April 1915, near Ypres, Belgium. The trenches now stretch from the North Sea to Switzerland. Neither side can break through &mdash; a <b>stalemate</b>.",
+        "On April 22 the Germans release a terrible new weapon: a yellow-green cloud of <b>poison gas</b>. Canadian soldiers rush into the gap to hold the line."],
+ hero:{name:'John McCrae',title:'Canadian doctor & poet',portrait:'doctor',
+   story:"Lt. Col. John McCrae treated wounded soldiers at Ypres for 17 days straight. After his friend was killed, he wrote a poem that begins: <i>&ldquo;In Flanders fields the poppies blow / Between the crosses, row on row.&rdquo;</i> His poem is the reason people wear red poppies to remember the fallen.",
+   ability:{key:'hold',name:'Hold the Line',desc:'Your machine guns fire twice as fast for 12 seconds'}},
+ newMech:"<b>GAS!</b> The enemy will release poison gas clouds that drift toward your trench and slow your machine gun crews. Buy <b>gas masks</b> to protect them.",
+ enemyAI:{income:7.0,mg0:[0,2,4],maxMG:4,maxBatt:2,wire0:3,maxWire:6,mines:0,squads:2,every:38,first:40,counter:0,gas:50},
+ history:"At Second Ypres (April&ndash;May 1915), Canadian troops held their ground through the first large gas attack on the Western Front. Soon both sides used gas, and gas masks became part of every soldier's gear.",
+ items:[
+  I("No-man's-land",'The deadly ground between enemy trenches','term'),
+  I('Poison gas','Chemical weapon first used on a large scale at Ypres in 1915','term'),
+  I('Gas mask','Gear that protected soldiers from breathing poison gas','term'),
+  Q('Ypres is in which country?','Belgium',['France','Germany','Italy']),
+  Q('Flanders is a region of…','Belgium',['Russia','Austria-Hungary','Spain']),
+  I('John McCrae',"Canadian doctor who wrote the poem 'In Flanders Fields'",'figure'),
+  Q('Why is the red poppy a symbol of WWI?','Poppies grew on the battlefields of Flanders',["It was Germany's national flower",'Soldiers painted them on helmets','It was the symbol of the Kaiser']),
+  I('Machine gun','Weapon that fired hundreds of bullets per minute','term'),
+  I('Barbed wire',"Spiked wire that slowed attackers in no-man's-land",'term'),
+  I('Stalemate','A deadlock where neither side can win','term'),
+  I('Over the top','Climbing out of the trench to attack','term'),
+  I('Trench foot','Painful foot disease from standing in cold, wet trenches','term'),
+  I('Artillery','Huge guns that fire explosive shells long distances','term'),
+  I('Edith Cavell','British nurse who helped Allied soldiers escape occupied Belgium','figure')
+ ]},
+{id:'gallipoli',name:'Gallipoli',short:'Gallipoli',year:'April 1915',where:'Gallipoli Peninsula, Ottoman Empire',lat:40.23,lon:26.28,
+ player:'anzac',enemy:'ot',ground:{base:'#8a7650',green:.15,craters:12,sandy:true},
+ story:["April 25, 1915. The Allies try a bold plan: invade the <b>Ottoman Empire</b> at Gallipoli, take control of the <b>Dardanelles</b> strait, and open a sea route to Russia.",
+        "Soldiers of the <b>ANZAC</b> &mdash; the Australian and New Zealand Army Corps &mdash; land on a narrow beach below steep cliffs. They dig in, and trench warfare follows them here too."],
+ hero:{name:'Simpson and his Donkey',title:'ANZAC stretcher-bearer',portrait:'donkey',
+   story:"Private John Simpson Kirkpatrick was a stretcher-bearer. For about three and a half weeks he led a donkey up and down dangerous Shrapnel Gully, carrying wounded soldiers to the beach for care &mdash; even under fire. He was killed in May 1915, but Australians and New Zealanders still honor his courage.",
+   ability:{key:'simpson',name:'Simpson’s Rescue',desc:'+2 squads return from the aid station and all your MGs are repaired'}},
+ newMech:"<b>Enemy counter-fire.</b> Ottoman artillery now shells your infantry while they cross no-man's-land. Move fast, and use your own guns to pin their machine guns.",
+ enemyAI:{income:7.6,mg0:[1,2,3],maxMG:4,maxBatt:2,wire0:3,maxWire:6,mines:1,squads:3,every:36,first:38,counter:1,gas:0},
+ history:"Despite great courage on both sides, the Gallipoli campaign failed for the Allies. They withdrew in January 1916. Ottoman commander Mustafa Kemal later founded modern Turkey. April 25 is still remembered as ANZAC Day in Australia and New Zealand.",
+ items:[
+  Q('Gallipoli was part of which empire?','Ottoman Empire',['British Empire','Russian Empire','German Empire']),
+  Q('ANZAC stands for…','Australian and New Zealand Army Corps',['Allied Navy Zone Command','American and New Zealand Air Corps','Army of the North Zone']),
+  Q('Ottoman Empire?','Central Power based in modern-day Turkey',['Allied Power based in India','Neutral kingdom in Spain','Allied Power based in Greece']),
+  I('Dardanelles','Narrow strait the Allies tried to control at Gallipoli','term'),
+  I('Winston Churchill','British leader who championed the Gallipoli attack','figure'),
+  I('John Simpson Kirkpatrick','ANZAC stretcher-bearer who carried the wounded on a donkey','figure'),
+  I('Mustafa Kemal','Ottoman commander at Gallipoli who later founded modern Turkey','figure'),
+  I('Eastern Front','The battle line between Russia and Germany/Austria-Hungary','term'),
+  I('Total war',"Using all of a nation's people and resources to fight",'term'),
+  I('Propaganda','Posters and messages used to persuade people to support a cause','term'),
+  I('Conscription','Requiring people to join the military; the draft','term'),
+  I('Home front','Civilians supporting the war effort back home','term'),
+  I('Rationing','Limiting how much food and fuel people could buy','term'),
+  I('T. E. Lawrence','"Lawrence of Arabia," British officer who aided the Arab Revolt','figure')
+ ]},
+{id:'verdun',name:'Battle of Verdun',short:'Verdun',year:'February 1916',where:'Verdun, France',lat:49.16,lon:5.38,
+ player:'fr16',enemy:'de16',ground:{base:'#6d675c',green:0,craters:45,winter:true},gas:true,
+ story:["February 21, 1916. Germany attacks the fortress city of <b>Verdun</b>, France. German general Erich von Falkenhayn hopes to &ldquo;bleed France white&rdquo; in a <b>war of attrition</b>.",
+        "The battle will last about 10 months &mdash; one of the longest and bloodiest in history. The French refuse to give up Verdun."],
+ hero:{name:'The Poilus of the Sacred Way',title:'French soldiers, 1916',portrait:'poilu',
+   story:"Only one road led into Verdun. The French kept it open day and night, with thousands of trucks carrying soldiers, food, and shells. They called it the <b>Sacred Way</b>. French soldiers &mdash; nicknamed <i>poilus</i>, &ldquo;hairy ones&rdquo; &mdash; held on with the rallying cry: <i>&ldquo;They shall not pass!&rdquo;</i>",
+   ability:{key:'sacred',name:'The Sacred Way',desc:'+150 supply, +15 shells, and repairs to every MG'}},
+ newMech:"<b>Attrition.</b> The enemy is stronger and builds landmines. Their raids come often. Keep answering &mdash; supply is your lifeline.",
+ enemyAI:{income:8.0,mg0:[0,1,3,4],maxMG:5,maxBatt:3,wire0:4,maxWire:8,mines:3,squads:3,every:32,first:30,counter:1,gas:70},
+ history:"The French held Verdun. By December 1916, about 700,000 French and German soldiers had been killed, wounded, or gone missing &mdash; and the front line had barely moved. Verdun became a symbol of French courage and of the terrible cost of attrition.",
+ items:[
+  Q('Verdun is in which country?','France',['Belgium','Germany','Switzerland']),
+  I('War of attrition','Wearing down the enemy with constant losses','term'),
+  Q('About how long did the Battle of Verdun last?','About 10 months',['About 3 days','About 2 weeks','About 4 years']),
+  I('Philippe Pétain','French general who organized the defense of Verdun','figure'),
+  Q('"They shall not pass!" was…','The French rallying cry at Verdun',['A British tank slogan',"Germany's plan for Paris",'An American recruiting song']),
+  I('Sacred Way','The one road that kept supplies flowing into Verdun','term'),
+  I('Erich von Falkenhayn','German general who planned to "bleed France white" at Verdun','figure'),
+  I('Georges Clemenceau','Fiery prime minister who led France to victory','figure'),
+  Q('Which river flows through Verdun?','The Meuse',['The Thames','The Danube','The Volga']),
+  I('Alsace-Lorraine','Region France lost to Germany in 1871 and wanted back','term'),
+  I('Zeppelin','German airship used for bombing raids','term'),
+  I('Red Baron',"Manfred von Richthofen, Germany's top fighter pilot",'figure'),
+  I('Poilu','Nickname for French soldiers; means "hairy one"','term')
+ ]},
+{id:'somme',name:'Battle of the Somme',short:'The Somme',year:'July 1916',where:'Somme River, France',lat:50.0,lon:2.68,
+ player:'uk',enemy:'de16',ground:{base:'#5e5236',green:.15,craters:35},tanks:true,
+ story:["July 1, 1916. To take pressure off Verdun, Britain and France attack along the <b>Somme River</b>. For a week, British guns fire about 1.5 million shells at the German lines.",
+        "But much of the <b>barbed wire</b> stays uncut, and German soldiers wait safely in deep <b>dugouts</b>. On the first day alone, Britain suffers about 57,000 casualties."],
+ hero:{name:'The First Tanks',title:'Flers-Courcelette, September 15, 1916',portrait:'tank',
+   story:"A strange machine crawled across no-man's-land: the <b>tank</b>. Britain built them in secret and code-named them &ldquo;tanks,&rdquo; pretending they were water tanks. Tanks could crush barbed wire and shrug off machine-gun bullets &mdash; the beginning of the end for trench stalemate.",
+   ability:{key:'tank',name:'Tank Assault',desc:'A free Mark I tank rolls out in your sector'}},
+ newMech:"<b>TANKS unlocked!</b> Tanks are slow, but bullets bounce off them and they flatten wire. Only artillery and mines can stop them. Lesson of the Somme: <i>a bombardment alone won't win</i> &mdash; your infantry must follow it closely.",
+ enemyAI:{income:8.6,mg0:[0,1,2,3,4],maxMG:5,maxBatt:3,wire0:6,maxWire:9,mines:3,squads:3,every:30,first:30,counter:1,gas:0},
+ history:"The Battle of the Somme lasted until November 1916. The Allies advanced only about 6 miles. More than one million soldiers on both sides became casualties. Tanks first appeared here &mdash; and generals began learning new ways to attack.",
+ items:[
+  Q('The Somme is a river in…','France',['Belgium','Germany','Russia']),
+  Q('July 1, 1916, the first day of the Somme, was…','The bloodiest day in British army history',['The day the war ended','The first day of the war','The day America joined']),
+  I('Douglas Haig','British commander at the Battle of the Somme','figure'),
+  I('Tank','Armored vehicle first used in battle at the Somme in 1916','term'),
+  I('Bombardment','A heavy attack with artillery shells','term'),
+  Q('Why did the week-long Somme bombardment fail?','Wire stayed uncut and Germans hid in deep dugouts',['The British ran out of soldiers','It rained too hard to fire','The guns were aimed at Paris']),
+  I('Casualties','Soldiers killed, wounded, captured, or missing','term'),
+  I('Dugout','Underground shelter dug into a trench wall','term'),
+  I('David Lloyd George','British prime minister from 1916 to the end of WWI','figure'),
+  I('U-boat','German submarine','term'),
+  I('Pals battalions','British units of friends and neighbors who enlisted together','term'),
+  Q('The Western Front stretched from the North Sea to…','Switzerland',['Russia','Spain','Greece']),
+  I('Shell shock','Mental trauma caused by the stress of combat','term')
+ ]},
+{id:'vimy',name:'Battle of Vimy Ridge',short:'Vimy Ridge',year:'April 1917',where:'Vimy Ridge, France',lat:50.37,lon:2.77,
+ player:'ca',enemy:'de16',ground:{base:'#686156',green:0,craters:55,winter:true},tanks:true,
+ story:["April 9, 1917. For the first time, all four divisions of the <b>Canadian Corps</b> attack together at <b>Vimy Ridge</b>, France &mdash; high ground that earlier attacks had failed to take.",
+        "The Canadians rehearsed every step, dug tunnels to the front, and trained to follow a precise <b>creeping barrage</b>: a wall of shellfire that moves forward just ahead of the infantry."],
+ hero:{name:'Francis Pegahmagabow',title:'Ojibwe scout & sniper, Canada',portrait:'scout',
+   story:"Francis Pegahmagabow, an Ojibwe soldier from Ontario, served as a scout, messenger, and sniper at Ypres, the Somme, and Passchendaele. He earned the Military Medal three times &mdash; one of the most decorated Indigenous soldiers in Canadian history.",
+   ability:{key:'creep',name:'Creeping Barrage',desc:'All your guns fire twice as fast and tighter for 14 seconds'}},
+ newMech:"<b>Master the creeping barrage.</b> Aim at mid no-man's-land, press <b>CREEP</b>, then send your infantry right behind the moving wall of shells. Press <b>FIRE</b> to lift it just before they reach the enemy trench.",
+ enemyAI:{income:9.2,mg0:[0,1,2,3,4],maxMG:5,maxBatt:3,wire0:6,maxWire:10,mines:4,squads:4,every:28,first:28,counter:1,gas:0},
+ history:"Canada captured Vimy Ridge in four days (April 9&ndash;12, 1917). About 3,600 Canadians died. Many Canadians say their country &ldquo;came of age&rdquo; at Vimy. The same year, the U.S. entered the war and Russia's revolution began to pull Russia out.",
+ items:[
+  Q('Vimy Ridge was captured in April 1917 by…','Canada',['Germany','Russia','Italy']),
+  I('Creeping barrage','Artillery fire that moves forward just ahead of attacking troops','term'),
+  I('Francis Pegahmagabow','Ojibwe Canadian scout and sniper, one of the most decorated of the war','figure'),
+  I('Lusitania','British passenger ship sunk by a U-boat in 1915','term'),
+  I('Zimmermann Telegram','German message asking Mexico to attack the U.S.','term'),
+  I('Unrestricted submarine warfare','Sinking ships near Britain without warning','term'),
+  Q('Why did the U.S. enter the war in 1917?','U-boat attacks and the Zimmermann Telegram',['Germany invaded New York','Russia asked for help against Japan','To win Alsace-Lorraine']),
+  I('Woodrow Wilson','U.S. president during WWI','figure'),
+  I('Nicholas II','Last tsar (emperor) of Russia','figure'),
+  I('Russian Revolution',"1917 uprisings that ended the tsar's rule",'term'),
+  I('Treaty of Brest-Litovsk','1918 treaty that took Russia out of WWI','term'),
+  Q('Passchendaele (1917) was a muddy battle in…','Belgium',['Spain','Turkey','Russia']),
+  I('Neutrality','Refusing to take sides in a war','term'),
+  I('Convoy system','Warships escorting cargo ships to protect them from U-boats','term')
+ ]},
+{id:'argonne',name:'Meuse-Argonne Offensive',short:'Meuse-Argonne',year:'September 1918',where:'Argonne Forest, France',lat:49.3,lon:5.0,
+ player:'us',enemy:'de16',ground:{base:'#4f4a33',green:.35,craters:40,forest:true},tanks:true,gas:true,
+ story:["September 26, 1918. America has joined the war. More than a million American <b>Doughboys</b> under General <b>John J. Pershing</b> attack through the hills and thick <b>Argonne Forest</b>.",
+        "It is the largest battle in U.S. history up to that time. Win here, and Germany will be forced to ask for an <b>armistice</b>."],
+ hero:{name:'Sergeant Alvin York',title:'Tennessee farmer, Medal of Honor',portrait:'york',
+   story:"On October 8, 1918, Alvin York's patrol was pinned down by German machine guns in the Argonne. York kept fighting with his rifle and pistol, and his small group ended up capturing 132 German soldiers. He received the Medal of Honor.",
+   ability:{key:'york',name:'York’s Stand',desc:'Every enemy soldier in your sector surrenders; their MG goes silent'}},
+ newMech:"<b>Final push.</b> Everything you have learned, all at once: gas, mines, heavy counter-fire, and tanks. The enemy is at full strength. Go win the war.",
+ enemyAI:{income:9.8,mg0:[0,1,2,3,4],maxMG:5,maxBatt:4,wire0:7,maxWire:10,mines:5,squads:4,every:26,first:26,counter:1,gas:60},
+ history:"The Meuse-Argonne Offensive lasted until the <b>Armistice</b> at 11:00 a.m. on November 11, 1918 &mdash; the eleventh hour of the eleventh day of the eleventh month. In 1919 the <b>Treaty of Versailles</b> blamed Germany for the war and forced it to pay reparations.",
+ items:[
+  Q('The Argonne Forest is in…','France',['Germany','Belgium','Austria-Hungary']),
+  I('John J. Pershing','Commander of the American army in Europe','figure'),
+  I('Doughboys','Nickname for American soldiers in WWI','term'),
+  I('Alvin York','U.S. sergeant who helped capture 132 German soldiers','figure'),
+  I('Henry Johnson','Harlem Hellfighter who fought off a German raid to save a fellow soldier','figure'),
+  I('Harlem Hellfighters','African American 369th Infantry, famed for its long time in combat','term'),
+  I('Lost Battalion','U.S. troops trapped and surrounded in the Argonne Forest','term'),
+  I('Cher Ami','Homing pigeon that carried a message to save the Lost Battalion','figure'),
+  I('Eddie Rickenbacker',"America's top fighter ace of WWI",'figure'),
+  I('Armistice','Agreement to stop fighting, signed November 11, 1918','term'),
+  I('Treaty of Versailles','1919 peace treaty that punished Germany','term'),
+  I('Reparations','Payments Germany had to make for war damages','term'),
+  I('War guilt clause','Part of the treaty that blamed Germany for the war','term'),
+  I('Fourteen Points',"Wilson's plan for a fair and lasting peace",'term'),
+  I('League of Nations','International group created to prevent future wars','term'),
+  I('Ferdinand Foch','French general who commanded all Allied armies in 1918','figure')
+ ]}
+];
+BATTLES.forEach((b,i)=>{b.idx=i;b.items.forEach(it=>{it.b=i;it.id=it.t||it.q})});
+const ALL_ITEMS=BATTLES.flatMap(b=>b.items);
+
+const EXTRA_HEROES=[
+ {b:1,name:'Edith Cavell',title:'British nurse in occupied Belgium',story:"Edith Cavell ran a nursing school in Brussels. She treated wounded soldiers from both sides and helped about 200 Allied soldiers escape to safety. She was executed by German authorities in 1915, and her bravery inspired people across the Allied nations."},
+ {b:6,name:'Henry Johnson',title:'Harlem Hellfighters, 369th Infantry',story:"In May 1918, Private Henry Johnson was on night guard duty when a German raiding party attacked. Badly wounded, he fought them off and saved fellow soldier Needham Roberts from capture. France awarded him the Croix de Guerre. In 2015, the U.S. awarded him the Medal of Honor."},
+ {b:6,name:'Cher Ami',title:'Homing pigeon, U.S. Army Signal Corps',story:"In October 1918, the 'Lost Battalion' was trapped in the Argonne Forest and being hit by friendly artillery. Their last pigeon, Cher Ami, was wounded but still flew about 25 miles to deliver the message. The shelling stopped, and the survivors were rescued."}
+];
+
+/* ---------------- RANKS ---------------- */
+const RANKS=[[0,'Private'],[3000,'Lance Corporal'],[8000,'Corporal'],[15000,'Sergeant'],[25000,'Lieutenant'],[38000,'Captain'],[55000,'Major'],[75000,'Colonel'],[100000,'General']];
+function totalScore(){return Object.values(save.best).reduce((a,b)=>a+b,0)}
+function rankOf(s){let r=RANKS[0][1];for(const [t,n] of RANKS)if(s>=t)r=n;return r}
+
+/* ---------------- AUDIO ---------------- */
+let AC=null,muted=false,lastMg=0,lastBoom=0;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){AC=null}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+let noiseBuf=null;
+function getNoise(){const a=ac();if(!a)return null;if(!noiseBuf){noiseBuf=a.createBuffer(1,a.sampleRate*1.5,a.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}return noiseBuf}
+function noise(dur,freq,vol,type='lowpass'){if(muted)return;const a=ac();if(!a)return;const b=getNoise();const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type=type;f.frequency.value=freq;const g=a.createGain();const t=a.currentTime;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(a.destination);s.start(t,Math.random()*.5);s.stop(t+dur+.05)}
+function tone(fr,dur,vol=.15,type='sine',to){if(muted)return;const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain(),t=a.currentTime;o.type=type;o.frequency.setValueAtTime(fr,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+dur+.02)}
+const sfx={
+ boom(near){const n=performance.now();if(n-lastBoom<70)return;lastBoom=n;noise(near?.9:.6,near?500:300,near?.55:.3);tone(70,.4,near?.3:.15,'sine',35)},
+ mg(){const n=performance.now();if(n-lastMg<110)return;lastMg=n;noise(.035,2400,.06,'bandpass')},
+ whistle(){if(muted)return;const a=ac();if(!a)return;const o=a.createOscillator(),l=a.createOscillator(),lg=a.createGain(),g=a.createGain(),t=a.currentTime;o.frequency.value=2300;l.frequency.value=32;lg.gain.value=90;l.connect(lg);lg.connect(o.frequency);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12,t+.03);g.gain.setValueAtTime(.12,t+.7);g.gain.exponentialRampToValueAtTime(.001,t+.9);o.connect(g);g.connect(a.destination);o.start(t);l.start(t);o.stop(t+.95);l.stop(t+.95)},
+ good(){tone(660,.12,.14,'triangle');setTimeout(()=>tone(990,.2,.14,'triangle'),90)},
+ streak(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.15,.12,'triangle'),i*70))},
+ bad(){tone(160,.3,.14,'sawtooth',90)},
+ buy(){tone(420,.06,.1,'square');setTimeout(()=>tone(640,.06,.08,'square'),50)},
+ hero(){[392,523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.25,.12,'square'),i*90))},
+ incoming(){tone(1400,.9,.035,'sine',500)},
+ alarm(){[0,1,2].forEach(i=>setTimeout(()=>tone(880,.12,.1,'square'),i*160))}
+};
+
+/* ---------------- SCREENS ---------------- */
+let current='title',manReturn='title';
+function show(id){$$('.screen').forEach(s=>s.classList.remove('active'));$('#scr-'+id).classList.add('active');current=id;window.scrollTo(0,0);if(id==='title')startTitle();else stopTitle();if(id==='map')renderMap();}
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>{ac();const g=b.dataset.go;if(g==='manual'){manReturn=current;openManual(b.dataset.tab||'terms')}else show(g)}));
+$('#btnPlay').addEventListener('click',()=>{ac();show('map')});
+$('#manBack').addEventListener('click',()=>show(manReturn==='manual'?'title':manReturn));
+
+/* ---------------- TITLE SCENE ---------------- */
+let titleRAF=0;
+const tc=$('#titleCanvas'),tx=tc.getContext('2d');
+const poppies=[...Array(70)].map(()=>({x:Math.random(),y:.82+Math.random()*.18,s:rand(5,11),p:Math.random()*6}));
+const climbers=[...Array(9)].map((_,i)=>({x:.08+i*.1+rand(-.02,.02),d:rand(0,4),s:rand(.9,1.15)}));
+function startTitle(){cancelAnimationFrame(titleRAF);const loop=t=>{drawTitle(t/1000);titleRAF=requestAnimationFrame(loop)};titleRAF=requestAnimationFrame(loop);$('#rankTag').textContent=`Rank: ${rankOf(totalScore())} · Service record ${totalScore().toLocaleString()} pts`}
+function stopTitle(){cancelAnimationFrame(titleRAF)}
+function drawTitle(t){
+ const w=tc.width=tc.clientWidth*devicePixelRatio,h=tc.height=tc.clientHeight*devicePixelRatio;const c=tx;c.save();
+ const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#1b1530');g.addColorStop(.45,'#7a3b2a');g.addColorStop(.7,'#d98a3a');g.addColorStop(1,'#3a2a18');c.fillStyle=g;c.fillRect(0,0,w,h);
+ c.fillStyle='rgba(255,210,140,.9)';c.beginPath();c.arc(w*.72,h*.66,h*.09,0,7);c.fill();
+ c.fillStyle='rgba(255,190,120,.15)';c.beginPath();c.arc(w*.72,h*.66,h*.2,0,7);c.fill();
+ // flares
+ for(let i=0;i<3;i++){const fx=w*(.2+i*.3),fy=h*(.25+.05*Math.sin(t*.7+i));const a=.5+.5*Math.sin(t*2+i*2);c.fillStyle=`rgba(255,245,200,${.4*a})`;c.beginPath();c.arc(fx,fy,6*devicePixelRatio,0,7);c.fill()}
+ // distant ridge
+ c.fillStyle='#2b1d14';c.beginPath();c.moveTo(0,h*.7);for(let x=0;x<=w;x+=w/40)c.lineTo(x,h*.7-Math.sin(x/w*9)*h*.02-Math.sin(x/w*23)*h*.01);c.lineTo(w,h);c.lineTo(0,h);c.fill();
+ // stumps
+ c.strokeStyle='#1a120c';c.lineWidth=5*devicePixelRatio;[.15,.38,.61,.88].forEach((x,i)=>{c.beginPath();c.moveTo(w*x,h*.72);c.lineTo(w*x+5,h*(.55-i%2*.05));c.lineTo(w*x+20,h*.5);c.stroke()});
+ // trench parapet
+ c.fillStyle='#120c08';c.beginPath();c.moveTo(0,h*.8);for(let x=0;x<=w;x+=w/60)c.lineTo(x,h*.79+Math.sin(x*.05)*4);c.lineTo(w,h);c.lineTo(0,h);c.fill();
+ // wire
+ c.strokeStyle='rgba(20,14,10,.9)';c.lineWidth=1.5*devicePixelRatio;for(let k=0;k<2;k++){c.beginPath();for(let x=0;x<w;x+=6)c.lineTo(x,h*(.745+k*.02)+Math.sin(x*.08+k)*6);c.stroke()}
+ for(let x=w*.05;x<w;x+=w*.12){c.beginPath();c.moveTo(x,h*.79);c.lineTo(x+3,h*.72);c.stroke()}
+ // climbers silhouettes
+ const S=devicePixelRatio;
+ climbers.forEach(cl=>{const ph=((t*.25+cl.d/4)%1);const x=w*cl.x+ph*w*.05,y=h*.79-Math.min(ph*3,1)*h*.04;const s=cl.s*S*1.4;c.save();c.translate(x,y);c.scale(s,s);c.fillStyle='#0d0805';
+  c.beginPath();c.ellipse(0,-30,9,3,0,0,7);c.fill();c.beginPath();c.arc(0,-27,4.5,0,7);c.fill();c.fillRect(-5,-24,10,15);
+  const k=Math.sin(t*8+cl.d)*5;c.lineWidth=3.5;c.strokeStyle='#0d0805';c.beginPath();c.moveTo(-2,-9);c.lineTo(-4-k,2);c.moveTo(2,-9);c.lineTo(4+k,2);c.stroke();
+  c.lineWidth=2;c.beginPath();c.moveTo(-6,-20);c.lineTo(18,-34);c.stroke();c.restore()});
+ // poppies
+ poppies.forEach(p=>{const x=p.x*w+Math.sin(t+p.p)*3,y=p.y*h;c.strokeStyle='#1e2a12';c.lineWidth=1.5*S;c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.sin(t+p.p)*2,y+p.s*3*S);c.stroke();c.fillStyle='#c8102e';for(let i=0;i<4;i++){c.beginPath();c.ellipse(x+Math.cos(i*1.57)*p.s*.5*S,y+Math.sin(i*1.57)*p.s*.5*S,p.s*.65*S,p.s*.5*S,i*1.57,0,7);c.fill()}c.fillStyle='#120a0a';c.beginPath();c.arc(x,y,p.s*.28*S,0,7);c.fill()});
+ c.restore();
+}
+
+/* ---------------- CAMPAIGN MAP ---------------- */
+function proj(lat,lon){return [(lon+1.2)*80,(52.2-lat)*125]}
+function pts(arr){return arr.map(([la,lo])=>proj(la,lo).map(v=>v.toFixed(1)).join(',')).join(' ')}
+function renderMap(){
+ $('#teacherChk').checked=!!save.teacher;
+ const sea=[[52.2,-1.2],[52.2,4.4],[52.08,4.3],[51.7,3.7],[51.45,3.5],[51.35,3.25],[51.09,2.55],[51.03,2.37],[50.95,1.86],[50.72,1.6],[50.2,1.55],[49.92,1.08],[49.72,.3],[49.49,.1],[49.4,-1.2]];
+ const eng=[[52.2,-1.2],[50.75,-1.2],[50.78,-.3],[50.77,.3],[50.92,.95],[51.13,1.33],[51.37,1.42],[51.45,.9],[51.62,.95],[51.8,1.25],[52.2,1.75]];
+ const nl=[[52.2,4.4],[52.08,4.3],[51.7,3.7],[51.45,3.5],[51.35,3.4],[51.3,4.3],[51.45,5.0],[51.2,5.8],[50.75,5.7],[50.75,6.0],[51.2,6.1],[51.85,6.0],[52.2,6.8]];
+ const fbBorder=[[51.09,2.55],[50.72,3.2],[50.5,4.0],[50.0,4.2],[49.8,4.85],[49.55,5.8]];
+ const beDe=[[50.75,6.0],[50.3,6.4],[50.15,6.12]];
+ const lux=[[50.15,6.12],[49.45,6.37],[49.5,5.82],[50.0,5.75],[50.15,6.12]];
+ const frDe=[[49.47,5.95],[49.0,5.95],[48.75,6.3],[48.55,6.75],[48.35,7.1],[48.0,7.0],[47.6,7.05],[47.5,7.2]];
+ const swiss=[[47.5,7.2],[47.55,7.6],[47.6,8.2],[47.7,8.6],[47.65,9.4]];
+ const front=[[51.13,2.75],[50.9,2.88],[50.7,2.9],[50.4,2.8],[50.29,2.78],[50.0,2.7],[49.75,2.85],[49.58,3.0],[49.4,3.35],[49.35,3.8],[49.25,4.1],[49.2,4.6],[49.25,5.05],[49.16,5.45],[48.95,5.55],[48.85,5.75],[48.75,6.4],[48.45,7.0],[48.0,7.05],[47.55,7.15]];
+ const somme=[[49.85,3.3],[49.93,2.93],[49.9,2.6],[49.9,2.3],[50.1,1.85],[50.2,1.6]];
+ const marne=[[48.1,5.25],[48.6,4.9],[48.95,4.37],[49.05,3.95],[49.03,3.4],[48.96,2.88],[48.85,2.45]];
+ const meuse=[[48.1,5.6],[48.7,5.6],[49.16,5.38],[49.7,4.95],[50.3,4.85],[50.47,4.86],[50.63,5.57],[51.0,5.8],[51.4,6.1]];
+ const lab=(la,lo,txt,sz=13,fill='#4a3d25',w=600,ls=2)=>{const[x,y]=proj(la,lo);return `<text x="${x}" y="${y}" font-family="Oswald" font-size="${sz}" font-weight="${w}" fill="${fill}" letter-spacing="${ls}" text-anchor="middle">${txt}</text>`};
+ let s=`<svg id="mapSvg" viewBox="0 0 780 610" xmlns="http://www.w3.org/2000/svg">
+ <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 6L6 0" stroke="#8aa0b0" stroke-width=".6" opacity=".5"/></pattern></defs>
+ <rect width="780" height="610" fill="#e6d7ae"/>
+ <polygon points="${pts(sea)}" fill="#a9bfc7"/><polygon points="${pts(sea)}" fill="url(#hatch)"/>
+ <polygon points="${pts(eng)}" fill="#ddcc9f" stroke="#6a5a3a" stroke-width="1.2"/>
+ <polyline points="${pts(nl)}" fill="none" stroke="#7a6a48" stroke-width="1.2" stroke-dasharray="5 3"/>
+ <polyline points="${pts(fbBorder)}" fill="none" stroke="#7a6a48" stroke-width="1.2" stroke-dasharray="5 3"/>
+ <polyline points="${pts(beDe)}" fill="none" stroke="#7a6a48" stroke-width="1.2" stroke-dasharray="5 3"/>
+ <polyline points="${pts(lux)}" fill="none" stroke="#7a6a48" stroke-width="1.2" stroke-dasharray="5 3"/>
+ <polyline points="${pts(frDe)}" fill="none" stroke="#7a6a48" stroke-width="1.2" stroke-dasharray="5 3"/>
+ <polyline points="${pts(swiss)}" fill="none" stroke="#7a6a48" stroke-width="1.2" stroke-dasharray="5 3"/>
+ <polyline points="${pts(somme)}" fill="none" stroke="#5f86a0" stroke-width="2"/>
+ <polyline points="${pts(marne)}" fill="none" stroke="#5f86a0" stroke-width="2"/>
+ <polyline points="${pts(meuse)}" fill="none" stroke="#5f86a0" stroke-width="2"/>
+ <polyline points="${pts(front)}" fill="none" stroke="#7a0a18" stroke-width="7" opacity=".25" stroke-linejoin="round"/>
+ <polyline points="${pts(front)}" fill="none" stroke="#a3102a" stroke-width="2.4" stroke-dasharray="7 3" stroke-linejoin="round"/>
+ ${lab(49.3,1.6,'FRANCE',26,'#6a5a3a',700,6)}${lab(50.75,4.55,'BELGIUM',16,'#6a5a3a',700,4)}${lab(50.0,7.3,'GERMANY',26,'#6a5a3a',700,6)}
+ ${lab(51.85,5.2,'NETHERLANDS',12,'#6a5a3a',600,2)}${lab(47.42,7.4,'SWITZERLAND',12,'#6a5a3a',600,2)}${lab(51.75,0.2,'BRITAIN',16,'#6a5a3a',700,4)}${lab(49.85,6.35,'LUX.',10,'#6a5a3a',600,1)}
+ ${lab(51.05,0.75,'English Channel',12,'#3c5f73',500,1)}${lab(51.95,2.9,'North Sea',13,'#3c5f73',500,2)}
+ ${lab(48.72,6.85,'ALSACE-',10,'#6a3a3a',600,1)}${lab(48.62,6.85,'LORRAINE',10,'#6a3a3a',600,1)}
+ ${lab(49.82,1.95,'Somme R.',11,'#3c5f73',500,0)}${lab(48.75,4.3,'Marne R.',11,'#3c5f73',500,0)}${lab(49.85,5.15,'Meuse R.',11,'#3c5f73',500,0)}
+ ${lab(48.1,4.1,'— — Western Front',13,'#8f0b1d',600,1)}`;
+ const cities=[[48.86,2.35,'Paris'],[50.85,4.35,'Brussels'],[51.51,-.12,'London']];
+ cities.forEach(([la,lo,n])=>{const[x,y]=proj(la,lo);s+=`<rect x="${x-4}" y="${y-4}" width="8" height="8" fill="#241d12"/><text x="${x+8}" y="${y+4}" font-family="Special Elite" font-size="13" fill="#241d12">${n}</text>`});
+ s+=`<text x="770" y="230" font-family="Special Elite" font-size="12" fill="#4a3d25" text-anchor="end">to Berlin &#8594;</text>`;
+ // Gallipoli inset
+ s+=`<g transform="translate(12,448)"><rect width="200" height="150" fill="#e6d7ae" stroke="#4a3d25" stroke-width="2"/><text x="100" y="16" text-anchor="middle" font-family="Oswald" font-size="11" letter-spacing="1" fill="#4a3d25">INSET: OTTOMAN EMPIRE</text>
+   <path d="M0 22 L200 22 L200 150 L0 150Z" fill="#a9bfc7"/><path d="M60 22 L200 22 L200 150 L110 150 L120 110 L95 90 L70 60Z" fill="#ddcc9f" stroke="#6a5a3a"/><path d="M30 70 L80 55 L90 70 L60 120 L40 125 L45 100Z" fill="#ddcc9f" stroke="#6a5a3a"/>
+   <text x="150" y="90" text-anchor="middle" font-family="Oswald" font-size="11" fill="#6a5a3a">OTTOMAN EMP.</text><text x="100" y="140" text-anchor="middle" font-family="Oswald" font-size="9" fill="#3c5f73">Dardanelles</text></g>`;
+ // battle markers
+ const pos=b=>b.id==='gallipoli'?[12+58,448+92]:proj(b.lat,b.lon);
+ BATTLES.forEach((b,i)=>{const[x,y]=pos(b);const unlocked=isUnlocked(i),done=(save.stars[b.id]||0)>0;
+   const col=done?'#4b5320':unlocked?'#c8102e':'#8a8070';
+   s+=`<g class="mk" data-i="${i}" style="cursor:${unlocked?'pointer':'default'}"><circle cx="${x}" cy="${y}" r="15" fill="${col}" stroke="#fff3d6" stroke-width="2.5"/>${unlocked&&!done?`<circle cx="${x}" cy="${y}" r="15" fill="none" stroke="#c8102e" stroke-width="2"><animate attributeName="r" values="15;26;15" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1.6s" repeatCount="indefinite"/></circle>`:''}<text x="${x}" y="${y+5}" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="15" fill="#fff">${i+1}</text><text x="${x+(b.id==='argonne'?-18:0)}" y="${y+(b.id==='verdun'?32:-20)}" text-anchor="${b.id==='argonne'?'end':'middle'}" font-family="Oswald" font-weight="600" font-size="12" fill="#241d12" stroke="#e6d7ae" stroke-width="3" paint-order="stroke">${b.short}</text></g>`});
+ s+=`<text x="230" y="602" font-family="Special Elite" font-size="11" fill="#6a5a3a">Simplified map. Red dashes: the Western Front, about 1915&ndash;1917.</text></svg>`;
+ $('#mapHolder').innerHTML=s;
+ $$('#mapSvg .mk').forEach(m=>m.addEventListener('click',()=>{const i=+m.dataset.i;if(isUnlocked(i))openBrief(i)}));
+ const bl=$('#blist');bl.innerHTML='';
+ BATTLES.forEach((b,i)=>{const u=isUnlocked(i),st=save.stars[b.id]||0;const el=document.createElement('button');el.className='bitem'+(u?'':' locked');
+  el.innerHTML=`<div class="num">${i+1}</div><div class="bt"><b>${b.name}</b><small>${b.year} &middot; ${b.where}</small></div><div class="stars">${'★'.repeat(st)}<i>${'★'.repeat(3-st)}</i></div>`;
+  el.addEventListener('click',()=>{if(u)openBrief(i)});bl.appendChild(el)});
+}
+function isUnlocked(i){return save.teacher||i<save.unlocked}
+$('#teacherChk').addEventListener('change',e=>{save.teacher=e.target.checked;persist();renderMap()});
+
+/* ---------------- PORTRAITS (drawn, no photos) ---------------- */
+function drawPortrait(cv,kind){
+ const c=cv.getContext('2d'),w=cv.width,h=cv.height;c.clearRect(0,0,w,h);
+ const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#c9b27a');g.addColorStop(1,'#6a5430');c.fillStyle=g;c.fillRect(0,0,w,h);
+ c.save();c.translate(w/2,h*.62);
+ const sil='#2a2014';
+ if(kind==='taxi'){c.fillStyle=sil;c.fillRect(-40,-14,80,22);c.fillRect(-26,-34,40,22);c.beginPath();c.arc(-24,10,10,0,7);c.arc(24,10,10,0,7);c.fill();c.fillStyle='#c9b27a';c.fillRect(-22,-30,14,14);c.fillRect(-4,-30,14,14);}
+ else if(kind==='tank'){c.fillStyle=sil;c.beginPath();c.moveTo(-48,10);c.lineTo(-38,-24);c.lineTo(36,-24);c.lineTo(50,10);c.lineTo(40,18);c.lineTo(-40,18);c.closePath();c.fill();c.fillRect(-10,-6,22,14);c.fillRect(10,0,22,4);}
+ else if(kind==='donkey'){c.fillStyle=sil;c.beginPath();c.ellipse(10,0,24,12,0,0,7);c.fill();c.fillRect(-4,6,5,22);c.fillRect(24,6,5,22);c.beginPath();c.moveTo(-10,-4);c.lineTo(-26,-26);c.lineTo(-18,-30);c.lineTo(-4,-10);c.fill();c.fillRect(-24,-40,3,12);c.fillRect(-19,-40,3,12);
+   c.beginPath();c.arc(-36,-30,7,0,7);c.fill();c.fillRect(-42,-24,12,30);c.beginPath();c.ellipse(-36,-36,13,3,0,0,7);c.fill();}
+ else{ // soldier bust
+   c.fillStyle=sil;c.beginPath();c.moveTo(-42,40);c.quadraticCurveTo(-40,0,0,-2);c.quadraticCurveTo(40,0,42,40);c.fill();c.beginPath();c.arc(0,-22,17,0,7);c.fill();
+   if(kind==='poilu'){c.beginPath();c.arc(0,-28,19,Math.PI,0);c.fill();c.fillRect(-2,-52,4,8);c.beginPath();c.ellipse(0,-27,24,4,0,0,7);c.fill()}
+   else if(kind==='york'||kind==='scout'){c.beginPath();c.ellipse(0,-30,28,6,0,0,7);c.fill();c.beginPath();c.arc(0,-31,16,Math.PI,0);c.fill()}
+   else if(kind==='doctor'){c.fillStyle=sil;c.fillRect(-16,-46,32,10);c.fillRect(-20,-38,40,4);c.fillStyle='#b01020';c.fillRect(-4,8,8,22);c.fillRect(-11,15,22,8)}
+   if(kind==='scout'){c.strokeStyle=sil;c.lineWidth=3;c.beginPath();c.moveTo(-40,30);c.lineTo(40,-30);c.stroke()}
+ }
+ c.restore();
+ c.fillStyle='rgba(200,16,46,.9)';for(let i=0;i<3;i++){c.beginPath();c.arc(10+i*14,h-10,4,0,7);c.fill()}
+}
+
+/* ---------------- BRIEFING ---------------- */
+let selBattle=0;
+function openBrief(i){
+ selBattle=i;const b=BATTLES[i];
+ const terms=[...new Set(b.items.map(it=>it.t||it.a).filter(x=>x.length<28))].slice(0,14);
+ $('#briefBox').innerHTML=`<div class="stamp">TOP SECRET</div>
+  <div class="meta">Battle ${i+1} of ${BATTLES.length} &middot; ${b.year} &middot; ${b.where}</div>
+  <h3>${b.name}</h3>
+  <div style="height:10px"></div>
+  ${b.story.map(p=>`<p>${p}</p>`).join('')}
+  <div class="heroBox"><canvas width="110" height="130" id="pcv"></canvas><div><h4>${b.hero.name}</h4><div class="type" style="font-size:13px;color:#5a4a2c;margin-bottom:4px">${b.hero.title}</div><p style="font-size:15px;margin:0">${b.hero.story}</p><span class="ab">Hero power: ${b.hero.ability.name} &mdash; ${b.hero.ability.desc}</span></div></div>
+  <div class="newMech">${b.newMech}</div>
+  <div style="font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#5a4a2c">Intelligence you'll need</div>
+  <div class="chips">${terms.map(t=>`<span class="chip">${t}</span>`).join('')}</div>
+  <div class="briefBtns"><button class="ghostDark" id="bBack">&larr; Map</button><button class="bigbtn" id="bGo">Fix Bayonets!</button></div>`;
+ drawPortrait($('#pcv'),b.hero.portrait);
+ $('#bBack').onclick=()=>show('map');$('#bGo').onclick=()=>{ac();startBattle(i)};
+ show('brief');
+}
+
+/* =====================================================================
+   BATTLE ENGINE
+   ===================================================================== */
+const W=1000,H=520,LANES=5,TOP=12,LH=(H-24)/LANES;
+const laneY=l=>TOP+LH*(l+.5);
+const MGX=[98,902],LINE=[120,880],BATX=[34,966];
+const SLOTS=[[178,248,318,388],[612,682,752,822]];
+const COST={squad:40,mg:90,wire:30,mine:25,battery:120,shells:40,tank:150,masks:60};
+const UNI={
+ fr14:{coat:'#2f4a8f',leg:'#b0242a',helm:'kepi',hc:'#b0242a'},
+ fr16:{coat:'#7d93b2',leg:'#6f84a3',helm:'adrian',hc:'#6c7f99'},
+ uk:{coat:'#8b7d4b',leg:'#7a6d40',helm:'brodie',hc:'#5f6346'},
+ ca:{coat:'#857848',leg:'#73683c',helm:'brodie',hc:'#5f6346'},
+ anzac:{coat:'#9a8655',leg:'#85744a',helm:'slouch',hc:'#7a6640'},
+ us:{coat:'#77714a',leg:'#68623f',helm:'brodie',hc:'#5c5a3c'},
+ de14:{coat:'#6f7464',leg:'#5d6254',helm:'pickel',hc:'#3a3a30'},
+ de16:{coat:'#6f7464',leg:'#5d6254',helm:'stahl',hc:'#545a4c'},
+ ot:{coat:'#8a7448',leg:'#76633c',helm:'kabalak',hc:'#a08a5c'}
+};
+
+let G=null,raf=0,last=0;
+const cv=$('#field'),cx=cv.getContext('2d');
+let ground=null,gx=null,SCALE=1;
+
+function startBattle(i){
+ const b=BATTLES[i],E=b.enemyAI;
+ G={b,i,E,t:0,dur:240,over:false,paused:false,str:[100,100],supply:110,squads:2,batt:[1,1],shells:20,
+   art:{lane:2,x:905,fire:false,creep:false,cd:[.5,1,1.5,2]},
+   sector:2,mg:[Array(5).fill(null),Array(5).fill(null)],wires:[],mines:[],troops:[],fallen:[],shells_:[],parts:[],smokes:[],texts:[],tracers:[],gas:[],
+   masks:false,build:null,buffs:{mg:0,art:0},
+   ai:{supply:40,tick:0,squads:E.squads,attack:null,next:E.first,cd:[1,2,3,4],harass:0,harassT:null,gasT:E.gas?E.gas*.7:0},
+   stats:{correct:0,wrong:0,kills:0,lost:0,ff:0,dmg:0,bestStreak:0,missed:{}},
+   score:0,hero:0,streak:0,coach:i===0?0:-1,coachT:0,shake:0,deck:[],qi:null,lock:0,qStart:0};
+ addMG(0,2);E.mg0.forEach(l=>addMG(1,l));
+ const es=shuffle(SLOTS[1].flatMap((x,si)=>[0,1,2,3,4].map(l=>({x,l}))));
+ for(let k=0;k<E.wire0;k++)G.wires.push({side:1,lane:es[k].l,x:es[k].x,hp:100});
+ buildDeck();genGround();setupHUD();nextQuestion();
+ show('battle');resize();
+ last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+ banner(b.short.toUpperCase()+' · '+b.year,2.2);
+ if(G.coach===0)coach(COACH[0]);
+}
+function addMG(side,lane){G.mg[side][lane]={side,lane,x:MGX[side],hp:100,supp:0,cd:Math.random()*.3,flash:0,gas:0}}
+
+/* ---------------- GROUND ---------------- */
+function genGround(){
+ const b=G.b,o=b.ground;ground=document.createElement('canvas');ground.width=W*2;ground.height=H*2;gx=ground.getContext('2d');gx.scale(2,2);
+ gx.fillStyle=o.base;gx.fillRect(0,0,W,H);
+ for(let k=0;k<5000;k++){const v=Math.random();gx.fillStyle=v<.5?`rgba(0,0,0,${rand(.03,.12)})`:`rgba(255,240,200,${rand(.02,.07)})`;gx.fillRect(rand(0,W),rand(0,H),rand(1,4),rand(1,3))}
+ if(o.green>0){for(let k=0;k<180*o.green;k++){const x=rand(0,W),y=rand(0,H);const gr=gx.createRadialGradient(x,y,0,x,y,rand(15,45));gr.addColorStop(0,`rgba(90,120,50,${.35*o.green})`);gr.addColorStop(1,'rgba(90,120,50,0)');gx.fillStyle=gr;gx.fillRect(x-50,y-50,100,100)}}
+ if(o.winter){for(let k=0;k<60;k++){const x=rand(0,W),y=rand(0,H);const gr=gx.createRadialGradient(x,y,0,x,y,rand(10,40));gr.addColorStop(0,'rgba(230,230,235,.25)');gr.addColorStop(1,'rgba(230,230,235,0)');gx.fillStyle=gr;gx.fillRect(x-45,y-45,90,90)}}
+ for(let k=0;k<o.craters;k++)crater(rand(150,850),rand(10,H-10),rand(8,22),true);
+ // stumps / trees
+ const ntree=o.forest?26:8;for(let k=0;k<ntree;k++){const x=rand(160,840),y=rand(15,H-15);gx.fillStyle='rgba(0,0,0,.25)';gx.beginPath();gx.ellipse(x+6,y+3,8,3,0,0,7);gx.fill();gx.strokeStyle='#2b1f14';gx.lineWidth=o.forest?4:3;gx.beginPath();gx.moveTo(x,y);gx.lineTo(x+rand(-3,3),y-rand(10,22));gx.stroke();if(o.forest&&Math.random()<.6){gx.fillStyle='rgba(40,55,25,.8)';gx.beginPath();gx.arc(x,y-22,rand(8,13),0,7);gx.fill()}}
+ // lane separators (faint)
+ drawTrench(MGX[0],1);drawTrench(MGX[1],-1);
+ // rear area
+ [[0,52],[948,52]].forEach(([x,w])=>{gx.fillStyle='rgba(0,0,0,.18)';gx.fillRect(x,0,w,H)});
+}
+function crater(x,y,r,init){
+ const g=gx;const gr=g.createRadialGradient(x,y,r*.1,x,y,r);gr.addColorStop(0,'rgba(25,18,10,.75)');gr.addColorStop(.7,'rgba(45,33,20,.55)');gr.addColorStop(.85,'rgba(150,125,85,.35)');gr.addColorStop(1,'rgba(150,125,85,0)');
+ g.fillStyle=gr;g.beginPath();g.ellipse(x,y,r*1.15,r*.85,rand(0,3),0,7);g.fill();
+ if((G.b.ground.winter||Math.random()<.3)&&r>12){g.fillStyle='rgba(90,110,120,.35)';g.beginPath();g.ellipse(x,y,r*.4,r*.28,0,0,7);g.fill()}
+}
+function drawTrench(x0,dir){
+ const g=gx;const path=[];for(let y=-10;y<=H+20;y+=28){const k=Math.floor(y/28)%2;path.push([x0+(k?8*dir:-6*dir),y]);path.push([x0+(k?8*dir:-6*dir),y+18])}
+ const stroke=(w,c)=>{g.strokeStyle=c;g.lineWidth=w;g.lineJoin='miter';g.beginPath();path.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke()};
+ stroke(30,'rgba(0,0,0,.35)');stroke(24,'#2a1f13');stroke(15,'#3d2d1c');
+ // duckboards
+ g.strokeStyle='rgba(150,120,80,.5)';g.lineWidth=1;for(let i=0;i<path.length-1;i++){const[a,b]=path[i],[c,d]=path[i+1];const n=Math.hypot(c-a,d-b)/5;for(let k=0;k<n;k++){const t=k/n,x=a+(c-a)*t,y=b+(d-b)*t;g.beginPath();g.moveTo(x-4,y);g.lineTo(x+4,y);g.stroke()}}
+ // sandbag parapet (enemy-facing side)
+ for(let i=0;i<path.length-1;i++){const[a,b]=path[i],[c,d]=path[i+1];const n=Math.max(1,Math.hypot(c-a,d-b)/7);for(let k=0;k<n;k++){const t=k/n,x=a+(c-a)*t+15*dir,y=b+(d-b)*t;g.fillStyle=Math.random()<.5?'#a8946a':'#9a8660';g.strokeStyle='#5c4b30';g.lineWidth=.8;g.beginPath();g.ellipse(x,y,4.5,3.2,0,0,7);g.fill();g.stroke()}}
+ // communication trenches to rear
+ for(let l=0;l<LANES;l+=2){const y=laneY(l);g.strokeStyle='#2a1f13';g.lineWidth=7;g.beginPath();g.moveTo(x0,y);g.lineTo(x0-40*dir,y+12);g.lineTo(x0-80*dir,y+4);g.stroke()}
+}
+
+/* ---------------- RESIZE / INPUT ---------------- */
+function resize(){const r=cv.getBoundingClientRect();const d=Math.min(devicePixelRatio||1,2);cv.width=Math.round(r.width*d);cv.height=Math.round(r.width*d*H/W);SCALE=cv.width/W}
+addEventListener('resize',()=>{if(current==='battle')resize()});
+function toWorld(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]}
+cv.addEventListener('pointerdown',e=>{
+ if(!G||G.over||G.paused)return;ac();
+ const [x,y]=toWorld(e);const lane=clamp(Math.floor((y-TOP)/LH),0,4);
+ if(G.build){tryPlace(G.build,x,lane);return}
+ setSector(lane);
+ if(x>140){G.art.x=clamp(x,150,915);G.art.creep=false;syncArtyUI()}
+});
+function tryPlace(kind,x,lane){
+ if(kind==='mg'){if(G.mg[0][lane]){flashCoach('That sector already has a machine gun.');return}if(!spend(COST.mg))return;addMG(0,lane);puff(MGX[0],laneY(lane),'#c9b98a')}
+ else{let best=null,bd=1e9;SLOTS[0].forEach(sx=>{const d=Math.abs(sx-x);if(d<bd){bd=d;best=sx}});
+  if(bd>60){flashCoach('Place wire and mines in YOUR half of no-man’s-land.');return}
+  if(G.wires.some(w=>w.side===0&&w.lane===lane&&w.x===best&&w.hp>0)||G.mines.some(m=>m.side===0&&m.lane===lane&&m.x===best)){flashCoach('That spot is taken.');return}
+  if(!spend(COST[kind]))return;
+  if(kind==='wire')G.wires.push({side:0,lane,x:best,hp:100});else G.mines.push({side:0,lane,x:best});
+  puff(best,laneY(lane),'#b0a080');
+ }
+ sfx.buy();setSector(lane);
+ if(!e_shift)G.build=null;renderShop();
+}
+let e_shift=false;addEventListener('keydown',e=>{if(e.key==='Shift')e_shift=true});addEventListener('keyup',e=>{if(e.key==='Shift')e_shift=false});
+function spend(n){if(G.supply<n){flashCoach('Not enough supply — answer more questions!');sfx.bad();return false}G.supply-=n;updHUD();return true}
+
+/* ---------------- HUD SETUP ---------------- */
+function setupHUD(){
+ const b=G.b;$('#hudName').innerHTML=`${b.short}<small>${b.year} · ${b.where}</small>`;
+ const sc=$('#sectors');sc.innerHTML='';for(let l=0;l<5;l++){const bt=document.createElement('button');bt.textContent=l+1;bt.onclick=()=>setSector(l);sc.appendChild(bt)}
+ $('#heroName').textContent=b.hero.ability.name;
+ renderShop();setSector(2);syncArtyUI();updHUD();
+}
+const ICONS={
+ squad:'<svg viewBox="0 0 32 32"><ellipse cx="16" cy="9" rx="10" ry="3" fill="#6b6a48"/><circle cx="16" cy="11" r="4" fill="#d8b48a"/><rect x="11" y="15" width="10" height="9" fill="#8b7d4b"/><path d="M13 24l-2 6M19 24l2 6" stroke="#5a4e2e" stroke-width="2.5"/><path d="M8 26L26 8" stroke="#3a2a18" stroke-width="2"/></svg>',
+ mg:'<svg viewBox="0 0 32 32"><path d="M4 26a12 9 0 0124 0z" fill="#a8946a" stroke="#5c4b30"/><rect x="11" y="13" width="12" height="5" fill="#2a2a2a"/><rect x="21" y="14.5" width="9" height="2" fill="#2a2a2a"/><path d="M14 18l-4 6M18 18l4 6" stroke="#2a2a2a" stroke-width="2"/></svg>',
+ wire:'<svg viewBox="0 0 32 32"><path d="M6 6v22M26 6v22" stroke="#5a4020" stroke-width="3"/><path d="M4 10q6 6 12 0t12 0M4 17q6 6 12 0t12 0M4 24q6 6 12 0t12 0" fill="none" stroke="#9aa0a6" stroke-width="1.6"/></svg>',
+ mine:'<svg viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="11" ry="6" fill="#3d3a2c"/><rect x="13" y="11" width="6" height="7" fill="#55503a"/><circle cx="16" cy="11" r="2.5" fill="#c8102e"/></svg>',
+ battery:'<svg viewBox="0 0 32 32"><circle cx="11" cy="24" r="6" fill="none" stroke="#5a4020" stroke-width="2.5"/><rect x="9" y="16" width="16" height="5" transform="rotate(-30 16 18)" fill="#4a4f3a"/><path d="M11 24L28 24" stroke="#4a4f3a" stroke-width="3"/></svg>',
+ shells:'<svg viewBox="0 0 32 32"><g fill="#c49a3a" stroke="#6a4a10"><path d="M7 28V12q2.5-7 5 0v16z"/><path d="M14 28V12q2.5-7 5 0v16z"/><path d="M21 28V12q2.5-7 5 0v16z"/></g></svg>',
+ tank:'<svg viewBox="0 0 32 32"><path d="M2 22L6 10h20l4 12-3 4H5z" fill="#5e6b3a" stroke="#2b3018"/><rect x="11" y="15" width="8" height="5" fill="#3a4224"/></svg>',
+ masks:'<svg viewBox="0 0 32 32"><ellipse cx="16" cy="15" rx="10" ry="11" fill="#6b6a4a"/><circle cx="12" cy="13" r="3.5" fill="#b8d0d8" stroke="#222"/><circle cx="20" cy="13" r="3.5" fill="#b8d0d8" stroke="#222"/><rect x="13" y="20" width="6" height="8" rx="2" fill="#444"/></svg>'
+};
+function shopItems(){
+ const b=G.b,a=[['squad','Infantry squad','6 soldiers to reserve'],['mg','Machine gun','tap a trench sector'],['wire','Barbed wire','slows attackers'],['mine','Landmine','hidden blast'],['battery','Artillery gun','+1 gun (max 4)'],['shells','Shells ×10','ammo for guns']];
+ if(b.tanks)a.push(['tank','Mark I tank','deploys in sector']);
+ if(b.gas)a.push(['masks','Gas masks','protect MG crews']);
+ return a;
+}
+function renderShop(){
+ const sh=$('#shop');sh.innerHTML='';
+ shopItems().forEach(([k,n,d])=>{const bt=document.createElement('button');bt.className='sbtn'+(G.build===k?' sel':'');bt.dataset.k=k;
+  bt.innerHTML=`${ICONS[k]}<span><b>${n}</b><span class="c">${COST[k]}</span> · <small>${d}</small></span>`;
+  bt.onclick=()=>buy(k);sh.appendChild(bt)});
+ updShop();
+}
+function updShop(){if(!G)return;$$('#shop .sbtn').forEach(bt=>{const k=bt.dataset.k;let dis=G.supply<COST[k];if(k==='battery'&&G.batt[0]>=4)dis=true;if(k==='masks'&&G.masks)dis=true;bt.disabled=dis&&G.build!==k;bt.classList.toggle('sel',G.build===k)})}
+function buy(k){
+ ac();if(G.over)return;
+ if(k==='mg'||k==='wire'||k==='mine'){G.build=G.build===k?null:k;renderShop();if(G.build)flashCoach(k==='mg'?'Tap a glowing sector of YOUR trench.':'Tap a glowing spot in your half of no-man’s-land.');return}
+ if(k==='battery'){if(G.batt[0]>=4)return;if(!spend(COST.battery))return;G.batt[0]++}
+ else if(k==='shells'){if(!spend(COST.shells))return;G.shells+=10}
+ else if(k==='squad'){if(!spend(COST.squad))return;G.squads++}
+ else if(k==='tank'){if(!spend(COST.tank))return;spawnTank(0,G.sector);banner('TANK ADVANCING!',1.2)}
+ else if(k==='masks'){if(G.masks||!spend(COST.masks))return;G.masks=true;banner('GAS MASKS ISSUED',1.2)}
+ sfx.buy();const el=$(`#shop .sbtn[data-k="${k}"]`);if(el){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}
+ updHUD();syncArtyUI();
+}
+function setSector(l){G.sector=l;G.art.lane=l;$$('#sectors button').forEach((b,i)=>b.classList.toggle('on',i===l))}
+function syncArtyUI(){$('#range').value=Math.round(G.art.x);$('#btnFire').classList.toggle('on',G.art.fire);$('#btnFire').textContent=G.art.fire?'Firing':'Fire';$('#btnCreep').classList.toggle('on',G.art.creep);$('#batN').textContent=G.batt[0];$('#shN').textContent=G.shells}
+$('#range').addEventListener('input',e=>{if(!G)return;G.art.x=+e.target.value;G.art.creep=false;syncArtyUI()});
+$$('.presets button').forEach(b=>b.addEventListener('click',()=>{G.art.x=+b.dataset.r;G.art.creep=false;syncArtyUI()}));
+$('#btnFire').addEventListener('click',()=>{ac();if(!G)return;if(!G.art.fire&&G.shells<=0){flashCoach('Out of shells! Buy more in the shop.');sfx.bad();return}G.art.fire=!G.art.fire;syncArtyUI();coachEvent('fire')});
+$('#btnCreep').addEventListener('click',()=>{ac();if(!G)return;G.art.creep=!G.art.creep;if(G.art.creep&&!G.art.fire&&G.shells>0)G.art.fire=true;syncArtyUI()});
+$('#btnTop').addEventListener('click',()=>sendSquads(1));
+$('#btnAll').addEventListener('click',()=>sendSquads(99));
+$('#btnHero').addEventListener('click',useHero);
+$('#btnPause').addEventListener('click',()=>pause(true));
+$('#btnResume').addEventListener('click',()=>pause(false));
+$('#btnRestart').addEventListener('click',()=>{pause(false);startBattle(G.i)});
+$('#btnQuit').addEventListener('click',()=>{$('#pauseOv').classList.remove('on');G.over=true;cancelAnimationFrame(raf);show('map')});
+$('#btnMute').addEventListener('click',()=>{muted=!muted;$('#btnMute').textContent=muted?'🔇':'🔊'});
+function pause(p){if(!G||G.over)return;G.paused=p;$('#pauseOv').classList.toggle('on',p);if(!p)last=performance.now()}
+addEventListener('keydown',e=>{
+ if(current!=='battle'||!G||G.over)return;
+ if(['1','2','3','4'].includes(e.key)){const b=$$('#opts .opt')[+e.key-1];if(b&&!b.disabled)b.click();e.preventDefault()}
+ else if(e.key===' '){sendSquads(1);e.preventDefault()}
+ else if(e.key==='f'||e.key==='F')$('#btnFire').click();
+ else if(e.key==='c'||e.key==='C')$('#btnCreep').click();
+ else if(e.key==='h'||e.key==='H')useHero();
+ else if(e.key==='ArrowUp'){setSector(Math.max(0,G.sector-1));e.preventDefault()}
+ else if(e.key==='ArrowDown'){setSector(Math.min(4,G.sector+1));e.preventDefault()}
+ else if(e.key==='Escape'){G.build=null;renderShop();pause(!G.paused)}
+});
+
+/* ---------------- QUESTIONS ---------------- */
+function mastery(id){return save.mastery[id]||0}
+function buildDeck(){
+ const cur=G.b.items.slice();
+ const prev=ALL_ITEMS.filter(it=>it.b<G.i).sort((a,b)=>mastery(a.id)-mastery(b.id)+rand(-1,1));
+ const rev=prev.slice(0,Math.min(8,prev.length));
+ G.deck=shuffle(cur.concat(rev));G.reviewIds=new Set(rev.map(r=>r.id));
+}
+function nextQuestion(){
+ if(!G.deck.length)buildDeck();
+ let it=G.deck.shift();if(G.qi&&it.id===G.qi.item.id&&G.deck.length){G.deck.push(it);it=G.deck.shift()}
+ G.qi=makeQ(it);G.qStart=G.t;renderQ();
+}
+function makeQ(it){
+ if(it.q)return{item:it,prompt:it.q,label:G.reviewIds&&G.reviewIds.has(it.id)?'Review':'',answer:it.a,opts:shuffle([it.a,...it.w])};
+ const reverse=Math.random()<.35;
+ const same=ALL_ITEMS.filter(o=>!o.q&&o.c===it.c&&o!==it);
+ const near=shuffle(same.filter(o=>o.b===it.b)),far=shuffle(same.filter(o=>o.b!==it.b));
+ const pool=near.concat(far).slice(0,3);
+ const lbl=G.reviewIds&&G.reviewIds.has(it.id)?'Review':'';
+ if(reverse)return{item:it,prompt:it.d,label:(lbl?lbl+' · ':'')+(it.c==='figure'?'Who?':'Which term?'),answer:it.t,opts:shuffle([it.t,...pool.map(o=>o.t)])};
+ return{item:it,prompt:it.t+'?',label:lbl,answer:it.d,opts:shuffle([it.d,...pool.map(o=>o.d)])};
+}
+function renderQ(){
+ const q=G.qi;$('#qtext').innerHTML=(q.label?`<small>${q.label}</small>`:'')+q.prompt;
+ const o=$('#opts');o.innerHTML='';
+ q.opts.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<kbd>${i+1}</kbd>${t}`;b.onclick=()=>answer(t,b);o.appendChild(b)});
+ $('#qfb').textContent='';
+ const s=G.streak;$('#streak').textContent=s>=2?`🔥 ${s} streak`:'';
+}
+function answer(t,btn){
+ if(!G||G.over||G.lock>0)return;ac();
+ const q=G.qi,ok=t===q.answer;const btns=$$('#opts .opt');btns.forEach(b=>b.disabled=true);
+ const id=q.item.id;
+ if(ok){
+  G.streak++;G.stats.correct++;G.stats.bestStreak=Math.max(G.stats.bestStreak,G.streak);
+  const fast=(G.t-G.qStart)<5;const gain=25+Math.min(G.streak-1,5)*5+(fast?10:0);
+  G.supply+=gain;G.score+=50+Math.min(G.streak,10)*10;G.hero=Math.min(100,G.hero+25);
+  btn.classList.add('right');$('#qfb').innerHTML=`<span style="color:#3d6e1e">+${gain} supply${fast?' · quick!':''}${G.streak>=3?' · streak ×'+G.streak:''}</span>`;
+  save.mastery[id]=Math.min(5,mastery(id)+1);
+  if(G.streak%5===0){sfx.streak();floatText(500,60,`${G.streak} IN A ROW!`,'#e0b030',22)}else sfx.good();
+  setTimeout(()=>{if(G&&!G.over)nextQuestion()},420);
+  coachEvent('correct');
+ }else{
+  G.streak=0;G.stats.wrong++;G.hero=Math.max(0,G.hero-15);G.stats.missed[id]=q.item;
+  btn.classList.add('wrong');btns.forEach(b=>{if(b.textContent.slice(1)===q.answer)b.classList.add('right')});
+  $('#qfb').innerHTML='<span style="color:#9b1b1b">Study the right answer…</span>';
+  save.mastery[id]=Math.max(0,mastery(id)-1);
+  sfx.bad();G.lock=2.4;
+  // spaced re-try: put it back a few cards later
+  G.deck.splice(Math.min(3,G.deck.length),0,q.item);
+  setTimeout(()=>{if(G&&!G.over)nextQuestion()},2400);
+ }
+ persist();updHUD();
+}
+
+/* ---------------- HERO ---------------- */
+function useHero(){
+ if(!G||G.over||G.hero<100)return;ac();G.hero=0;sfx.hero();
+ const k=G.b.hero.ability.key,l=G.sector;banner(G.b.hero.ability.name.toUpperCase()+'!',1.6);
+ if(k==='taxis'){G.squads+=3;for(let i=0;i<3;i++)setTimeout(()=>puff(rand(20,60),laneY(Math.floor(rand(0,5))),'#d0c090'),i*150)}
+ else if(k==='hold')G.buffs.mg=12;
+ else if(k==='simpson'){G.squads+=2;G.mg[0].forEach(m=>{if(m)m.hp=100})}
+ else if(k==='sacred'){G.supply+=150;G.shells+=15;G.mg[0].forEach(m=>{if(m)m.hp=100})}
+ else if(k==='tank')spawnTank(0,l);
+ else if(k==='creep')G.buffs.art=14;
+ else if(k==='york'){let n=0;G.troops.forEach(t=>{if(t.side===1&&t.lane===l&&!t.tank&&t.hp>0){t.hp=0;t.surrender=true;n++}});G.supply+=n*10;G.score+=n*5;const m=G.mg[1][l];if(m)m.supp=Math.max(m.supp,9);floatText(500,laneY(l),`${n} captured!`,'#fff3c2',20)}
+ updHUD();syncArtyUI();
+}
+
+/* ---------------- TROOPS ---------------- */
+function sendSquads(n){
+ if(!G||G.over)return;ac();
+ if(G.squads<=0){flashCoach('No squads in reserve. Buy an infantry squad in the shop.');sfx.bad();return}
+ const k=Math.min(n,G.squads);G.squads-=k;
+ for(let s=0;s<k;s++)for(let i=0;i<6;i++)spawnSoldier(0,G.sector,-s*26-rand(0,14));
+ sfx.whistle();coachEvent('top');updHUD();
+}
+function spawnSoldier(side,lane,dx=0){
+ const dir=side?-1:1;G.troops.push({side,lane,x:MGX[side]+dir*16,y:laneY(lane)+rand(-LH*.36,LH*.36),hp:2,spd:rand(26,32),delay:Math.abs(dx)/30,ph:Math.random()*6,cut:false,tank:false});
+}
+function spawnTank(side,lane){G.troops.push({side,lane,x:MGX[side]+(side?-20:20),y:laneY(lane),hp:30,max:30,spd:15,delay:0,ph:0,tank:true})}
+
+/* ---------------- EXPLOSIONS ---------------- */
+function spawnShell(side,x,y){G.shells_.push({side,x,y,t:0,fl:rand(1,1.25)});if(Math.random()<.25&&side===1)sfx.incoming()}
+function explode(x,y,src,opt={}){
+ const r=opt.r||44;
+ G.troops.forEach(t=>{if(t.hp<=0)return;const d=Math.hypot(t.x-x,(t.y-y)*1.2);if(d<r){if(t.tank)t.hp-=opt.tankDmg||6;else if(Math.random()<.85){t.hp-=3;if(t.hp<=0){t.killedBy=src;if(src===0&&t.side===0&&!opt.mine)G.stats.ff++}}}});
+ if(!opt.mine){
+  G.wires.forEach(w=>{if(w.hp>0&&Math.abs(w.x-x)<r&&Math.abs(laneY(w.lane)-y)<LH*.55)w.hp-=40});
+  [0,1].forEach(s=>G.mg[s].forEach(m=>{if(!m)return;const d=Math.hypot(m.x-x,(laneY(m.lane)-y)*.9);if(d<68){m.supp=Math.max(m.supp,3.0);m.hp-=d<35?8:4;if(m.hp<=0){G.mg[s][m.lane]=null;bigBoom(m.x,laneY(m.lane));floatText(m.x,laneY(m.lane)-20,s?'MG DESTROYED':'MG LOST',s?'#9ff08a':'#ff8a8a',16);if(s===1)G.score+=150}}}));
+  if(src===0&&x>870){G.str[1]=Math.max(0,G.str[1]-.5);G.stats.dmg+=.5}
+  if(src===1&&x<130){G.str[0]=Math.max(0,G.str[0]-.5)}
+ }
+ crater(x,y,rand(9,15));
+ // visuals
+ G.parts.push({k:'flash',x,y,t:0,life:.25,r:r});
+ for(let i=0;i<14;i++)G.parts.push({k:'dirt',x,y,vx:rand(-90,90),vy:rand(-60,40),vz:rand(80,200),z:0,t:0,life:rand(.6,1.1),c:pick(['#3a2b1a','#5a4630','#2a1f12','#7a6446'])});
+ for(let i=0;i<4;i++)G.smokes.push({x:x+rand(-10,10),y:y+rand(-8,8),r:rand(10,18),vr:rand(14,24),a:.55,t:0,life:rand(2.5,4),vx:rand(-6,6),c:opt.mine?'60,55,45':'90,85,75'});
+ G.shake=Math.min(8,G.shake+(src===1&&x<300?4:2));
+ sfx.boom(src===1&&x<300);
+}
+function bigBoom(x,y){for(let i=0;i<3;i++)setTimeout(()=>{if(G){G.parts.push({k:'flash',x:x+rand(-8,8),y:y+rand(-8,8),t:0,life:.3,r:40});sfx.boom(true)}},i*120)}
+function puff(x,y,c){for(let i=0;i<6;i++)G.smokes.push({x:x+rand(-10,10),y:y+rand(-8,8),r:rand(4,8),vr:rand(10,16),a:.5,t:0,life:1,vx:0,c:'200,190,160'})}
+function floatText(x,y,s,c='#fff',sz=15){G.texts.push({x,y,s,c,sz,t:0,life:1.6})}
+
+/* ---------------- UPDATE ---------------- */
+function loop(now){
+ if(!G)return;let dt=Math.min(.05,(now-last)/1000);last=now;
+ if(!G.paused&&!G.over)update(dt);
+ render();
+ if(!G.overDone)raf=requestAnimationFrame(loop);
+}
+function update(dt){
+ G.t+=dt;if(G.lock>0)G.lock-=dt;
+ G.buffs.mg=Math.max(0,G.buffs.mg-dt);G.buffs.art=Math.max(0,G.buffs.art-dt);
+ // artillery (player)
+ const A=G.art;
+ if(A.creep&&A.fire){A.x=Math.min(915,A.x+28*dt);if(Math.abs(A.x-$('#range').value)>3)$('#range').value=Math.round(A.x)}
+ if(A.fire){const rate=G.buffs.art>0?.5:1;for(let i=0;i<G.batt[0];i++){A.cd[i]-=dt;if(A.cd[i]<=0){if(G.shells<=0){A.fire=false;A.creep=false;syncArtyUI();flashCoach('Out of shells! Buy more.');break}A.cd[i]=2.2*rate+rand(0,.3);G.shells--;const sp=G.buffs.art>0?.55:1;spawnShell(0,A.x+rand(-28,28)*sp,laneY(A.lane)+rand(-LH*.42,LH*.42)*sp);G.batFlash0=.15;syncArtyUI()}}}
+ // AI
+ G.ai.tick+=dt;if(G.ai.tick>=1){G.ai.tick-=1;aiTick()}
+ aiUpdate(dt);
+ // shells in flight
+ for(const s of G.shells_){s.t+=dt;if(s.t>=s.fl){s.done=true;explode(s.x,s.y,s.side)}}
+ G.shells_=G.shells_.filter(s=>!s.done);
+ // MGs
+ [0,1].forEach(side=>G.mg[side].forEach(m=>{if(!m)return;m.flash=Math.max(0,m.flash-dt);
+  if(m.supp>0){m.supp-=dt;return}
+  const gassed=side===0&&!G.masks&&G.gas.some(g=>g.lane===m.lane&&Math.abs(g.x-m.x)<60);m.gas=gassed;
+  m.cd-=dt;if(m.cd>0)return;
+  let rate=.12;if(side===0&&G.buffs.mg>0)rate=.06;if(gassed)rate*=2.4;
+  // target: closest enemy troop in lane within range
+  let tgt=null,bd=1e9;for(const t of G.troops){if(t.side===side||t.lane!==m.lane||t.hp<=0||t.delay>0)continue;const d=Math.abs(t.x-m.x);if(d<540&&d<bd){bd=d;tgt=t}}
+  if(!tgt){m.cd=.2;return}
+  m.cd=rate;m.flash=.06;
+  const hit=Math.random()<(tgt.tank?.6:.4);
+  G.tracers.push({x1:m.x+(side?-12:12),y1:laneY(m.lane)-4,x2:tgt.x+rand(-6,6),y2:tgt.y-6+rand(-5,5),t:0});
+  if(hit){if(tgt.tank){tgt.hp-=.06;if(Math.random()<.2)G.parts.push({k:'spark',x:tgt.x,y:tgt.y-8,t:0,life:.15})}else{tgt.hp-=1;if(tgt.hp<=0)tgt.killedBy='mg'}}
+  sfx.mg();
+ }));
+ // troops
+ for(const t of G.troops){
+  if(t.hp<=0)continue;
+  if(t.delay>0){t.delay-=dt;continue}
+  const dir=t.side?-1:1;t.ph+=dt*9;
+  // wire
+  let blocked=false;
+  if(!t.tank){for(const w of G.wires){if(w.side===t.side||w.lane!==t.lane||w.hp<=0)continue;const d=(w.x-t.x)*dir;if(d>-4&&d<9){blocked=true;w.hp-=7*dt;break}}}
+  else{for(const w of G.wires){if(w.side!==t.side&&w.lane===t.lane&&w.hp>0&&Math.abs(w.x-t.x)<14){w.hp=0;floatText(w.x,laneY(w.lane)-20,'wire crushed','#e8d7a6',12)}}}
+  t.cut=blocked;
+  if(!blocked){const mud=G.b.ground.winter?.9:1;let sp=t.spd*mud;if(G.gas.some(g=>g.lane===t.lane&&Math.abs(g.x-t.x)<50)&&t.side===0&&!G.masks)sp*=.7;t.x+=dir*sp*dt}
+  // mines
+  for(const m of G.mines){if(m.side===t.side||m.lane!==t.lane||m.done)continue;if(Math.abs(m.x-t.x)<10&&Math.abs(laneY(m.lane)-t.y)<LH*.5){m.done=true;explode(m.x,t.y,m.side,{mine:true,r:48,tankDmg:22});floatText(m.x,t.y-24,'MINE!','#ffcf6a',16)}}
+  // reached trench
+  if((t.side===0&&t.x>=LINE[1])||(t.side===1&&t.x<=LINE[0])){
+   t.hp=0;t.arrived=true;const foe=1-t.side;const dmg=t.tank?10:3;
+   G.str[foe]=Math.max(0,G.str[foe]-dmg);
+   const m=G.mg[foe][t.lane];if(m){m.hp-=t.tank?100:34;if(m.hp<=0){G.mg[foe][t.lane]=null;bigBoom(m.x,laneY(t.lane));floatText(m.x,laneY(t.lane)-20,foe?'MG CAPTURED':'MG OVERRUN',foe?'#9ff08a':'#ff8a8a',16);if(foe===1)G.score+=150}}
+   if(t.side===0){G.stats.dmg+=dmg;G.score+=dmg*20;floatText(LINE[1]-10,t.y-14,'-'+dmg,'#9ff08a',16);coachEvent('reach')}
+   else{floatText(LINE[0]+10,t.y-14,'-'+dmg,'#ff8a8a',16);G.shake=Math.min(8,G.shake+2)}
+  }
+ }
+ // casualties
+ G.troops.forEach(t=>{if(t.hp<=0&&!t.counted){t.counted=true;if(!t.arrived){if(t.side===1){G.stats.kills++;G.score+=10;if(!t.surrender)G.fallen.push({x:t.x,y:t.y,side:1,t:0,tank:t.tank})}else{G.stats.lost++;G.fallen.push({x:t.x,y:t.y,side:0,t:0,tank:t.tank});if(t.killedBy===0)floatText(t.x,t.y-18,'friendly fire!','#ffb060',13)}if(t.tank)bigBoom(t.x,t.y)}if(t.surrender)G.fallen.push({x:t.x,y:t.y,side:1,t:0,sur:true})}});
+ G.troops=G.troops.filter(t=>t.hp>0);
+ G.fallen.forEach(f=>f.t+=dt);G.fallen=G.fallen.filter(f=>f.t<(f.tank?20:7));
+ G.wires=G.wires.filter(w=>w.hp>0);G.mines=G.mines.filter(m=>!m.done);
+ // gas clouds
+ for(const g of G.gas){g.x-=22*dt;g.t+=dt}G.gas=G.gas.filter(g=>g.x>-40);
+ // particles
+ for(const p of G.parts){p.t+=dt;if(p.k==='dirt'){p.x+=p.vx*dt;p.y+=p.vy*dt*.3;p.z+=p.vz*dt;p.vz-=420*dt;if(p.z<0){p.z=0;p.vx*=.5;p.vy*=.5;p.vz=0}}}
+ G.parts=G.parts.filter(p=>p.t<p.life);
+ for(const s of G.smokes){s.t+=dt;s.r+=s.vr*dt*(1-s.t/s.life);s.x+=s.vx*dt}G.smokes=G.smokes.filter(s=>s.t<s.life);
+ for(const tr of G.tracers)tr.t+=dt;G.tracers=G.tracers.filter(t=>t.t<.08);
+ for(const tx of G.texts){tx.t+=dt;tx.y-=18*dt}G.texts=G.texts.filter(t=>t.t<t.life);
+ G.shake=Math.max(0,G.shake-dt*20);
+ if(G.batFlash0>0)G.batFlash0-=dt;if(G.batFlash1>0)G.batFlash1-=dt;
+ // coach timers
+ if(G.coach>=0){G.coachT+=dt;if(G.coach===4&&G.coachT>18)advanceCoach()}
+ if(G.coachMsgT>0){G.coachMsgT-=dt;if(G.coachMsgT<=0&&G.coach<0)$('#coach').style.display='none';else if(G.coachMsgT<=0&&G.coach>=0)coach(COACH[G.coach])}
+ if(G.bannerT>0){G.bannerT-=dt;if(G.bannerT<=0)$('#banner').style.opacity=0}
+ // end
+ if(G.str[0]<=0)endBattle('defeat');else if(G.str[1]<=0)endBattle('victory');else if(G.t>=G.dur){const d=G.str[0]-G.str[1];endBattle(d>5?'victory':d<-5?'defeat':'stalemate')}
+ hudTick();
+}
+
+/* ---------------- ENEMY AI ---------------- */
+function laneThreat(l){ // how well player defends lane l (higher = stronger)
+ const m=G.mg[0][l];return (m?m.hp/100*3:0)+G.wires.filter(w=>w.side===0&&w.lane===l).length*.8+G.mines.filter(x=>x.side===0&&x.lane===l).length*.6;
+}
+function aiTick(){
+ const A=G.ai,E=G.E;const ramp=1+G.t/300;
+ A.supply+=E.income*ramp*(G.t<15?.4:1);
+ const empty=[0,1,2,3,4].filter(l=>!G.mg[1][l]);const mgCount=5-empty.length;
+ if(empty.length&&mgCount<E.maxMG&&A.supply>=90&&Math.random()<.55){const l=pick(empty);addMG(1,l);A.supply-=90;puff(MGX[1],laneY(l),'#aaa')}
+ if(G.batt[1]<E.maxBatt&&A.supply>=120&&Math.random()<.12&&G.t>30){G.batt[1]++;A.supply-=120}
+ const ew=G.wires.filter(w=>w.side===1).length;
+ if(ew<E.maxWire&&A.supply>=30&&Math.random()<.2){const free=SLOTS[1].flatMap(x=>[0,1,2,3,4].map(l=>({x,l}))).filter(s=>!G.wires.some(w=>w.side===1&&w.x===s.x&&w.lane===s.l)&&!G.mines.some(m=>m.side===1&&m.x===s.x&&m.lane===s.l));if(free.length){const s=pick(free);G.wires.push({side:1,lane:s.l,x:s.x,hp:100});A.supply-=30}}
+ const em=G.mines.filter(m=>m.side===1).length;
+ if(em<E.mines&&A.supply>=25&&Math.random()<.1){const free=SLOTS[1].flatMap(x=>[0,1,2,3,4].map(l=>({x,l}))).filter(s=>!G.wires.some(w=>w.side===1&&w.x===s.x&&w.lane===s.l)&&!G.mines.some(m=>m.side===1&&m.x===s.x&&m.lane===s.l));if(free.length){const s=pick(free);G.mines.push({side:1,lane:s.l,x:s.x});A.supply-=25}}
+ if(A.supply>=40&&A.squads<E.squads+2&&Math.random()<.45){A.squads++;A.supply-=40}
+ // gas
+ if(E.gas&&G.b.gas){A.gasT-=1;if(A.gasT<=0){A.gasT=E.gas*rand(.8,1.2);const ls=shuffle([0,1,2,3,4]).slice(0,2);ls.forEach(l=>{for(let k=0;k<4;k++)G.gas.push({lane:l,x:880+k*24,y:laneY(l)+rand(-25,25),r:rand(28,40),t:0,ph:Math.random()*6})});banner('GAS! GAS! GAS!',1.6);sfx.alarm();if(!G.masks)flashCoach('Poison gas is drifting toward your trench! Gas masks keep your machine gunners fighting.',4)}}
+ // attack planning
+ A.next-=1;
+ if(!A.attack&&A.next<=0&&A.squads>=Math.min(E.squads,2)){
+  const scores=[0,1,2,3,4].map(l=>({l,s:laneThreat(l)+rand(0,1.6)})).sort((a,b)=>a.s-b.s);
+  const l=scores[0].l;A.attack={lane:l,phase:'bomb',t:G.batt[1]>0?rand(5,7):1,lift:rand(260,360)};
+  banner(`Enemy shelling Sector ${l+1}!`,1.6);
+ }
+ // harassment fire on player wire when idle
+ A.harass-=1;if(!A.attack&&A.harass<=0&&G.t>20){A.harass=rand(10,16);const pw=G.wires.filter(w=>w.side===0);if(pw.length&&Math.random()<.7){const w=pick(pw);A.harassT={lane:w.lane,x:w.x,t:4}}else A.harassT={lane:Math.floor(rand(0,5)),x:MGX[0]+4,t:3}}
+}
+function aiUpdate(dt){
+ const A=G.ai,E=G.E;let tgt=null;
+ if(A.attack){
+  const at=A.attack;at.t-=dt;
+  if(at.phase==='bomb'){tgt={lane:at.lane,x:MGX[0]+6};
+   if(at.t<=0){at.phase='go';at.t=40;const n=Math.min(A.squads,E.squads+Math.floor(G.t/120));A.squads-=n;for(let s=0;s<n;s++)for(let i=0;i<6;i++)spawnSoldier(1,at.lane,-s*26-rand(0,14));banner(`Enemy raid! Sector ${at.lane+1}`,1.5);sfx.whistle();sfx.alarm()}}
+  else{const alive=G.troops.filter(t=>t.side===1&&t.lane===at.lane);
+   if(alive.length){const lead=Math.min(...alive.map(t=>t.x));if(lead-MGX[0]>at.lift)tgt={lane:at.lane,x:MGX[0]+6}}
+   if(!alive.length||at.t<=0){A.attack=null;A.next=E.every*rand(.8,1.2)}}
+ }else{
+  // counter-barrage on advancing player infantry
+  if(E.counter){const pl=G.troops.filter(t=>t.side===0&&t.delay<=0&&t.x>260&&t.x<820);if(pl.length){const lead=pl.reduce((a,b)=>b.x>a.x?b:a);tgt={lane:lead.lane,x:lead.x+rand(10,50)}}}
+  if(!tgt&&A.harassT){A.harassT.t-=dt;tgt=A.harassT;if(A.harassT.t<=0)A.harassT=null}
+ }
+ if(tgt){const n=G.batt[1];for(let i=0;i<n;i++){A.cd[i]-=dt;if(A.cd[i]<=0){A.cd[i]=A.attack?rand(2.6,3.3):rand(3.6,4.6);spawnShell(1,tgt.x+rand(-30,30),laneY(tgt.lane)+rand(-LH*.42,LH*.42));G.batFlash1=.15}}}
+}
+
+/* ---------------- RENDER ---------------- */
+function render(){
+ const c=cx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,cv.width,cv.height);
+ const sh=G.shake;c.setTransform(SCALE,0,0,SCALE,rand(-sh,sh)*SCALE*.5,rand(-sh,sh)*SCALE*.5);
+ c.drawImage(ground,0,0,W,H);
+ // lanes
+ for(let l=0;l<LANES;l++){const y=TOP+LH*l;if(l===G.sector){c.fillStyle='rgba(224,176,48,.09)';c.fillRect(0,y,W,LH);c.strokeStyle='rgba(224,176,48,.45)';c.lineWidth=1.5;c.setLineDash([8,6]);c.strokeRect(1,y+1,W-2,LH-2);c.setLineDash([])}
+  c.fillStyle='rgba(255,240,200,.45)';c.font='600 12px Oswald';c.fillText('SECTOR '+(l+1),6,y+14)}
+ // NML midline marker
+ c.strokeStyle='rgba(0,0,0,.15)';c.setLineDash([3,8]);c.beginPath();c.moveTo(500,0);c.lineTo(500,H);c.stroke();c.setLineDash([]);
+ // build ghost slots
+ if(G.build){c.save();const pulse=.5+.5*Math.sin(G.t*6);c.strokeStyle=`rgba(255,230,140,${.5+.4*pulse})`;c.lineWidth=2;c.setLineDash([4,3]);
+  for(let l=0;l<5;l++){if(G.build==='mg'){if(!G.mg[0][l]){c.beginPath();c.arc(MGX[0],laneY(l),18,0,7);c.stroke()}}else SLOTS[0].forEach(x=>{if(!G.wires.some(w=>w.side===0&&w.lane===l&&w.x===x)&&!G.mines.some(m=>m.side===0&&m.lane===l&&m.x===x)){c.strokeRect(x-14,laneY(l)-LH*.38,28,LH*.76)}})}
+  c.restore()}
+ // batteries
+ drawBatteries(c);
+ // wires
+ for(const w of G.wires)drawWire(c,w);
+ // own mines
+ for(const m of G.mines){if(m.side!==0)continue;const y=laneY(m.lane);c.fillStyle='rgba(30,28,20,.85)';c.beginPath();c.ellipse(m.x,y,7,4,0,0,7);c.fill();c.fillStyle=Math.sin(G.t*4)>0?'#ff3030':'#801010';c.beginPath();c.arc(m.x,y-1,1.8,0,7);c.fill()}
+ // fallen
+ for(const f of G.fallen)drawFallen(c,f);
+ // gas (under troops)
+ for(const g of G.gas){const gr=c.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r+Math.sin(g.t*2+g.ph)*4);gr.addColorStop(0,'rgba(190,200,60,.42)');gr.addColorStop(1,'rgba(190,200,60,0)');c.fillStyle=gr;c.beginPath();c.arc(g.x,g.y,g.r+6,0,7);c.fill()}
+ // shells shadows
+ for(const s of G.shells_){const p=s.t/s.fl;c.fillStyle=`rgba(0,0,0,${.15+.35*p})`;c.beginPath();c.ellipse(s.x,s.y,3+6*p,2+3*p,0,0,7);c.fill();
+  const hy=s.y-(1-p)*220;c.strokeStyle='rgba(40,30,20,.7)';c.lineWidth=2;c.beginPath();c.moveTo(s.x+(1-p)*(s.side?-40:40),hy-8);c.lineTo(s.x+(1-p)*(s.side?-40:40)*.95,hy);c.stroke()}
+ // MGs + troops sorted by y
+ const ents=[];[0,1].forEach(s=>G.mg[s].forEach(m=>{if(m)ents.push({y:laneY(m.lane),f:()=>drawMG(c,m)})}));
+ G.troops.forEach(t=>ents.push({y:t.y,f:()=>t.tank?drawTank(c,t):drawSoldier(c,t)}));
+ ents.sort((a,b)=>a.y-b.y).forEach(e=>e.f());
+ // tracers
+ c.lineWidth=1.3;for(const t of G.tracers){c.strokeStyle='rgba(255,230,150,.85)';c.beginPath();c.moveTo(t.x1,t.y1);const k=.4+Math.random()*.5;c.lineTo(t.x1+(t.x2-t.x1)*k,t.y1+(t.y2-t.y1)*k);c.stroke()}
+ // particles
+ for(const p of G.parts){const a=1-p.t/p.life;if(p.k==='flash'){const r=p.r*(.4+p.t/p.life);const gr=c.createRadialGradient(p.x,p.y,0,p.x,p.y,r);gr.addColorStop(0,`rgba(255,250,210,${a})`);gr.addColorStop(.4,`rgba(255,170,60,${a*.8})`);gr.addColorStop(1,'rgba(255,90,20,0)');c.fillStyle=gr;c.beginPath();c.arc(p.x,p.y,r,0,7);c.fill()}
+  else if(p.k==='dirt'){c.fillStyle=p.c;c.fillRect(p.x-1.5,p.y-p.z-1.5,3,3)}else if(p.k==='spark'){c.fillStyle='#fff8c0';c.fillRect(p.x-2,p.y-2,4,4)}}
+ for(const s of G.smokes){const a=s.a*(1-s.t/s.life);c.fillStyle=`rgba(${s.c},${a})`;c.beginPath();c.arc(s.x,s.y-s.t*6,s.r,0,7);c.fill()}
+ // artillery target
+ drawTarget(c);
+ // texts
+ c.textAlign='center';for(const t of G.texts){c.globalAlpha=1-t.t/t.life;c.font=`700 ${t.sz}px Oswald`;c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.8)';c.strokeText(t.s,t.x,t.y);c.fillStyle=t.c;c.fillText(t.s,t.x,t.y)}c.globalAlpha=1;c.textAlign='left';
+ // vignette
+ c.setTransform(1,0,0,1,0,0);const vg=c.createRadialGradient(cv.width/2,cv.height/2,cv.height*.3,cv.width/2,cv.height/2,cv.width*.65);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.35)');c.fillStyle=vg;c.fillRect(0,0,cv.width,cv.height);
+}
+function drawBatteries(c){
+ [0,1].forEach(side=>{const n=G.batt[side],dir=side?-1:1;const fl=side?G.batFlash1:G.batFlash0;
+  for(let i=0;i<n;i++){const x=BATX[side],y=60+i*110;c.save();c.translate(x,y);c.scale(dir,1);
+   c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(2,10,16,5,0,0,7);c.fill();
+   c.strokeStyle='#3a2a18';c.lineWidth=2.5;c.beginPath();c.arc(-4,6,7,0,7);c.stroke();
+   c.fillStyle=side?'#555a4a':'#4a5236';c.save();c.rotate(-.5);c.fillRect(-6,-3,26,6);c.restore();c.fillRect(-10,2,14,6);
+   if(fl>0&&i===0){c.fillStyle='rgba(255,220,120,.9)';c.beginPath();c.arc(20,-10,7,0,7);c.fill()}
+   c.restore()}
+  });
+}
+function drawWire(c,w){
+ const y=laneY(w.lane),h=LH*.8,a=.35+.65*w.hp/100;c.save();c.globalAlpha=a;
+ c.strokeStyle='#4a3420';c.lineWidth=2.4;for(let k=-2;k<=2;k++){const yy=y+k*h/5;c.beginPath();c.moveTo(w.x-7,yy-3);c.lineTo(w.x+7,yy+3);c.moveTo(w.x+7,yy-3);c.lineTo(w.x-7,yy+3);c.stroke()}
+ c.strokeStyle='#a3a7aa';c.lineWidth=1;c.beginPath();for(let yy=y-h/2;yy<=y+h/2;yy+=2){c.lineTo(w.x+Math.sin(yy*.9)*8,yy)}c.stroke();
+ c.beginPath();for(let yy=y-h/2;yy<=y+h/2;yy+=3){c.lineTo(w.x+Math.cos(yy*.6)*6,yy)}c.stroke();
+ c.restore();
+}
+function drawMG(c,m){
+ const y=laneY(m.lane),dir=m.side?-1:1;c.save();c.translate(m.x,y);
+ // sandbag horseshoe
+ for(let a=-1.3;a<=1.3;a+=.32){const bx=Math.cos(a)*16*dir,by=Math.sin(a)*15;c.fillStyle='#ac9a70';c.strokeStyle='#5c4b30';c.lineWidth=1;c.beginPath();c.ellipse(bx,by,5.5,4,a,0,7);c.fill();c.stroke()}
+ // gun
+ c.fillStyle='#262626';c.fillRect(-4*dir-(dir<0?10:0),-4,10,7);c.fillRect(dir>0?5:-21,-2,16,3);
+ // crew
+ const col=UNI[m.side?G.b.enemy:G.b.player];c.fillStyle=col.coat;c.beginPath();c.arc(-8*dir,5,4.5,0,7);c.fill();c.fillStyle=col.hc;c.beginPath();c.arc(-8*dir,4,3.5,0,7);c.fill();
+ c.fillStyle=col.coat;c.beginPath();c.arc(-10*dir,-7,4,0,7);c.fill();c.fillStyle=col.hc;c.beginPath();c.arc(-10*dir,-8,3.2,0,7);c.fill();
+ if(m.flash>0){c.fillStyle='rgba(255,230,120,.95)';c.beginPath();c.arc(dir>0?23:-23,-1,4+Math.random()*3,0,7);c.fill()}
+ c.restore();
+ // status
+ if(m.supp>0){c.fillStyle='rgba(120,120,120,.5)';c.beginPath();c.arc(m.x+rand(-3,3),y-16-Math.random()*4,6+Math.random()*3,0,7);c.fill();c.font='600 10px Oswald';c.fillStyle='#ffd27a';c.textAlign='center';c.fillText('SUPPRESSED',m.x,y-24);c.textAlign='left'}
+ if(m.gas){c.font='600 10px Oswald';c.fillStyle='#d8e070';c.textAlign='center';c.fillText('GASSED',m.x,y+28);c.textAlign='left'}
+ if(m.hp<100){c.fillStyle='rgba(0,0,0,.6)';c.fillRect(m.x-14,y+19,28,4);c.fillStyle=m.side?'#c9c9a0':'#7fc0ff';c.fillRect(m.x-14,y+19,28*Math.max(0,m.hp)/100,4)}
+}
+function drawSoldier(c,t){
+ const u=UNI[t.side?G.b.enemy:G.b.player],dir=t.side?-1:1;const moving=t.delay<=0&&!t.cut;const sw=moving?Math.sin(t.ph)*3.5:0,bob=moving?Math.abs(Math.cos(t.ph))*1.2:0;
+ c.save();c.translate(t.x,t.y);c.scale(dir*1.4,1.4);
+ c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,6,2.2,0,0,7);c.fill();
+ c.strokeStyle=u.leg;c.lineWidth=2.6;c.lineCap='round';c.beginPath();c.moveTo(-1,-6);c.lineTo(-1-sw,0);c.moveTo(1,-6);c.lineTo(1+sw,0);c.stroke();
+ c.fillStyle=u.coat;c.fillRect(-3.5,-13-bob,7,8);
+ c.fillStyle='#d9b48c';c.beginPath();c.arc(0,-16-bob,2.8,0,7);c.fill();
+ drawHelmet(c,u,-bob);
+ // rifle
+ c.strokeStyle='#3a2716';c.lineWidth=1.4;c.beginPath();if(t.cut){c.moveTo(1,-9);c.lineTo(8,-4)}else{c.moveTo(-3,-6-bob);c.lineTo(10,-15-bob)}c.stroke();
+ c.strokeStyle='#cfd2d4';c.lineWidth=1;c.beginPath();if(!t.cut){c.moveTo(10,-15-bob);c.lineTo(13,-17-bob)}c.stroke();
+ if(t.cut){c.fillStyle='#ffd27a';c.fillRect(7,-6,2,2)}
+ c.restore();
+}
+function drawHelmet(c,u,b){
+ c.fillStyle=u.hc;const y=-17.5+b;
+ switch(u.helm){
+  case'brodie':c.beginPath();c.ellipse(0,y,5.5,1.6,0,0,7);c.fill();c.beginPath();c.arc(0,y,3,Math.PI,0);c.fill();break;
+  case'adrian':c.beginPath();c.arc(0,y,3.3,Math.PI,0);c.fill();c.fillRect(-.6,y-4.6,1.2,2);c.beginPath();c.ellipse(0,y,4.6,1.1,0,0,7);c.fill();break;
+  case'kepi':c.fillRect(-2.6,y-3.5,5.2,4);c.fillStyle='#2a3a6a';c.fillRect(-3,y,6.5,1.2);break;
+  case'slouch':c.beginPath();c.ellipse(0,y+.3,6,1.5,0,0,7);c.fill();c.beginPath();c.arc(0,y,3,Math.PI,0);c.fill();c.fillRect(-5.5,y-3,1.5,3);break;
+  case'pickel':c.beginPath();c.arc(0,y,3.2,Math.PI,0);c.fill();c.fillStyle='#b8a050';c.fillRect(-.5,y-5.5,1,3);break;
+  case'stahl':c.beginPath();c.arc(0,y,3.6,Math.PI,0);c.fill();c.beginPath();c.moveTo(-3.8,y);c.lineTo(-4.5,y+2.5);c.lineTo(-2,y+1);c.fill();c.fillRect(-3.8,y-.3,7.8,1.2);break;
+  case'kabalak':c.beginPath();c.ellipse(0,y-.6,3.6,2.4,0,0,7);c.fill();c.strokeStyle='#7a6440';c.lineWidth=.7;c.beginPath();c.moveTo(-3,y-1);c.lineTo(3,y);c.stroke();break;
+ }
+}
+function drawTank(c,t){
+ const dir=t.side?-1:1;c.save();c.translate(t.x,t.y);c.scale(dir*1.15,1.15);const j=Math.sin(G.t*20)*.4;
+ c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(0,4,26,6,0,0,7);c.fill();
+ c.fillStyle='#4d5730';c.strokeStyle='#22280f';c.lineWidth=1.5;c.beginPath();c.moveTo(-26,2+j);c.lineTo(-19,-16+j);c.lineTo(17,-16+j);c.lineTo(27,2+j);c.lineTo(20,8+j);c.lineTo(-20,8+j);c.closePath();c.fill();c.stroke();
+ c.strokeStyle='#2c3218';c.lineWidth=1;for(let i=-18;i<20;i+=5){c.beginPath();c.moveTo(i+(G.t*30%5),-15+j);c.lineTo(i+(G.t*30%5),-13+j);c.stroke()}
+ c.fillStyle='#6b7a3c';c.fillRect(-6,-10+j,12,9);c.fillStyle='#222';c.fillRect(6,-7+j,9,2.5);
+ c.fillStyle='#8a6a3a';c.fillRect(-12,-12+j,4,4);c.fillStyle='#b84020';c.fillRect(-2,-14+j,3,3);
+ c.restore();
+ c.fillStyle='rgba(0,0,0,.6)';c.fillRect(t.x-15,t.y+11,30,3);c.fillStyle='#e0b030';c.fillRect(t.x-15,t.y+11,30*Math.max(0,t.hp)/t.max,3);
+ if(Math.random()<.3)G.smokes.push({x:t.x-dir*24,y:t.y-6,r:3,vr:8,a:.35,t:0,life:1,vx:-dir*5,c:'60,60,60'});
+}
+function drawFallen(c,f){
+ const a=Math.min(1,(f.tank?20:7)-f.t)*.8;c.save();c.globalAlpha=Math.max(0,a);
+ if(f.tank){c.fillStyle='#2c2c22';c.fillRect(f.x-20,f.y-10,40,16);c.restore();return}
+ if(f.sur){c.restore();c.save();c.globalAlpha=Math.max(0,1-f.t/2);c.font='600 11px Oswald';c.fillStyle='#fff';c.fillText('🏳',f.x-4,f.y-14-f.t*8);c.restore();return}
+ const u=UNI[f.side?G.b.enemy:G.b.player];c.translate(f.x,f.y);c.scale(1.3,1.3);c.fillStyle=u.coat;c.fillRect(-7,-2,10,4);c.fillStyle=u.hc;c.beginPath();c.arc(-9,-.5,2.6,0,7);c.fill();c.strokeStyle='#3a2716';c.lineWidth=1.2;c.beginPath();c.moveTo(-4,3);c.lineTo(8,4);c.stroke();
+ c.restore();
+}
+function drawTarget(c){
+ const A=G.art,y=laneY(A.lane),x=A.x;c.save();
+ const col=A.fire?(A.creep?'255,180,60':'255,70,70'):'255,245,220';const p=.6+.4*Math.sin(G.t*8);
+ c.strokeStyle=`rgba(${col},${A.fire?p:.7})`;c.lineWidth=2;c.setLineDash(A.fire?[]:[5,4]);
+ c.beginPath();c.arc(x,y,24,0,7);c.stroke();c.setLineDash([]);
+ c.beginPath();c.moveTo(x-32,y);c.lineTo(x-14,y);c.moveTo(x+14,y);c.lineTo(x+32,y);c.moveTo(x,y-32);c.lineTo(x,y-14);c.moveTo(x,y+14);c.lineTo(x,y+32);c.stroke();
+ if(A.creep&&A.fire){c.fillStyle=`rgba(${col},.9)`;c.beginPath();c.moveTo(x+38,y);c.lineTo(x+30,y-6);c.lineTo(x+30,y+6);c.fill()}
+ // danger: own troops near target
+ const near=G.troops.some(t=>t.side===0&&t.lane===A.lane&&Math.abs(t.x-x)<70&&t.delay<=0);
+ if(near&&A.fire){c.font='700 12px Oswald';c.fillStyle='#ffb060';c.textAlign='center';c.fillText('⚠ YOUR MEN ARE TOO CLOSE — LIFT FIRE!',x,y-38)}
+ c.restore();
+}
+
+/* ---------------- HUD UPDATES ---------------- */
+let hudAcc=0;
+function hudTick(){hudAcc++;if(hudAcc%6)return;updHUD()}
+function updHUD(){
+ if(!G)return;$('#hudSupply').textContent=Math.floor(G.supply);
+ const rem=Math.max(0,G.dur-G.t);$('#hudTime').textContent=`${Math.floor(rem/60)}:${String(Math.floor(rem%60)).padStart(2,'0')}`;$('#hudTime').style.color=rem<30?'#ff7070':'';
+ $('#barP').style.width=G.str[0]+'%';$('#barE').style.width=G.str[1]+'%';$('#barPt').textContent=Math.ceil(G.str[0]);$('#barEt').textContent=Math.ceil(G.str[1]);
+ $('#resN').textContent=G.squads;$('#btnTop').disabled=G.squads<=0;$('#btnAll').disabled=G.squads<=0;
+ $('#shN').textContent=G.shells;$('#batN').textContent=G.batt[0];
+ $('#heroFill').style.height=G.hero+'%';$('#heroPct').textContent=G.hero>=100?'READY! (H)':Math.round(G.hero)+'%';$('#btnHero').classList.toggle('ready',G.hero>=100);
+ updShop();
+}
+function banner(s,d=1.5){$('#banner').textContent=s;$('#banner').style.opacity=1;G.bannerT=d}
+
+/* ---------------- COACH (tutorial in battle 1) ---------------- */
+const COACH=[
+ '<b>1 &middot; Earn supply.</b> Answer the questions on the right (keys 1-4 work too). Every correct answer gives you supply. Streaks give more!',
+ '<b>2 &middot; Build a machine gun.</b> Tap <b>Machine gun</b> in the shop, then tap a glowing spot in YOUR trench (left side).',
+ '<b>3 &middot; Aim your artillery.</b> Tap an <b>enemy machine gun</b> on the right side of the field, then press <b>FIRE</b>. Shells that land on it will <i>suppress</i> it.',
+ '<b>4 &middot; Over the top!</b> While their gun is SUPPRESSED, press <b>OVER THE TOP</b> to send a squad across that sector.',
+ '<b>5 &middot; Lift the barrage!</b> Press <b>FIRE</b> again to cease fire before your men reach the enemy trench &mdash; or your own shells will hit them.',
+ '<b>6 &middot; Defend.</b> Enemy raids are coming. Put <b>barbed wire</b> and <b>landmines</b> in no-man\'s-land, and a machine gun in every sector. Good luck, soldier!'
+];
+function coach(html){const el=$('#coach');el.innerHTML=html;el.style.display='block'}
+function flashCoach(s,d=2.6){coach(s);G.coachMsgT=d}
+function advanceCoach(){if(G.coach<0)return;G.coach++;G.coachT=0;if(G.coach>=COACH.length){G.coach=-1;G.coachMsgT=.01;return}coach(COACH[G.coach]);if(G.coach===5)G.coachMsgT=9}
+function coachEvent(ev){
+ if(!G||G.coach<0)return;const c=G.coach;
+ if(c===0&&ev==='correct'&&G.stats.correct>=3)advanceCoach();
+ else if(c===1&&G.mg[0].filter(Boolean).length>=2)advanceCoach();
+ else if(c===2&&ev==='fire'&&G.art.fire)advanceCoach();
+ else if(c===3&&ev==='top')advanceCoach();
+ else if(c===4&&(ev==='reach'||(ev==='fire'&&!G.art.fire)))advanceCoach();
+ if(c===1&&ev==='correct'&&G.mg[0].filter(Boolean).length>=2)advanceCoach();
+}
+// watch MG placements for coach step 2
+setInterval(()=>{if(G&&G.coach===1&&G.mg[0].filter(Boolean).length>=2)advanceCoach()},500);
+
+/* ---------------- END ---------------- */
+function endBattle(res){
+ if(G.over)return;G.over=true;G.art.fire=false;
+ const b=G.b,s=G.stats,tot=s.correct+s.wrong,acc=tot?s.correct/tot:0;
+ let stars=0;if(res==='victory'){stars=1;if(acc>=.8)stars++;if(acc>=.8&&s.correct>=20)stars++}
+ let score=Math.round(G.score+(res==='victory'?1500+G.str[0]*10:0));G.finalScore=score;
+ if(res==='victory'){save.stars[b.id]=Math.max(save.stars[b.id]||0,stars);if(save.unlocked<G.i+2)save.unlocked=Math.min(BATTLES.length,G.i+2);if(!save.heroes.includes(b.id))save.heroes.push(b.id)}
+ const prevBest=save.best[b.id]||0;if(score>prevBest)save.best[b.id]=score;persist();
+ banner(res==='victory'?'VICTORY!':res==='defeat'?'LINE BROKEN':'STALEMATE',2.5);
+ if(res==='victory')sfx.hero();else sfx.bad();
+ setTimeout(()=>{G.overDone=true;showResult(res,stars,score,acc,prevBest)},2300);
+}
+function showResult(res,stars,score,acc,prevBest){
+ const b=G.b,s=G.stats;const missed=Object.values(s.missed);
+ const title={victory:'VICTORY',defeat:'DEFEAT',stalemate:'STALEMATE'}[res];
+ const sub={victory:'The enemy line is broken. Well fought!',defeat:'Your line was overwhelmed. Regroup, study, and go again.',stalemate:'Neither side broke through &mdash; just like most battles of the Great War. You need a bigger edge to win.'}[res];
+ const next=G.i+1<BATTLES.length&&isUnlocked(G.i+1);
+ const board=(save.board[b.id]||[]);
+ $('#resultBox').innerHTML=`
+  <h3 style="color:${res==='victory'?'#3d5a1e':res==='defeat'?'#8f0b1d':'#5a4a2c'}">${title}</h3>
+  <div class="rsub">${sub}</div>
+  <div class="bigstars">${'★'.repeat(stars)}<i>${'★'.repeat(3-stars)}</i></div>
+  <div style="text-align:center;font-size:13px;color:#6a5630;font-family:'Special Elite'">★ Win &nbsp; ★★ Win with 80%+ accuracy &nbsp; ★★★ …and 20+ correct answers</div>
+  <div class="rgrid">
+   <div class="rstat"><b>${score.toLocaleString()}</b><small>Score${score>prevBest&&prevBest?' · new best!':''}</small></div>
+   <div class="rstat"><b>${Math.round(acc*100)}%</b><small>${s.correct} of ${s.correct+s.wrong} correct</small></div>
+   <div class="rstat"><b>${s.bestStreak}</b><small>Best streak</small></div>
+   <div class="rstat"><b>${s.kills} / ${s.lost}</b><small>Enemy stopped / men lost</small></div>
+  </div>
+  ${s.ff?`<div style="text-align:center;color:#a0520a;font-weight:600">⚠ ${s.ff} of your soldiers were hit by your own artillery. Lift the barrage sooner next time!</div>`:''}
+  <div class="histnote"><b>What really happened:</b> ${b.history}</div>
+  ${res==='victory'?`<div class="histnote" style="border-color:#b08a1a;background:rgba(224,176,48,.12)"><b>Hero card unlocked:</b> ${b.hero.name}. See it in the Hall of Heroes.</div>`:''}
+  ${missed.length?`<div class="review"><h4>Study these before your next battle</h4><ul>${missed.map(m=>`<li>${m.q?`${m.q} &rarr; <b>${m.a}</b>`:`<b>${m.t}</b>: ${m.d}`}</li>`).join('')}</ul></div>`:'<div class="review"><h4>Perfect intelligence &mdash; no misses!</h4></div>'}
+  <div class="review"><h4>Regimental Honor Roll &mdash; ${b.short}</h4>
+   <div class="honor"><input id="hname" maxlength="12" placeholder="Your name" value="${save.name||''}"><button class="bigbtn" style="font-size:16px;padding:8px 18px" id="hsave">Sign the roll</button></div>
+   <table class="board" id="hboard">${boardRows(board)}</table></div>
+  <div class="briefBtns" style="margin-top:14px"><button class="ghostDark" id="rMap">Campaign map</button><button class="ghostDark" id="rRetry">Fight again</button>${next?`<button class="bigbtn" id="rNext">Next battle &rarr;</button>`:''}</div>`;
+ $('#rMap').onclick=()=>show('map');$('#rRetry').onclick=()=>startBattle(G.i);if(next)$('#rNext').onclick=()=>openBrief(G.i+1);
+ let signed=false;$('#hsave').onclick=()=>{if(signed)return;const n=($('#hname').value||'Soldier').trim().slice(0,12).toUpperCase();save.name=n;const list=save.board[b.id]||[];const entry={n,s:score,a:Math.round(acc*100),st:stars,d:Date.now()};list.push(entry);list.sort((a,b)=>b.s-a.s);save.board[b.id]=list.slice(0,10);persist();signed=true;$('#hboard').innerHTML=boardRows(save.board[b.id],entry.d);$('#hsave').textContent='Signed ✓'};
+ if(G.i===BATTLES.length-1&&res==='victory'){$('#resultBox').insertAdjacentHTML('afterbegin',`<div class="histnote" style="text-align:center;font-size:18px;border-color:#c8102e;background:rgba(200,16,46,.08)"><b>The guns fall silent.</b> At 11:00 a.m. on November 11, 1918, the Armistice ended the fighting. You have completed the campaign. Lest we forget.</div>`)}
+ show('result');
+}
+function boardRows(list,me){if(!list.length)return '<tr><td style="font-family:Special Elite">No names yet. Be the first!</td></tr>';return list.map((e,i)=>`<tr class="${e.d===me?'me':''}"><td>${i+1}.</td><td>${e.n}</td><td>${e.s.toLocaleString()}</td><td>${e.a}%</td><td style="color:#b08a1a">${'★'.repeat(e.st)}</td></tr>`).join('')}
+
+/* ---------------- MANUAL ---------------- */
+function openManual(tab){
+ manTab(tab);show('manual');
+}
+$$('#manTabs button').forEach(b=>b.addEventListener('click',()=>manTab(b.dataset.tab)));
+function manTab(tab){
+ $$('#manTabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+ const body=$('#manBody');
+ if(tab==='howto'){$('#manTitle').textContent='How to Play';body.innerHTML=`<div class="howto">
+  <h4>Your mission</h4><p>Break the enemy line before they break yours. Each side's trench has <b>strength</b> (the bars at the top). Soldiers who reach the enemy trench knock it down. When the clock runs out, the stronger line wins &mdash; if they're nearly even, it's a <b>stalemate</b>.</p>
+  <h4>Knowledge is power</h4><ul><li>Answer the questions on the right to earn <b>supply</b>. You get <b>no supply any other way</b>.</li><li>Streaks and quick answers earn bonus supply. A wrong answer locks you out for a moment and breaks your streak &mdash; read the correct answer!</li><li>Questions you miss come back again soon. Earlier battles' terms come back for review.</li><li>Correct answers also charge your <b>Hero power</b>. Four correct answers fill it.</li></ul>
+  <h4>Defend your trench</h4><ul><li><b>Machine guns</b> guard one sector each. Tap the shop button, then a sector of your trench.</li><li><b>Barbed wire</b> stops attackers while they cut through it &mdash; right in front of your guns.</li><li><b>Landmines</b> are hidden and explode when enemy soldiers step on them.</li><li>Enemy shells can damage your wire and suppress your guns, so keep rebuilding.</li></ul>
+  <h4>Attack: sync your artillery and infantry</h4><ul><li>Tap the battlefield to aim your guns. Press <b>FIRE</b>. Shells that land near a machine gun <b>suppress</b> it for a few seconds.</li><li>Pick a <b>sector</b>, then press <b>OVER THE TOP</b> to send a squad. A suppressed gun can't shoot your men.</li><li><b>CREEP</b> makes the barrage walk forward at infantry pace, like the creeping barrage at Vimy Ridge.</li><li>Your shells hurt <i>everyone</i> they land on. <b>Lift fire</b> before your men reach the target!</li><li>Tanks (from the Somme on) ignore bullets and crush wire, but they're slow.</li></ul>
+  <h4>Keyboard</h4><p>1&ndash;4 answer &middot; Space: over the top &middot; F: fire &middot; C: creep &middot; H: hero power &middot; &uarr;&darr;: sector &middot; Esc: pause &middot; hold Shift to place many wires or mines</p>
+  <h4>Saving</h4><p>Progress, stars, and the Honor Roll save in this browser on this device.</p></div>`}
+ else if(tab==='terms'){$('#manTitle').textContent='Field Manual';body.innerHTML=BATTLES.map(b=>`<h4>${b.idx+1}. ${b.name} <small style="font-size:13px;font-family:Special Elite;text-transform:none">${b.year}</small></h4>`+b.items.map(it=>{const m=mastery(it.id);return `<div class="term"><b>${it.t||it.q}</b><span>${it.t?it.d:it.a}</span><div class="m" title="Mastery">${'●'.repeat(m)}${'○'.repeat(5-m)}</div></div>`}).join('')).join('')}
+ else{$('#manTitle').textContent='Hall of Heroes';const cards=[];BATTLES.forEach(b=>{const un=save.heroes.includes(b.id);cards.push({un,name:b.hero.name,title:b.hero.title+' · '+b.short,story:b.hero.story,how:'Win '+b.short});EXTRA_HEROES.filter(e=>e.b===b.idx).forEach(e=>cards.push({un,name:e.name,title:e.title,story:e.story,how:'Win '+b.short}))});
+  body.innerHTML=`<p class="type" style="margin-bottom:12px">Win battles to unlock the true stories of Allied heroes of the Great War.</p><div class="hcards">${cards.map(c=>`<div class="hcard ${c.un?'':'locked'}"><h5>${c.un?c.name:'??????'}</h5><div class="ht">${c.un?c.title:'Locked &mdash; '+c.how}</div><p>${c.un?c.story:'Fight on to discover this story.'}</p></div>`).join('')}</div>`}
+}
+
+/* ---------------- BOOT ---------------- */
+startTitle();
+</script>
+</body>
+</html>

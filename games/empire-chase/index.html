@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empire Chase — Age of Imperialism Game | History Emporium</title>
+<meta name="description" content="Play Empire Chase, a free Age of Imperialism history game. A maze chase across two map sets: the Scramble for Africa and the Great Game in Asia. Learn the places, earn your stars.">
+<link rel="canonical" href="https://www.example.com/games/empire-chase/">
+<meta property="og:title" content="Empire Chase — Age of Imperialism Game | History Emporium">
+<meta property="og:description" content="Play Empire Chase, a free Age of Imperialism history game. A maze chase across two map sets: the Scramble for Africa and the Great Game in Asia. Learn the places, earn your stars.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#2a1a12">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/fonts.css">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body class="player-body">
+<div class="bar">
+  <a class="brand" href="/" title="Back to all games"><svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="15" width="30" height="21" rx="2" fill="#f6efdf"/>
+<path d="M3 15 L8 5 H32 L37 15 Z" fill="#7d2121"/><path d="M8 5 L11 15 M14 5 L15.5 15 M20 5 V15 M26 5 L24.5 15 M32 5 L29 15" stroke="#f6efdf" stroke-width="2.4"/>
+<rect x="16" y="22" width="8" height="14" fill="#c9a24a"/><rect x="8" y="20" width="6" height="6" fill="#c9a24a"/><rect x="26" y="20" width="6" height="6" fill="#c9a24a"/></svg><span class="brand-text">History Emporium</span></a>
+  <div class="title">Empire Chase<span>Age of Imperialism · 1757–1914</span></div>
+  <button type="button" id="fs">⛶ Full screen</button>
+  <a class="ghost" href="/games/over-the-top/" title="Next game: Over the Top">Next ▸</a>
+</div>
+<div class="stage" id="stage">
+  <iframe id="game" src="/games/empire-chase/play.html" title="Empire Chase" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
+</div>
+<section class="about-game"><div class="wrap">
+  <div class="cols">
+    <div>
+      <h2>Empire Chase</h2>
+      <p>A maze chase across two map sets: the Scramble for Africa and the Great Game in Asia. Learn the places, earn your stars.</p>
+      <div class="panel"><h3>What students learn</h3><p style="margin:0">The Scramble for Africa, the Berlin Conference, the Great Game, China&#x27;s century of humiliation and Japan&#x27;s rise.</p></div>
+    </div>
+    <div class="panel"><h3>How to play</h3><p style="margin:0">Arrow keys or WASD to move.</p>
+      <h3 style="margin-top:14px">Era</h3><p style="margin:0">Age of Imperialism, 1757–1914</p></div>
+  </div>
+  <div class="more"><div class="shelf-head"><h2 style="font-size:20px">More from the Emporium</h2><a href="/">All games ▸</a></div>
+    <div class="grid"><a class="card" href="/games/age-of-rebirth/" style="--c:#2f5d8a">
+  <div class="thumb" style="background-image:url(/assets/thumbs/age-of-rebirth.webp)"></div>
+  <div class="body">
+    <div class="unit">Renaissance &amp; Reformation</div>
+    <h3>The Age of Rebirth</h3>
+    <p>A Fog of Forgetting has rolled across Italy. As a young apprentice in Florence, discover the ideas of the Renaissance and drive the fog back across Europe.</p>
+    
+  </div>
+</a>
+<a class="card" href="/games/beyond-the-horizon/" style="--c:#8a5a2b">
+  <div class="thumb" style="background-image:url(/assets/thumbs/beyond-the-horizon.webp)"></div>
+  <div class="body">
+    <div class="unit">Age of Exploration</div>
+    <h3>Beyond the Horizon</h3>
+    <p>Sail uncharted waters with Dias, Columbus, da Gama and Magellan. Steer by compass, survive the storms and race your class around the world.</p>
+    
+  </div>
+</a>
+<a class="card" href="/games/lantern-of-reason/" style="--c:#3f7a3a">
+  <div class="thumb" style="background-image:url(/assets/thumbs/lantern-of-reason.webp)"></div>
+  <div class="body">
+    <div class="unit">The Enlightenment</div>
+    <h3>Lantern of Reason</h3>
+    <p>An Enlightenment quest. Explore the map, meet Hobbes, Locke, Montesquieu and Rousseau, and battle for big ideas.</p>
+    
+  </div>
+</a>
+<a class="card" href="/games/the-last-king/" style="--c:#9c2a2a">
+  <div class="thumb" style="background-image:url(/assets/thumbs/the-last-king.webp)"></div>
+  <div class="body">
+    <div class="unit">The French Revolution</div>
+    <h3>The Last King</h3>
+    <p>Rule as Louis XVI while the people&#x27;s anger rises. Every choice and every answer decides how long the monarchy lasts.</p>
+    
+  </div>
+</a></div></div>
+</div></section>
+<script>
+const f=document.getElementById('game');
+f.addEventListener('load',()=>{try{f.contentWindow.focus()}catch(e){}});
+document.getElementById('fs').addEventListener('click',()=>{
+  const s=document.getElementById('stage');
+  const r=s.requestFullscreen||s.webkitRequestFullscreen; if(r) r.call(s); f.focus();
+});
+</script>
+<footer><div class="wrap">
+  <div>© 2026 Mr. Teacher's History Emporium. Free history games for the classroom.</div>
+  <div><a href="/teachers/">For Teachers</a><a href="/about/">About</a><a href="/privacy/">Privacy</a></div>
+</div></footer>
+</body></html>

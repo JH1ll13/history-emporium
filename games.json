@@ -1,0 +1,92 @@
+[
+  {
+    "slug": "age-of-rebirth",
+    "title": "The Age of Rebirth",
+    "unit": "Renaissance & Reformation",
+    "years": "1350–1650",
+    "color": "#2f5d8a",
+    "blurb": "A Fog of Forgetting has rolled across Italy. As a young apprentice in Florence, discover the ideas of the Renaissance and drive the fog back across Europe.",
+    "learn": "Patrons, humanism, secularism, Renaissance figures such as Lorenzo de' Medici and Leonardo da Vinci, the Reformation, the Scientific Revolution and the rise of absolute monarchs.",
+    "controls": "Arrow keys or WASD to move, Space to jump."
+  },
+  {
+    "slug": "beyond-the-horizon",
+    "title": "Beyond the Horizon",
+    "unit": "Age of Exploration",
+    "years": "1487–1522",
+    "color": "#8a5a2b",
+    "blurb": "Sail uncharted waters with Dias, Columbus, da Gama and Magellan. Steer by compass, survive the storms and race your class around the world.",
+    "learn": "The great voyages of exploration, the explorers who led them, world geography and the motives and consequences of European expansion.",
+    "controls": "Arrow keys or WASD to steer, or tap a point on the compass rose."
+  },
+  {
+    "slug": "lantern-of-reason",
+    "title": "Lantern of Reason",
+    "unit": "The Enlightenment",
+    "years": "1600s–1700s",
+    "color": "#3f7a3a",
+    "blurb": "An Enlightenment quest. Explore the map, meet Hobbes, Locke, Montesquieu and Rousseau, and battle for big ideas.",
+    "learn": "Natural rights, the social contract, separation of powers and the thinkers behind them.",
+    "controls": "Arrow keys or WASD to explore; click or tap to answer."
+  },
+  {
+    "slug": "the-last-king",
+    "title": "The Last King",
+    "unit": "The French Revolution",
+    "years": "1787–1793",
+    "color": "#9c2a2a",
+    "blurb": "Rule as Louis XVI while the people's anger rises. Every choice and every answer decides how long the monarchy lasts.",
+    "learn": "The causes of the French Revolution, the Estates, the key events from Versailles to the Republic and the people who shaped them.",
+    "controls": "Click or tap to play."
+  },
+  {
+    "slug": "full-steam",
+    "title": "Full Steam",
+    "unit": "Industrial Revolution",
+    "years": "1760–1900",
+    "color": "#7a5420",
+    "blurb": "The Great Smokestack Climb. Race up a steampunk factory tower. Tired climbers slow down, and the right answer refuels you.",
+    "learn": "Key inventions, inventors, places and terms of the Industrial Revolution.",
+    "controls": "Arrow keys to move, Space to jump, E to refuel."
+  },
+  {
+    "slug": "empire-chase",
+    "title": "Empire Chase",
+    "unit": "Age of Imperialism",
+    "years": "1757–1914",
+    "color": "#b07a12",
+    "blurb": "A maze chase across two map sets: the Scramble for Africa and the Great Game in Asia. Learn the places, earn your stars.",
+    "learn": "The Scramble for Africa, the Berlin Conference, the Great Game, China's century of humiliation and Japan's rise.",
+    "controls": "Arrow keys or WASD to move."
+  },
+  {
+    "slug": "over-the-top",
+    "title": "Over the Top",
+    "unit": "World War I",
+    "years": "1914–1918",
+    "color": "#6b4a2e",
+    "blurb": "A trench strategy game. Answer to earn credit, build your defenses, time your artillery and go over the top at Verdun, the Somme and beyond.",
+    "learn": "Key terms, battles, geography and figures of the Great War.",
+    "controls": "Click or tap to play."
+  },
+  {
+    "slug": "front-line",
+    "title": "Front Line",
+    "unit": "World War II",
+    "years": "1939–1945",
+    "color": "#3d5a6b",
+    "blurb": "Answer fast. Push the line. Win the war. Fly missions in the campaign, climb in Endless Sky or duel a classmate on one screen.",
+    "learn": "Key terms, people and places of World War II.",
+    "controls": "Keyboard, mouse or touch."
+  },
+  {
+    "slug": "history-hero",
+    "title": "History Hero",
+    "unit": "All Eras",
+    "years": "1500s–1991",
+    "color": "#5a3e7a",
+    "blurb": "A battle of knowledge across six centuries. Explore the map, gather scrolls, duel rivals and be the last hero standing.",
+    "learn": "Review of the whole year: key terms, people and places from the Renaissance to the end of the Cold War.",
+    "controls": "Arrow keys or WASD to move; walk up to a rival to duel."
+  }
+]
