@@ -404,6 +404,11 @@ svg.bg{position:absolute;inset:0;width:100%;height:100%;display:block}
 #actPop{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%) scale(.6);font-family:Bangers,Impact;font-size:clamp(34px,8vw,64px);color:#ffe27a;text-shadow:0 4px 0 #000,0 0 30px rgba(255,200,60,.7);opacity:0;pointer-events:none;z-index:3;white-space:nowrap}
 #actPop.on{animation:apop .9s ease-out}
 @keyframes apop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-70%) scale(1)}}
+#tetCtl{position:absolute;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom));display:flex;justify-content:center;gap:12px;z-index:4}
+#tetCtl button{width:70px;height:60px;border-radius:16px;font-size:28px;color:#fff;background:rgba(20,10,16,.78);border:2px solid rgba(240,204,98,.6);box-shadow:0 5px 0 rgba(0,0,0,.5);touch-action:none}
+#tetCtl button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.5)}
+.ah-r .tl{font-family:Bangers,Impact;font-size:30px;color:#9fe0ff;line-height:1;display:block;text-align:center}.ah-r .tls{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.8;text-align:center}
+.ahow{font-size:13px;opacity:.85;margin:-2px 0 8px;line-height:1.45}
 #actOv{position:absolute;inset:0;z-index:5;display:none;align-items:center;justify-content:center;background:rgba(8,2,6,.72);backdrop-filter:blur(4px);padding:20px}#actOv.on{display:flex}
 .arew{margin:10px 0;padding:10px 12px;border-radius:12px;background:rgba(240,204,98,.12);border:1px solid rgba(240,204,98,.4);font-size:15px;line-height:1.4}
 .abest{color:var(--gold);margin-bottom:6px}.askip{display:block;margin:12px auto 0;background:none;border:0;color:rgba(255,255,255,.7);text-decoration:underline;font-size:14px;cursor:pointer}
@@ -411,6 +416,7 @@ svg.bg{position:absolute;inset:0;width:100%;height:100%;display:block}
 @keyframes starIn{0%{transform:scale(0) rotate(-90deg)}100%{transform:scale(1) rotate(0)}}
 .ascore{font-family:Bangers,Impact;font-size:40px;color:#fff;line-height:1}.ascore small{display:block;font-family:inherit;font-size:14px;opacity:.75;letter-spacing:.5px;margin-top:4px}
 .afact{font-size:14px;line-height:1.4;opacity:.9;margin-bottom:8px;text-align:left}
+.arcb{position:absolute;right:10px;bottom:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg,#ffe596,#f0b93a);color:#3a1a04;font-weight:900;font-size:13px;border:2px solid #fff3c0;box-shadow:0 3px 0 #7a4a0a}
 </style>
 </head>
 <body>
@@ -497,7 +503,7 @@ const ART = (() => {
 
   /* ---------- CHARACTERS ---------- */
   const C = {
-    louis: { n: 'Louis XVI', col: '#4a7cf0', face: 'jowl', nose: 'bourbon', lid: 'heavy', chin: 'double', lip: 'full', eyeS: .9, hair: 'wig', hc: ['#f7f4ee', '#c9c1b3'], eye: '#6f8fb8', coat: '#2c52b4', coat2: '#162d70', trim: '#ecc75e', vest: '#f4e8c8', sash: '#5ab0ff', jabot: 1, star: 1 },
+    louis: { n: 'Louis XVI', col: '#4a7cf0', build: 'stout', face: 'fat', nose: 'bourbon', lid: 'heavy', chin: 'double', lip: 'full', eyeS: .9, hair: 'wig', hc: ['#f7f4ee', '#c9c1b3'], eye: '#6f8fb8', coat: '#2c52b4', coat2: '#162d70', trim: '#ecc75e', vest: '#f4e8c8', sash: '#5ab0ff', jabot: 1, star: 1 },
     marie: { n: 'Marie Antoinette', col: '#ec6ea6', face: 'slim', nose: 'aquiline', lip: 'habsburg', hair: 'pouf', hc: ['#fbf4e8', '#dccbb0'], eye: '#6a8fc8', coat: '#f6b3cc', coat2: '#cf6f97', trim: '#fff4cf', female: 1, pearls: 1 },
     necker: { n: 'Jacques Necker', col: '#a67ad2', face: 'jowl', nose: 'long', lid: 'heavy', chin: 'double', age: 1, eyeS: .85, hair: 'wig', hc: ['#ece8e0', '#b9b2a6'], eye: '#7a522b', coat: '#5f4078', coat2: '#38244c', trim: '#cfae5e', vest: '#efe2c4', jabot: 1 },
     sieyes: { n: 'Abbé Sieyès', col: '#93a4b8', face: 'narrow', nose: 'pointed', lip: 'thin', eyeS: .88, hair: 'short', hc: ['#4c3b33', '#271c17'], eye: '#3a8a62', coat: '#262630', coat2: '#101015', clergy: 1 },
@@ -520,6 +526,7 @@ const ART = (() => {
     slim: 'M140,190 C140,122 260,122 260,190 C260,244 242,280 220,302 Q200,318 180,302 C158,280 140,244 140,190Z',
     long: 'M140,186 C140,116 260,116 260,186 C260,256 240,298 218,316 Q200,330 182,316 C160,298 140,256 140,186Z',
     broad: 'M130,190 C130,114 270,114 270,190 C270,256 252,292 226,310 Q200,324 174,310 C148,292 130,256 130,190Z',
+    fat: 'M124,186 C124,108 276,108 276,186 C282,266 266,316 200,332 C134,316 118,266 124,186Z',
     jowl: 'M128,188 C128,112 272,112 272,188 C275,262 258,308 200,323 C142,308 125,262 128,188Z',
     narrow: 'M144,190 C144,124 256,124 256,190 C256,246 236,286 214,308 Q200,322 186,308 C164,286 144,246 144,190Z',
     massive: 'M122,186 C122,106 278,106 278,186 C281,252 268,298 236,318 Q200,334 164,318 C132,298 119,252 122,186Z'
@@ -545,13 +552,18 @@ const ART = (() => {
       if (c.cockade && c.shawl) s += cockade(150, 470, 13);
       return s;
     }
+    if (c.build === 'stout') {
+      s += `<path d="M-50,560 C-44,424 34,382 118,370 L148,358 L252,358 L282,370 C366,382 444,424 450,560Z" fill="url(#${g}co)" ${st}/>`;
+      s += `<path d="M284,374 C368,388 444,428 450,560 L330,560 C330,474 314,414 284,374Z" fill="#000" opacity=".18"/>`;
+    } else {
     s += `<path d="M18,560 C28,452 70,416 140,398 L176,382 L224,382 L260,398 C330,416 372,452 382,560Z" fill="url(#${g}co)" ${st}/>`;
     s += `<path d="M262,400 C330,418 372,452 382,560 L306,560 C304,486 290,432 262,400Z" fill="#000" opacity=".18"/>`;
+    }
     // vest
     if (c.stripes) {
       s += `<path d="M168,386 L200,560 L232,386Z" fill="url(#${g}st)" ${st}/>`;
     } else if (!c.clergy) {
-      s += `<path d="M168,386 L200,560 L232,386Z" fill="${c.vest || '#f2ead6'}" ${st}/>`;
+      s += c.build === 'stout' ? `<path d="M156,382 C92,452 104,540 140,560 L260,560 C296,540 308,452 244,382Z" fill="${c.vest || '#f2ead6'}" ${st}/><path d="M132,500 Q200,540 268,500" fill="none" stroke="#000" stroke-width="4" opacity=".12"/><path d="M118,470 Q200,500 282,470" fill="none" stroke="#000" stroke-width="3" opacity=".08"/>` : `<path d="M168,386 L200,560 L232,386Z" fill="${c.vest || '#f2ead6'}" ${st}/>`;
       for (let y = 470; y < 560; y += 26) s += `<circle cx="200" cy="${y}" r="4.5" fill="${c.trim || '#c9a85a'}" stroke="${OL}" stroke-width="1.5"/>`;
     }
     // lapels
@@ -582,7 +594,7 @@ const ART = (() => {
   function eye(cx, cy, dir, ex, g, c) {
     const sc = c.eyeS || 1;
     const inner = eye0(cx, cy, dir, ex, g, c);
-    const crease = (c.lid === 'heavy' && ex !== 'happy') ? `<path d="M${cx - 21},${cy - 16} Q${cx},${cy - 32} ${cx + 21},${cy - 16}" fill="none" stroke="${OL}" stroke-width="2.5" opacity=".55"/>` : '';
+    const crease = (c.lid === 'heavy' && ex !== 'happy') ? `<path d="M${cx - 21},${cy - 16} Q${cx},${cy - 32} ${cx + 21},${cy - 16}" fill="none" stroke="#b98670" stroke-width="2" opacity=".6"/>` : '';
     return sc === 1 ? inner + crease : `<g transform="translate(${cx},${cy}) scale(${sc}) translate(${-cx},${-cy})">${inner}${crease}</g>`;
   }
   function eye0(cx, cy, dir, ex, g, c) {
@@ -617,12 +629,11 @@ const ART = (() => {
     }
     s += `</g>`;
     // upper lash
-    const lw = fem ? 7 : 5.5;
-    s += `<path d="M${L[0]},${L[1]} Q${cx},${cy + ctrl} ${R[0]},${R[1]}" fill="none" stroke="${OL}" stroke-width="${lw}" stroke-linecap="round"/>`;
-    const flick = dir < 0 ? `M${L[0]},${L[1]} l${-8},${-5}` : `M${R[0]},${R[1]} l8,-5`;
-    s += `<path d="${flick}" stroke="${OL}" stroke-width="${lw - 1}" stroke-linecap="round"/>`;
+    const lw = fem ? 7 : 2.2, lidc = fem ? OL : '#7a5444';
+    s += `<path d="M${L[0]},${L[1]} Q${cx},${cy + ctrl} ${R[0]},${R[1]}" fill="none" stroke="${lidc}" stroke-width="${lw}" stroke-linecap="round"${fem ? '' : ' opacity=".75"'}/>`;
+    if (fem) { const flick = dir < 0 ? `M${L[0]},${L[1]} l${-8},${-5}` : `M${R[0]},${R[1]} l8,-5`; s += `<path d="${flick}" stroke="${OL}" stroke-width="${lw - 1}" stroke-linecap="round"/>`; }
     if (fem) { const ex0 = dir < 0 ? L : R; s += `<path d="M${ex0[0]},${ex0[1] + 2} l${dir * 10},${3}" stroke="${OL}" stroke-width="3" stroke-linecap="round"/>`; }
-    s += `<path d="M${cx - 12},${cy + 22} Q${cx},${cy + 26} ${cx + 12},${cy + 22}" fill="none" stroke="${OL}" stroke-width="2" opacity=".55"/>`;
+    if (fem) s += `<path d="M${cx - 12},${cy + 22} Q${cx},${cy + 26} ${cx + 12},${cy + 22}" fill="none" stroke="${OL}" stroke-width="2" opacity=".55"/>`;
     return s;
   }
 
@@ -751,12 +762,14 @@ const ART = (() => {
     const hp = hairParts(c, g);
     s += hp.back;
     s += body(c, g);
-    s += `<path d="M178,296 L176,386 Q200,400 224,386 L222,296Z" fill="${SK[0]}" ${st}/><path d="M178,296 L222,296 L222,334 Q200,350 178,334Z" fill="${SK[1]}"/>`;
+    s += c.build === 'stout'
+      ? `<path d="M174,270 C165,318 163,356 166,384 Q200,402 234,384 C237,356 235,318 226,270Z" fill="${SK[0]}" ${st}/><path d="M174,270 L226,270 L230,334 Q200,350 170,334Z" fill="${SK[1]}"/><path d="M172,350 Q200,364 228,350" fill="none" stroke="${OL}" stroke-width="2.5" opacity=".35"/>`
+      : `<path d="M178,296 L176,386 Q200,400 224,386 L222,296Z" fill="${SK[0]}" ${st}/><path d="M178,296 L222,296 L222,334 Q200,350 178,334Z" fill="${SK[1]}"/>`;
     s += `<ellipse cx="137" cy="224" rx="12" ry="18" fill="${SK[0]}" ${st}/><ellipse cx="263" cy="224" rx="12" ry="18" fill="${SK[0]}" ${st}/>`;
     s += `<path d="${FACES[c.face] || FACES.def}" fill="${SK[0]}" ${st}/>`;
     s += `<path d="M140,176 Q200,150 260,176 L262,198 Q200,174 138,198Z" fill="${SK[1]}" opacity=".55"/>`;
     // blush
-    s += `<ellipse cx="157" cy="258" rx="17" ry="7" fill="#ff8a8a" opacity="${ex === 'happy' || ex === 'shock' ? .55 : .3}"/><ellipse cx="243" cy="258" rx="17" ry="7" fill="#ff8a8a" opacity="${ex === 'happy' || ex === 'shock' ? .55 : .3}"/>`;
+    { const bo = c.female ? (ex === 'happy' || ex === 'shock' ? .55 : .3) : (ex === 'happy' || ex === 'shock' ? .3 : .12); s += `<ellipse cx="157" cy="258" rx="17" ry="7" fill="#ff8a8a" opacity="${bo}"/><ellipse cx="243" cy="258" rx="17" ry="7" fill="#ff8a8a" opacity="${bo}"/>`; }
     if (ex === 'happy' || ex === 'shock') for (const x of [148, 156, 164, 234, 242, 250]) s += `<line x1="${x}" y1="262" x2="${x + 5}" y2="253" stroke="#e05a5a" stroke-width="2" opacity=".6"/>`;
     if (ex === 'fear') for (let x = 160; x <= 240; x += 9) s += `<line x1="${x}" y1="150" x2="${x}" y2="${172 + (x % 3) * 4}" stroke="#4a5ac8" stroke-width="2.5" opacity=".45"/>`;
     s += eye(168, 215, -1, ex, g, c) + eye(232, 215, 1, ex, g, c);
@@ -1355,7 +1368,7 @@ const AU = (() => {
 const LEVELS = [
   {
     title: 'The Gilded Cage', place: 'Palace of Versailles', date: '1787 – 1789', bg: 'versailles', music: 'versailles', fx: 'sparkle',
-    goal: 8, rate: .4, start: 15, tmax: 16,
+    goal: 4, rate: .4, start: 15, tmax: 16,
     qs: [
       ['Key Term', 'Under the Old Regime, French society was divided into three groups called the…', 'Estates', 'Guilds', 'Provinces', 'Parliaments', 'The Old Regime split society into three Estates: the clergy, the nobles, and everyone else.'],
       ['Key Term', 'Who made up the First Estate?', 'The clergy (Church leaders)', 'The nobles', 'Peasants and city workers', 'The king\'s soldiers', 'The First Estate was the clergy—priests, bishops, and other Church officials.'],
@@ -1374,7 +1387,7 @@ const LEVELS = [
   },
   {
     title: 'The Oath', place: 'Estates-General & Tennis Court', date: 'May – June 1789', bg: 'tennis', music: 'tension', fx: 'dust',
-    goal: 8, rate: .45, start: 20, tmax: 15,
+    goal: 4, rate: .45, start: 20, tmax: 15,
     qs: [
       ['Event', 'When did the Estates-General meet at Versailles?', 'May 1789', 'October 1492', 'July 1776', 'June 1815', 'The Estates-General opened on May 5, 1789.'],
       ['Key Term', 'Voting "by order" at the Estates-General meant each Estate got…', 'One vote each', 'One vote per person', 'No votes', 'Ten votes each', 'Each Estate voted as a group, so there were only three votes total.'],
@@ -1392,7 +1405,7 @@ const LEVELS = [
   },
   {
     title: 'Storm the Bastille', place: 'The Bastille, Paris', date: 'July – October 1789', bg: 'bastille', music: 'battle', fx: 'embers',
-    goal: 8, rate: .5, start: 25, tmax: 15,
+    goal: 4, rate: .5, start: 25, tmax: 15,
     qs: [
       ['Place', 'The Bastille was a fortress-prison in Paris that also stored…', 'Gunpowder and weapons', 'Gold and jewels', 'Bread and grain', 'The crown jewels', 'The crowd needed gunpowder for the muskets they had already seized.'],
       ['Event', 'On what date did crowds storm the Bastille?', 'July 14, 1789', 'July 4, 1776', 'January 21, 1793', 'August 10, 1792', 'July 14 is now Bastille Day, France\'s national holiday.'],
@@ -1410,7 +1423,7 @@ const LEVELS = [
   },
   {
     title: 'Flight to Varennes', place: 'Tuileries Palace → Varennes', date: '1790 – June 1791', bg: 'road', music: 'night', fx: 'fireflies',
-    goal: 8, rate: .52, start: 28, tmax: 14,
+    goal: 4, rate: .52, start: 28, tmax: 14,
     qs: [
       ['Key Term', 'The Civil Constitution of the Clergy (1790)…', 'Placed the Catholic Church under government control', 'Made the Pope king of France', 'Ended all taxes', 'Gave nobles more power', 'Priests now had to swear loyalty to the state. Louis, a devout Catholic, was deeply troubled.'],
       ['Key Term', 'Nobles who fled France to escape the Revolution were called…', 'Émigrés', 'Sans-culottes', 'Jacobins', 'Deputies', 'Many émigrés gathered abroad and urged foreign kings to attack France.'],
@@ -1427,7 +1440,7 @@ const LEVELS = [
   },
   {
     title: 'Fall of the Monarchy', place: 'Legislative Assembly → The Temple', date: 'Sept 1791 – Aug 1792', bg: 'assembly', music: 'march', fx: 'dust',
-    goal: 8, rate: .55, start: 30, tmax: 14,
+    goal: 4, rate: .55, start: 30, tmax: 14,
     qs: [
       ['Key Term', 'The Constitution of 1791 created a new lawmaking body called the…', 'Legislative Assembly', 'National Convention', 'Senate', 'Estates-General', 'The Legislative Assembly made the laws, while the king\'s power was limited.'],
       ['Key Term', 'In the Assembly, radicals sat on the left and conservatives on the right. This gave us the terms…', 'Left wing and right wing', 'North and south', 'Upper and lower', 'Red and blue', 'We still use "left" and "right" to describe political views today.'],
@@ -1444,7 +1457,7 @@ const LEVELS = [
   },
   {
     title: 'Citizen Capet', place: 'The National Convention', date: 'Sept 1792 – Jan 1793', bg: 'convention', music: 'marseillaise', fx: 'dust',
-    goal: 9, rate: .58, start: 34, tmax: 13,
+    goal: 5, rate: .58, start: 34, tmax: 13,
     qs: [
       ['Key Term', 'The National Convention, elected in 1792…', 'Abolished the monarchy and declared France a republic', 'Restored the king', 'Was the king\'s private council', 'Ended the Revolution', 'On September 21–22, 1792, France became a republic.'],
       ['Key Term', 'A government with no king, where citizens elect their leaders, is a(n)…', 'Republic', 'Monarchy', 'Empire', 'Feudal state', 'The new French Republic replaced a thousand years of monarchy.'],
@@ -1462,7 +1475,7 @@ const LEVELS = [
   },
   {
     title: 'The Final Morning', place: 'Place de la Révolution', date: 'January 21, 1793', bg: 'square', music: 'somber', fx: 'snow',
-    goal: 10, rate: .6, start: 38, tmax: 13,
+    goal: 5, rate: .6, start: 38, tmax: 13,
     qs: [
       ['Event', 'On what date was Louis XVI executed?', 'January 21, 1793', 'July 14, 1789', 'June 20, 1791', 'December 25, 1800', 'Louis XVI was executed on January 21, 1793, at age 38.'],
       ['Place', 'The Place de la Révolution in Paris is known today as the…', 'Place de la Concorde', 'Champ de Mars', 'Bastille Square', 'Gardens of Versailles', 'Concorde means "harmony"—the square was renamed to help heal the nation.'],
@@ -1689,43 +1702,31 @@ const ACT = (() => {
   const pickW = list => { let t = list.reduce((s, x) => s + (x.w || 1), 0), r = Math.random() * t; for (const x of list) { r -= (x.w || 1); if (r <= 0) return x; } return list[0]; };
 
   /* ---- one stage per chapter ---- */
+  const HOW = 'Problems keep piling up! Fit the falling blocks together. Fill a whole row to clear it and solve those problems. Don\'t let the stack reach the top!';
   const STAGES = [
-    { type: 'catch', title: 'Fill the Treasury', bg: 'versailles', music: 'versailles', who: 'Louis XVI',
-      how: 'Drag left and right. Catch gold coins and bread. Dodge the debts and costly luxuries.',
-      fact: 'In 1788 about half of France\'s budget went to paying interest on war debts.',
-      player: '💰', items: [{ e: '🪙', p: 10, w: 6 }, { e: '🥖', p: 15, w: 3 }, { e: '👑', p: 40, w: .6 }, { e: '📜', bad: 'Debt!', w: 2.4, lbl: 'DEBT' }, { e: '💎', bad: 'Too costly!', w: 1.2 }, { e: '👗', bad: 'Too costly!', w: 1 }],
-      goal: 400, reward: { pow: 'necker', powTxt: '+1 📜 Necker\'s Advice' } },
-    { type: 'breakout', title: 'Rally at the Tennis Court', bg: 'tennis', music: 'tension', who: 'The Third Estate',
-      how: 'Drag to move the racket. Smash the bricks of privilege. Don\'t let the ball drop!',
-      fact: 'On June 20, 1789, 577 deputies swore the Tennis Court Oath in an indoor tennis hall.',
-      player: '🎾', rows: [['Clergy', '#8a5a2a'], ['Clergy', '#a06a32'], ['Nobles', '#5a3a8a'], ['Nobles', '#6a48a0'], ['Privilege', '#9a2a36']],
-      goal: 400, reward: { pow: 'decree', powTxt: '+1 ⏳ Royal Decree' } },
-    { type: 'runner', title: 'Storm the Bastille', bg: 'bastille', music: 'battle', who: 'The crowd of Paris',
-      how: 'Tap the left or right side (or swipe) to change lanes. Grab gunpowder, dodge cannonballs and guards.',
-      fact: 'The crowd stormed the Bastille on July 14, 1789, mainly to seize its gunpowder.',
-      player: '🏃', good: [{ e: '🛢️', p: 20, w: 4, lbl: 'POWDER' }, { e: '🔑', p: 50, w: .7 }], bad: [{ e: '💣', w: 3 }, { e: '💂', w: 2 }], goalDist: 100,
-      goal: 300, reward: { fury: 10, powTxt: 'Fury starts 10 lower' } },
-    { type: 'runner', title: 'The Midnight Coach', bg: 'road', music: 'night', who: 'The royal family',
-      how: 'Tap left or right to steer the coach. Grab fresh horses, dodge checkpoints and potholes. Stay ahead of Drouet!',
-      fact: 'The heavy royal coach ran hours behind schedule, and the escort gave up waiting.',
-      player: '🛞', good: [{ e: '🐎', p: 20, w: 3, boost: 1 }, { e: '🧥', p: 15, w: 2, lbl: 'DISGUISE' }], bad: [{ e: '🚧', w: 3 }, { e: '🕳️', w: 2 }], chaser: '🏇', goalDist: 100,
-      goal: 300, reward: { pow: 'bread', powTxt: '+1 🥖 Bread for Paris' } },
-    { type: 'runner', title: 'Escape the Tuileries', bg: 'tuileries_day', music: 'battle', who: 'The royal family',
-      how: 'Tap left or right to dash through the palace garden to the Assembly. Grab tricolor cockades, dodge the crowd.',
-      fact: 'On August 10, 1792, the royal family fled through the garden to shelter with the Legislative Assembly.',
-      player: '🏃', good: [{ e: '🎗️', p: 20, w: 3, lbl: 'COCKADE' }, { e: '🛡️', p: 30, w: 1, shield: 1 }], bad: [{ e: '🪨', w: 3 }, { e: '🔱', w: 2 }], goalDist: 100,
-      goal: 300, reward: { pow: 'decree', powTxt: '+1 ⏳ Royal Decree' } },
-    { type: 'catch', title: 'Win Over the Deputies', bg: 'convention', music: 'tension', who: 'Louis\'s defenders',
-      how: 'Drag to catch white mercy ballots. Dodge the iron chest letters that prove Louis\'s secret plans.',
-      fact: 'Letters hidden in the king\'s iron chest became key evidence at his trial.',
-      player: '🗳️', items: [{ e: '📄', p: 15, w: 6, lbl: 'MERCY' }, { e: '⚖️', p: 40, w: .8 }, { e: '✉️', bad: 'Secret letter!', w: 2.6 }, { e: '🗝️', bad: 'Iron chest!', w: 1 }],
-      goal: 400, reward: { pow: 'necker', powTxt: '+1 📜 Necker\'s Advice' } },
-    { type: 'catch', title: 'Letters from the Temple', bg: 'temple', music: 'somber', who: 'Louis, the last night',
-      how: 'Drag to gather candlelight and letters to his family. Avoid the ink blots.',
-      fact: 'In the Temple prison, Louis wrote a last will forgiving his enemies.',
-      player: '🕯️', items: [{ e: '✉️', p: 15, w: 5 }, { e: '🕯️', p: 10, w: 3 }, { e: '⚜️', p: 40, w: .7 }, { e: '⚫', bad: 'Ink blot!', w: 2.2 }],
-      goal: 350, gentle: true, reward: { fury: 10, powTxt: 'Fury starts 10 lower' } }
+    { type: 'tetris', title: 'Crisis Stack: The Treasury', bg: 'versailles', music: 'versailles', who: 'Louis XVI',
+      words: ['DEBT', 'TAXES', 'DEFICIT', 'LUXURY', 'BANKRUPTCY', 'LOANS', 'WAR', 'FAMINE'],
+      fact: 'By 1788 about half of France\'s budget went to paying interest on war debts.', reward: { pow: 'necker', powTxt: '+1 📜 Necker\'s Advice' } },
+    { type: 'tetris', title: 'Crisis Stack: The Estates', bg: 'tennis', music: 'tension', who: 'The Third Estate',
+      words: ['INEQUALITY', 'PRIVILEGE', 'SUFFRAGE', 'TITHES', 'EXCLUSION', 'ABSOLUTISM', 'CENSORSHIP', 'TAXES'],
+      fact: 'The Third Estate was about 97% of the people but had only one of three votes when voting by order.', reward: { pow: 'decree', powTxt: '+1 ⏳ Royal Decree' } },
+    { type: 'tetris', title: 'Crisis Stack: Paris', bg: 'bastille', music: 'battle', who: 'The people of Paris',
+      words: ['STARVATION', 'BREAD', 'ANGER', 'FEAR', 'RUMORS', 'TROOPS', 'VIOLENCE', 'UNEMPLOYMENT'],
+      fact: 'In July 1789 bread prices in Paris hit their highest point of the century.', reward: { fury: 10, powTxt: 'Fury starts 10 lower' } },
+    { type: 'tetris', title: 'Crisis Stack: Trust', bg: 'road', music: 'night', who: 'The royal family',
+      words: ['DISTRUST', 'TREASON', 'SECRECY', 'RELIGION', 'DIVISION', 'ÉMIGRÉS', 'BETRAYAL', 'PANIC'],
+      fact: 'After the Flight to Varennes, many French people stopped trusting the king.', reward: { pow: 'bread', powTxt: '+1 🥖 Bread for Paris' } },
+    { type: 'tetris', title: 'Crisis Stack: War', bg: 'tuileries_day', music: 'battle', who: 'France at war',
+      words: ['WAR', 'INVASION', 'SUSPICION', 'RADICALISM', 'VIOLENCE', 'CHAOS', 'FEAR', 'HUNGER'],
+      fact: 'France declared war on Austria in April 1792, and early defeats spread fear of invasion.', reward: { pow: 'decree', powTxt: '+1 ⏳ Royal Decree' } },
+    { type: 'tetris', title: 'Crisis Stack: The Trial', bg: 'convention', music: 'tension', who: 'The National Convention',
+      words: ['TREASON', 'FACTIONS', 'EXTREMISM', 'VENGEANCE', 'DIVISION', 'SUSPICION', 'WAR', 'REBELLION'],
+      fact: 'The Convention split between the Girondins and the more radical Jacobins (the Montagnards).', reward: { pow: 'necker', powTxt: '+1 📜 Necker\'s Advice' } },
+    { type: 'tetris', title: 'Crisis Stack: What Comes Next', bg: 'temple', music: 'somber', who: 'France in 1793',
+      words: ['TERROR', 'VIOLENCE', 'REBELLION', 'EXTREMISM', 'FEAR', 'WAR', 'GRIEF', 'UNCERTAINTY'],
+      fact: 'After the king\'s execution, war and rebellion led to the Reign of Terror (1793–1794).', reward: { fury: 10, powTxt: 'Fury starts 10 lower' } }
   ];
+  STAGES.forEach(S => { S.how = HOW; });
 
   let cv, cx, W, H, DPR, st, raf, done, keys = {}, ptr = null;
 
@@ -1734,17 +1735,18 @@ const ACT = (() => {
   let prevBest = 0, H_ = {};
   const show = id => H_.show(id);
   const PX = { setMode: m => H_.PX && H_.PX.setMode(m) };
-  function run(i, onDone, best) {
-    const S = STAGES[i]; done = onDone; prevBest = best || 0;
+  let nextLbl = '';
+  function run(i, onDone, best, label) {
+    const S = STAGES[i]; done = onDone; prevBest = best || 0; nextLbl = label || 'To the question battle ▶';
     const root = $('#act'); root.innerHTML = `<div id="actBg">${ART.bg(S.bg)}</div><canvas id="actCv"></canvas>
       <div id="actHud"><div class="ah-l"><b id="ahScore">0</b><span>points</span></div><div class="ah-m"><div class="ah-ttl">${S.title}</div><div class="ah-bar"><div id="ahBar"></div></div></div><div class="ah-r" id="ahLives"></div></div>
       <div id="actPop"></div><div id="actOv" class="on"></div>`;
     cv = $('#actCv'); cx = cv.getContext('2d'); size();
 
     $('#actOv').innerHTML = `<div class="rbox"><div class="rnum">Bonus Stage · ${S.who}</div><div class="rttl">${S.title}</div>
-      <div class="rgoal">${S.how}</div><div class="arew">🏆 Win stars to earn ⚜ Favor and <b>${S.reward.powTxt}</b> in the next battle.</div>
+      <div class="rgoal">${S.how}</div>${S.type === 'tetris' ? '<div class="ahow">Clear <b>1</b> row = ★ · <b>3</b> = ★★ · <b>5</b> = ★★★<br>Drag or ◀ ▶ to move · tap or ⟳ to turn · swipe down or ⬇ to drop</div>' : ''}<div class="arew">🏆 ${label ? 'Win stars to earn ⚜ Royal Favor for the shop.' : `Win stars to earn ⚜ Favor and <b>${S.reward.powTxt}</b> in the next battle.`}</div>
       ${best ? `<div class="abest">Best: ${"★".repeat(best)}${'☆'.repeat(3 - best)}</div>` : ''}
-      <button class="btn gold" id="aGo">Play!</button><button class="askip" id="aSkip">Skip to the questions</button></div>`;
+      <button class="btn gold" id="aGo">Play!</button><button class="askip" id="aSkip">${label ? 'Back' : 'Skip to the questions'}</button></div>`;
     show('act'); AU.music(S.music); PX.setMode('');
     $('#aSkip').onclick = e => { e.stopPropagation(); AU.sfx('click'); finish(null); };
     $('#aGo').onclick = async e => {
@@ -1760,7 +1762,7 @@ const ACT = (() => {
     st = { i, S, t: 0, dur: 38, score: 0, lives: 3, combo: 0, best: 0, items: [], parts: [], pops: [], spawn: 0, px: W / 2, tx: W / 2, over: false, last: performance.now(), shake: 0, inv: 0 };
     if (S.type === 'breakout') initBreakout();
     if (S.type === 'runner') initRunner();
-    renderLives();
+    if (S.type === 'tetris') initTetris(); else renderLives();
     raf = requestAnimationFrame(frame);
   }
   function renderLives() { $('#ahLives').innerHTML = st.S.gentle ? '' : '❤️'.repeat(Math.max(0, st.lives)) + '<span class="dim">' + '🖤'.repeat(Math.max(0, 3 - st.lives)) + '</span>'; }
@@ -1781,19 +1783,20 @@ const ACT = (() => {
   let bpT; function bannerPop(t) { const p = $('#actPop'); p.textContent = t; p.classList.remove('on'); void p.offsetWidth; p.classList.add('on'); clearTimeout(bpT); bpT = setTimeout(() => p.classList.remove('on'), 900); }
 
   /* ---- input ---- */
-  function onDown(e) { if (!st || st.over) return; const x = e.touches ? e.touches[0].clientX : e.clientX; ptr = { x0: x, x, t: performance.now() }; if (st.S.type !== 'runner') st.tx = x; else laneTap(x); if (st.S.type === 'breakout' && !st.ball.go) launch(); }
-  function onMove(e) { if (!st || st.over || !ptr) return; const x = e.touches ? e.touches[0].clientX : e.clientX; ptr.x = x; if (st.S.type !== 'runner') st.tx = x; if (e.cancelable) e.preventDefault(); }
-  function onUp() { ptr = null; }
+  function onDown(e) { if (!st || st.over) return; const x = e.touches ? e.touches[0].clientX : e.clientX, y = e.touches ? e.touches[0].clientY : e.clientY; ptr = { x0: x, x, y0: y, y, t: performance.now(), moved: 0 }; if (st.S.type === 'tetris') return; if (st.S.type !== 'runner') st.tx = x; else laneTap(x); if (st.S.type === 'breakout' && !st.ball.go) launch(); }
+  function onMove(e) { if (!st || st.over || !ptr) return; const x = e.touches ? e.touches[0].clientX : e.clientX, y = e.touches ? e.touches[0].clientY : e.clientY; ptr.x = x; ptr.y = y; if (st.S.type === 'tetris') { const step = st.cs || 30; while (ptr.x - ptr.x0 > step) { tkey('Rt'); ptr.x0 += step; ptr.moved = 1; } while (ptr.x0 - ptr.x > step) { tkey('L'); ptr.x0 -= step; ptr.moved = 1; } if (e.cancelable) e.preventDefault(); return; } if (st.S.type !== 'runner') st.tx = x; if (e.cancelable) e.preventDefault(); }
+  function onUp() { if (st && !st.over && st.S.type === 'tetris' && ptr) { const dy = ptr.y - ptr.y0; if (dy > 60 && performance.now() - ptr.t < 400) tkey('D'); else if (!ptr.moved && Math.abs(dy) < 15) tkey('R'); } ptr = null; }
   function laneTap(x) { lane(x < W / 2 ? -1 : 1); }
   function lane(d) { const n = Math.max(0, Math.min(2, st.lane + d)); if (n !== st.lane) { st.lane = n; AU.sfx('whoosh'); } }
   addEventListener('keydown', e => {
     if (!st || st.over || !$('#act').classList.contains('on')) return;
+    if (st.S.type === 'tetris') { const m = { ArrowLeft: 'L', ArrowRight: 'Rt', ArrowUp: 'R', ArrowDown: 'S', ' ': 'D', a: 'L', d: 'Rt', w: 'R', s: 'S' }[e.key]; if (m) { tkey(m); e.preventDefault(); } return; }
     if (st.S.type === 'runner') { if (e.key === 'ArrowLeft' || e.key === 'a') lane(-1); if (e.key === 'ArrowRight' || e.key === 'd') lane(1); }
     else keys[e.key] = 1;
     if (e.key === ' ' && st.S.type === 'breakout' && !st.ball.go) launch();
   });
   addEventListener('keyup', e => { keys[e.key] = 0; });
-  addEventListener('resize', () => { if (cv && $('#act').classList.contains('on')) size(); });
+  addEventListener('resize', () => { if (cv && $('#act').classList.contains('on')) { size(); if (st && st.S.type === 'tetris') layout(); } });
 
   /* ---- CATCH ---- */
   function catchStep(dt) {
@@ -1894,6 +1897,87 @@ const ACT = (() => {
     if (st.S.chaser) { const cy = H - 30 + (1 - st.chase) * 60; drawEmoji(st.S.chaser, st.lx, Math.min(H + 30, cy + 20), 46, 'rgba(255,60,60,.5)'); cx.fillStyle = 'rgba(255,90,90,.9)'; cx.font = '18px Bangers, Impact'; cx.textAlign = 'left'; cx.fillText(`Drouet ${'▮'.repeat(Math.round(st.chase * 10))}${'▯'.repeat(10 - Math.round(st.chase * 10))}`, 14, H - 16); }
   }
 
+
+  /* ---- TETRIS: Crisis Stack ---- */
+  const SHAPES = { I: [[0, 0], [1, 0], [2, 0], [3, 0]], O: [[0, 0], [1, 0], [0, 1], [1, 1]], T: [[0, 0], [1, 0], [2, 0], [1, 1]], L: [[0, 0], [1, 0], [2, 0], [0, 1]], J: [[0, 0], [1, 0], [2, 0], [2, 1]], S: [[1, 0], [2, 0], [0, 1], [1, 1]], Z: [[0, 0], [1, 0], [1, 1], [2, 1]] };
+  const TCOL = { I: '#3aa6d8', O: '#e6b93a', T: '#9a5ad0', L: '#e07a2e', J: '#3a62d0', S: '#3aaa5a', Z: '#d0343e' };
+  const TC = 8, TR = 15;
+  function initTetris() {
+    st.grid = Array.from({ length: TR }, () => Array(TC).fill(null)); st.lines = 0; st.pid = 0; st.drop = 0; st.dur = 60; st.bag = []; st.wbag = [];
+    st.next = newPiece(); spawn();
+    const ctl = document.createElement('div'); ctl.id = 'tetCtl';
+    ctl.innerHTML = '<button data-k="L">◀</button><button data-k="R">⟳</button><button data-k="D">⬇</button><button data-k="Rt">▶</button>';
+    $('#act').appendChild(ctl);
+    ctl.querySelectorAll('button').forEach(b => b.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); tkey(b.dataset.k); }));
+    layout(); renderLines();
+  }
+  function layout() { const cs = Math.floor(Math.min((W - 24) / TC, (H - 250) / TR)); st.cs = cs; st.bx = Math.floor((W - cs * TC) / 2); st.by = 86; }
+  function renderLines() { $('#ahLives').innerHTML = `<b class="tl">${st.lines}</b><span class="tls">rows</span>`; }
+  function newPiece() {
+    if (!st.bag.length) st.bag = Object.keys(SHAPES).sort(() => Math.random() - .5);
+    if (!st.wbag.length) st.wbag = st.S.words.slice().sort(() => Math.random() - .5);
+    const k = st.bag.pop(); return { k, cells: SHAPES[k].map(c => c.slice()), word: st.wbag.pop(), id: ++st.pid };
+  }
+  function spawn() { st.p = st.next; st.next = newPiece(); st.p.x = Math.floor((TC - 3) / 2); st.p.y = 0; if (hit(st.p, 0, 0)) { bannerPop('FRANCE COLLAPSES!'); AU.sfx('impact'); st.toppled = 1; end(); } }
+  function hit(p, dx, dy, cells) { return (cells || p.cells).some(([cx0, cy0]) => { const x = p.x + cx0 + dx, y = p.y + cy0 + dy; return x < 0 || x >= TC || y >= TR || (y >= 0 && st.grid[y][x]); }); }
+  function rotate() { const p = st.p; if (p.k === 'O') return; const mx = Math.max(...p.cells.map(c => c[0])), r = p.cells.map(([x, y]) => [y, mx - x]); for (const k of [0, -1, 1, -2]) if (!hit(p, k, 0, r)) { p.cells = r; p.x += k; AU.sfx('blip', 900); return; } }
+  function tkey(k) {
+    if (!st || st.over || !st.p) return;
+    if (k === 'L' && !hit(st.p, -1, 0)) { st.p.x--; AU.sfx('blip', 700); }
+    if (k === 'Rt' && !hit(st.p, 1, 0)) { st.p.x++; AU.sfx('blip', 700); }
+    if (k === 'R') rotate();
+    if (k === 'S' && !hit(st.p, 0, 1)) { st.p.y++; st.drop = 0; }
+    if (k === 'D') { let n = 0; while (!hit(st.p, 0, 1)) { st.p.y++; n++; } st.score += n * 2; lock(); AU.sfx('slam'); st.shake = .12; }
+  }
+  function lock() {
+    const p = st.p;
+    for (const [a, b] of p.cells) { const y = p.y + b; if (y < 0) { st.toppled = 1; end(); return; } st.grid[y][p.x + a] = { c: TCOL[p.k], id: p.id, w: p.word }; }
+    const full = []; for (let y = 0; y < TR; y++) if (st.grid[y].every(Boolean)) full.push(y);
+    if (full.length) {
+      const words = [...new Set(full.flatMap(y => st.grid[y].map(c => c.w)))];
+      full.forEach(y => { for (let x = 0; x < TC; x++) burst(st.bx + (x + .5) * st.cs, st.by + (y + .5) * st.cs, st.grid[y][x].c, 4); });
+      for (const y of full) { st.grid.splice(y, 1); st.grid.unshift(Array(TC).fill(null)); }
+      const pts = [0, 100, 300, 500, 800][full.length]; st.lines += full.length; st.combo++; st.best = Math.max(st.best, st.combo);
+      st.score += pts * (1 + Math.min(3, st.combo - 1));
+      pop(W / 2, st.by + (full[0] + .5) * st.cs, `+${pts}${st.combo > 1 ? ' ×' + Math.min(4, st.combo) : ''}`, '#ffe27a');
+      bannerPop(full.length >= 2 ? `${full.length} ROWS! ${words.slice(0, 3).join(' · ')}` : `SOLVED: ${words.slice(0, 3).join(' · ')}`);
+      AU.sfx(full.length >= 2 ? 'combo' : 'correct', full.length * 2); renderLines(); if (navigator.vibrate) navigator.vibrate(30);
+    } else st.combo = 0;
+    spawn();
+  }
+  function tetrisStep(dt) {
+    if (!st.p) return; const grav = Math.max(.18, .75 - st.t * .008);
+    st.drop += dt; if (st.drop >= grav) { st.drop = 0; if (hit(st.p, 0, 1)) lock(); else st.p.y++; }
+  }
+  function cellRect(x, y, col, alpha) {
+    const cs = st.cs, X = st.bx + x * cs, Y = st.by + y * cs;
+    cx.globalAlpha = alpha == null ? 1 : alpha; cx.fillStyle = col; rr(X + 1, Y + 1, cs - 2, cs - 2, 5); cx.fill();
+    cx.fillStyle = 'rgba(255,255,255,.22)'; cx.fillRect(X + 4, Y + 4, cs - 8, 4); cx.strokeStyle = 'rgba(0,0,0,.55)'; cx.lineWidth = 2; rr(X + 1, Y + 1, cs - 2, cs - 2, 5); cx.stroke(); cx.globalAlpha = 1;
+  }
+  function label(word, cells, ox, oy) {
+    if (!cells.length) return; const cs = st.cs;
+    const xs = cells.map(c => c[0]), ys = cells.map(c => c[1]);
+    const w = (Math.max(...xs) - Math.min(...xs) + 1) * cs, mx = (Math.min(...xs) + Math.max(...xs) + 1) / 2, my = (Math.min(...ys) + Math.max(...ys) + 1) / 2;
+    let fs = Math.min(cs * .62, 22); cx.font = `${fs}px Bangers, Impact`; const tw = cx.measureText(word).width; if (tw > w - 6) { fs *= (w - 6) / tw; cx.font = `${fs}px Bangers, Impact`; }
+    const X = st.bx + (ox + mx) * cs, Y = st.by + (oy + my) * cs; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.lineWidth = 3.5; cx.strokeStyle = '#000'; cx.strokeText(word, X, Y + 1); cx.fillStyle = '#fff'; cx.fillText(word, X, Y + 1);
+  }
+  function tetrisDraw() {
+    const cs = st.cs, bw = cs * TC, bh = cs * TR;
+    cx.fillStyle = 'rgba(8,4,10,.72)'; rr(st.bx - 6, st.by - 6, bw + 12, bh + 12, 10); cx.fill(); cx.strokeStyle = 'rgba(240,204,98,.6)'; cx.lineWidth = 2; cx.stroke();
+    cx.strokeStyle = 'rgba(255,255,255,.05)'; cx.lineWidth = 1; for (let x = 1; x < TC; x++) { cx.beginPath(); cx.moveTo(st.bx + x * cs, st.by); cx.lineTo(st.bx + x * cs, st.by + bh); cx.stroke(); }
+    const groups = {};
+    for (let y = 0; y < TR; y++) for (let x = 0; x < TC; x++) { const c = st.grid[y][x]; if (!c) continue; cellRect(x, y, c.c); (groups[c.id] = groups[c.id] || { w: c.w, cells: [] }).cells.push([x, y]); }
+    for (const id in groups) { const g = groups[id]; if (g.cells.length >= 2) label(g.w, g.cells, 0, 0); }
+    if (st.p) {
+      let gy = 0; while (!hit(st.p, 0, gy + 1)) gy++;
+      for (const [a, b] of st.p.cells) cellRect(st.p.x + a, st.p.y + b + gy, TCOL[st.p.k], .18);
+      for (const [a, b] of st.p.cells) if (st.p.y + b >= 0) cellRect(st.p.x + a, st.p.y + b, TCOL[st.p.k]);
+      label(st.p.word, st.p.cells, st.p.x, st.p.y);
+    }
+    // next piece preview
+    cx.fillStyle = 'rgba(255,255,255,.75)'; cx.font = '14px Bangers, Impact'; cx.textAlign = 'right'; cx.fillText(`NEXT: ${st.next.word}`, st.bx + bw, st.by + bh + 20);
+  }
+
   /* ---- drawing helpers ---- */
   function rr(x, y, w, h, r) { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.closePath(); }
   function drawEmoji(e, x, y, s, glow, lbl) {
@@ -1907,12 +1991,12 @@ const ACT = (() => {
     const dt = Math.min(.05, (now - st.last) / 1000); st.last = now; st.t += dt; st.inv = Math.max(0, st.inv - dt);
     const sp = 900 * dt; if (keys.ArrowLeft || keys.a) st.tx -= sp; if (keys.ArrowRight || keys.d) st.tx += sp;
     st.tx = Math.max(30, Math.min(W - 30, st.tx)); st.px += (st.tx - st.px) * Math.min(1, dt * 18);
-    const T = st.S.type; if (T === 'catch') catchStep(dt); else if (T === 'breakout') breakoutStep(dt); else runnerStep(dt);
+    const T = st.S.type; if (T === 'tetris') tetrisStep(dt); else if (T === 'catch') catchStep(dt); else if (T === 'breakout') breakoutStep(dt); else runnerStep(dt);
     if (st.over) return;
     for (const p of st.parts) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 600 * dt; } st.parts = st.parts.filter(p => p.t < p.life);
     for (const p of st.pops) { p.t += dt; p.y -= 50 * dt; } st.pops = st.pops.filter(p => p.t < .9);
     cx.clearRect(0, 0, W, H); cx.save(); if (st.shake > 0) { st.shake -= dt; cx.translate(rnd(-8, 8), rnd(-8, 8)); }
-    if (T === 'catch') catchDraw(); else if (T === 'breakout') breakoutDraw(); else runnerDraw();
+    if (T === 'tetris') tetrisDraw(); else if (T === 'catch') catchDraw(); else if (T === 'breakout') breakoutDraw(); else runnerDraw();
     for (const p of st.parts) { cx.globalAlpha = 1 - p.t / p.life; cx.fillStyle = p.col; cx.fillRect(p.x - 3, p.y - 3, 6, 6); } cx.globalAlpha = 1;
     for (const p of st.pops) { cx.globalAlpha = 1 - p.t / .9; cx.font = '26px Bangers, Impact'; cx.textAlign = 'center'; cx.lineWidth = 4; cx.strokeStyle = '#000'; cx.strokeText(p.txt, p.x, p.y); cx.fillStyle = p.col; cx.fillText(p.txt, p.x, p.y); } cx.globalAlpha = 1;
     cx.restore();
@@ -1924,7 +2008,9 @@ const ACT = (() => {
 
   function end() {
     if (st.over) return; st.over = true; cancelAnimationFrame(raf);
-    const S = st.S, r = st.score / S.goal, stars = st.lives <= 0 && !S.gentle ? (r >= .5 ? 1 : 0) : r >= 1 ? 3 : r >= .6 ? 2 : r >= .25 ? 1 : 0;
+    const S = st.S; let stars;
+    if (S.type === 'tetris') { const l = st.lines; stars = l >= 5 ? 3 : l >= 3 ? 2 : l >= 1 ? 1 : 0; }
+    else { const r = st.score / S.goal; stars = st.lives <= 0 && !S.gentle ? (r >= .5 ? 1 : 0) : r >= 1 ? 3 : r >= .6 ? 2 : r >= .25 ? 1 : 0; }
     setTimeout(() => results(stars), 700);
   }
   function results(stars) {
@@ -1934,13 +2020,13 @@ const ACT = (() => {
     const ov = $('#actOv'); ov.classList.add('on');
     const rewardLine = !stars ? 'No battle bonus this time. Try again for a reward!' : S.reward.pow ? `${S.reward.powTxt.replace('+1', '+' + bonus.n)} for the battle` : `Fury starts ${S.reward.fury * bonus.n} lower in the battle`;
     ov.innerHTML = `<div class="rbox"><div class="rnum">${S.title}</div><div class="astars">${[0, 1, 2].map(k => `<span class="${k < stars ? 'on' : ''}" style="animation-delay:${.2 + k * .25}s">★</span>`).join('')}</div>
-      <div class="ascore">${st.score} <small>points · best combo ${st.best}</small></div>
+      <div class="ascore">${st.score} <small>points · ${st.S.type === 'tetris' ? `${st.lines} row${st.lines === 1 ? '' : 's'} cleared${st.toppled ? ' · the stack reached the top' : ''}` : 'best combo ' + st.best}</small></div>
       <div class="arew">+${favor} ⚜ Royal Favor<br>${stars ? '🎁 ' : ''}${rewardLine}</div>
       <div class="afact">📖 ${S.fact}</div>
-      <button class="btn gold" id="aNext">To the question battle ▶</button><button class="askip" id="aAgain">Play again</button></div>`;
+      <button class="btn gold" id="aNext">${nextLbl}</button><button class="askip" id="aAgain">Play again</button></div>`;
     for (let k = 0; k < stars; k++) setTimeout(() => AU.sfx('star'), 250 + k * 250);
     $('#aNext').onclick = e => { e.stopPropagation(); AU.sfx('click'); finish({ stars, favor, bonus }); };
-    $('#aAgain').onclick = e => { e.stopPropagation(); AU.sfx('click'); const i = st.i, d = done; run(i, d, Math.max(prevBest, stars)); };
+    $('#aAgain').onclick = e => { e.stopPropagation(); AU.sfx('click'); const i = st.i, d = done; run(i, d, Math.max(prevBest, stars), nextLbl === 'To the question battle ▶' ? '' : nextLbl); };
   }
   function finish(res) { if (st) st.over = true; cancelAnimationFrame(raf); const d = done; done = null; d && d(res); }
 
@@ -2134,8 +2220,9 @@ const ACT = (() => {
     LEVELS.forEach((L, i) => {
       const locked = i > SAVE.unlocked;
       const st = SAVE.stars[i] || 0;
-      const card = el('button', 'chap' + (locked ? ' locked' : ''), `<div class="thumb">${ART.bg(L.bg)}</div><div class="cinfo"><div class="cnum">Chapter ${ROMAN[i]}</div><div class="cttl">${L.title}</div><div class="cdate">${L.place} · ${L.date}</div><div class="cstars">${[0, 1, 2].map(k => `<span class="${k < st ? 'on' : ''}">★</span>`).join('')}${SAVE.best[i] ? `<em>Best ${SAVE.best[i].toLocaleString()}</em>` : ''}</div></div>${locked ? '<div class="lock">🔒</div>' : ''}`);
+      const card = el('button', 'chap' + (locked ? ' locked' : ''), `<div class="thumb">${ART.bg(L.bg)}</div><div class="cinfo"><div class="cnum">Chapter ${ROMAN[i]}</div><div class="cttl">${L.title}</div><div class="cdate">${L.place} · ${L.date}</div><div class="cstars">${[0, 1, 2].map(k => `<span class="${k < st ? 'on' : ''}">★</span>`).join('')}${SAVE.best[i] ? `<em>Best ${SAVE.best[i].toLocaleString()}</em>` : ''}</div></div>${locked ? '<div class="lock">🔒</div>' : `<span class="arcb" data-arc="${i}">🎮 Bonus game ${'★'.repeat((SAVE.act || [])[i] || 0)}</span>`}`);
       card.style.animationDelay = (i * 70) + 'ms';
+      const ab = card.querySelector('.arcb'); if (ab) ab.addEventListener('click', e => { e.stopPropagation(); AU.sfx('click'); playBonus(i, true); });
       card.addEventListener('click', () => { if (locked) { AU.sfx('wrong'); shake(card); return; } AU.sfx('click'); playLevel(i); });
       list.appendChild(card);
     });
@@ -2150,26 +2237,26 @@ const ACT = (() => {
   /* ---------- FLOW ---------- */
   function playLevel(i) { playCutscene(INTRO[i], () => playBonus(i)); }
   ACT.init({ show, PX });
-  function playBonus(i) {
+  function playBonus(i, arcade) {
     SAVE.act = SAVE.act || [];
     ACT.run(i, res => {
       G.preBonus = null;
-      if (res) { SAVE.favor = (SAVE.favor || 0) + res.favor; if (res.stars > (SAVE.act[i] || 0)) SAVE.act[i] = res.stars; persist(); G.preBonus = res.bonus; }
-      startGame(i);
-    }, SAVE.act[i] || 0);
+      if (res) { SAVE.favor = (SAVE.favor || 0) + res.favor; if (res.stars > (SAVE.act[i] || 0)) SAVE.act[i] = res.stars; persist(); if (!arcade) G.preBonus = res.bonus; }
+      if (arcade) openChapters(); else startGame(i);
+    }, SAVE.act[i] || 0, arcade ? 'Back to chapters ▶' : '');
   }
   function afterLevel(i) { playCutscene(OUTRO[i], () => { if (i < LEVELS.length - 1) playLevel(i + 1); else showEnd(); }); }
 
   /* ---------- GAMEPLAY (v2) ---------- */
   const G = { running: false };
   const LOUIS_LINES = { good: ['Magnifique!', 'Bien joué!', 'Order is restored!', 'The crowd calms…', 'Exactly right!', 'Très bien!'], bad: ['Mon Dieu!', 'Sacrebleu!', 'The crowd grows restless!', 'Non, non, non!', 'They\'re getting angrier!'], late: ['Too slow!', 'Hurry, hurry!'] };
-  const POW = { necker: { ico: '📜', name: 'Necker\'s Advice', desc: 'Removes 2 wrong answers' }, bread: { ico: '🥖', name: 'Bread for Paris', desc: 'Fury −25' }, decree: { ico: '⏳', name: 'Royal Decree', desc: 'Freezes the clock' } };
+  const POW = { necker: { ico: '📜', name: 'Necker\'s Advice', desc: 'Removes a wrong answer' }, bread: { ico: '🥖', name: 'Bread for Paris', desc: 'Fury −25' }, decree: { ico: '⏳', name: 'Royal Decree', desc: 'Freezes the clock' } };
   const upg = k => (SAVE.upg && SAVE.upg[k]) || 0;
   const pick = a => a[Math.random() * a.length | 0];
   const SURV = { title: 'Survival', place: 'All chapters', bg: 'title', music: 'battle', fx: 'embers', goal: Infinity, rate: .42, start: 15, tmax: 14 };
 
   /* ----- question factories ----- */
-  const mkQ = (l, idx, extra) => { const q = LEVELS[l].qs[idx]; return Object.assign({ kind: 'mc', lvl: l, idx, tag: q[0], q: q[1], a: q.slice(2, 6), ex: q[6] }, extra || {}); };
+  const mkQ = (l, idx, extra) => { const q = LEVELS[l].qs[idx]; return Object.assign({ kind: 'mc', lvl: l, idx, tag: q[0], q: q[1], a: [q[2], ...shuffle(q.slice(3, 6)).slice(0, 2)], ex: q[6] }, extra || {}); };
   function mkWho(maxCh) {
     const pool = FIGURES.filter(f => f.ch <= Math.max(1, maxCh)); if (pool.length < 4) return null;
     const f = pick(pool), others = shuffle(FIGURES.filter(x => x.id !== f.id && x.ch <= maxCh + 1)).slice(0, 3);
@@ -2323,7 +2410,7 @@ const ACT = (() => {
     const mkBtn = (label, ok, txt) => { const b = el('button', 'ans', `<span class="al">${label}</span><span class="at">${txt}</span>`); b.dataset.ok = ok ? '1' : '0'; b.addEventListener('click', () => answer(b, ok)); ans.appendChild(b); return b; };
     if (q.kind === 'mc' || q.kind === 'who') {
       if (q.kind === 'who') $('#qextra').innerHTML = `<div class="whoface">${ART.portrait(q.fig, 'neutral', 'head')}</div>`;
-      shuffle([0, 1, 2, 3]).forEach((oi, k) => mkBtn('ABCD'[k], oi === 0, q.a[oi]));
+      shuffle(q.a.map((_, n) => n)).forEach((oi, k) => mkBtn('ABCD'[k], oi === 0, q.a[oi]));
     } else if (q.kind === 'tf') {
       $('#qextra').innerHTML = `<div class="claim">Answer: <b>${q.claim}</b></div>`;
       mkBtn('✔', q.truth, 'TRUE'); mkBtn('✖', !q.truth, 'FALSE');
@@ -2461,7 +2548,7 @@ const ACT = (() => {
   function usePower(k) {
     if (!G.running || !G.pow[k]) return;
     G.pow[k]--; AU.sfx('power');
-    if (k === 'necker') { shuffle($$('#answers .ans').filter(b => b.dataset.ok !== '1')).slice(0, 2).forEach(b => { b.classList.add('gone'); b.disabled = true; }); bubble('Necker advises…', true); }
+    if (k === 'necker') { shuffle($$('#answers .ans').filter(b => b.dataset.ok !== '1')).slice(0, 1).forEach(b => { b.classList.add('gone'); b.disabled = true; }); bubble('Necker advises…', true); }
     else if (k === 'bread') { G.fury = Math.max(0, G.fury - 25); bubble('Bread for Paris!', true); PX.burst(innerWidth / 2, 90, '#ffcf7a', 40, 380); }
     else if (k === 'decree') { G.freeze = true; bubble('By royal decree… wait!', true); }
     renderPowers(); updateHUD();
@@ -2480,7 +2567,7 @@ const ACT = (() => {
   async function startBoss() {
     G.running = false;
     const def = G.surv ? pick(BOSSES) : BOSSES[G.lvl];
-    G.boss = { def, max: G.surv ? 3 : 5, hp: G.surv ? 3 : 5 };
+    G.boss = { def, max: 2, hp: 2 };
     $('#qcard').classList.remove('in');
     const ban = el('div', 'bossBan', `<div class="bbg">${ART.speed('rgba(20,0,0,.85)', null, 90, 5)}</div><div class="bface">${ART.portrait(def.id, 'angry', innerWidth > innerHeight ? 'bust' : 'face')}</div><div class="btxt"><span>BOSS ROUND</span><b>${def.name}</b></div>`);
     $('#play').appendChild(ban); AU.sfx('impact'); AU.sfx('roar'); flash('#fff');
