@@ -152,7 +152,7 @@ rows = "".join(f"<li><a href=\"/games/{g['slug']}/\"><strong>{e(g['title'])}</st
 write("teachers/index.html", head(f"For Teachers | {SITE_NAME}", "How to use History Emporium games in a middle school world history classroom.", "/teachers/") + f"""<body>
 <header class="shop">{nav("/teachers/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">For Teachers</h1></div></header>
 <main class="wrap"><div class="prose">
-<h2>Built by a classroom teacher</h2>
+<h2>Covers the core content cohesively</h2>
 <p>Every game and deck here was made by a 7th grade world history teacher with a Master of Education (M.Ed.), National Board Certification (NBCT) and 15 years in the classroom. The materials are standards aligned and designed around how students actually learn.</p>
 <h3>How the materials are built</h3>
 <ul>
