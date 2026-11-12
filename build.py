@@ -210,10 +210,12 @@ write("404.html", head(f"Page not found | {SITE_NAME}", "Page not found.", "/404
 shopdata = json.load(open(os.path.join(ROOT, "shop.json"), encoding="utf-8"))
 def buy(item):
     label = f"{e(item['kind'])} · {e(item['price'])}"
-    note = f"<small>{e(item['note'])}</small>" if item.get("note") else ""
+    tm = f'<span class="tm">{e(item["time"])}</span>' if item.get("time") else ""
+    left = f'<span class="bl"><b>{label}</b>{tm}</span>'
     if item.get("url"):
-        return f'<a class="buy{" best" if item.get("note") else ""}" href="{e(item["url"])}" rel="noopener">{label}{note}</a>'
-    return f'<span class="buy soon">{label}<small>Coming soon</small></span>'
+        note = f"<small>{e(item['note'])}</small>" if item.get("note") else ""
+        return f'<a class="buy{" best" if item.get("note") else ""}" href="{e(item["url"])}" rel="noopener">{left}{note}</a>'
+    return f'<span class="buy soon">{left}<small>Coming soon</small></span>'
 units_html = "".join(f"""<article class="sunit" style="--c:{next((g['color'] for g in games if g['slug']==u['game']), '#555')}">
   <div class="thumb" style="background-image:url(/assets/thumbs/{u['game']}.webp)"></div>
   <div class="body"><div class="unit">{e(u['unit'])}</div><h3>{e(u['title'])}</h3><p>{e(u['blurb'])}</p>
@@ -225,12 +227,12 @@ write("shop/index.html", head(f"Teacher Shop | {SITE_NAME}", "Middle school worl
 <header class="shop">{nav("/shop/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">Teacher Shop</h1><p>Lesson and practice decks in Google Slides that match each game. Made by a 7th grade world history teacher.</p></div></header>
 <main class="wrap">
   <div class="fullyear">
-    <div><div class="unit" style="color:var(--brass-lt)">Best value</div><h2>{e(fy['title'])}</h2><p>{e(fy['blurb'])}</p></div>
+    <div><div class="unit" style="color:var(--brass-lt)">Best value</div><h2>{e(fy['title'])}</h2><p>{e(fy['blurb'])}</p><p style="margin-top:6px;color:var(--brass-lt)">{e(fy.get('time',''))}</p></div>
     {buy({'kind': 'Get the bundle', 'price': fy['price'], 'url': fy['url']})}
   </div>
   <div class="shelf-head" style="margin-top:34px"><h2>Units</h2><p>Practice decks are student-ready: every activity has a space for students to type their answers.</p></div>
   <div class="sgrid">{units_html}</div>
-  <div class="note"><p>Purchases are handled securely by Payhip. You'll get your files by email right away.</p></div>
+  <div class="note"><p>Purchases are handled securely by Payhip. You'll get your files by email right away. Class-period estimates assume 50-minute classes, moderate use of each deck, and teachers mixing in their own material.</p></div>
 </main>
 {FOOT}""")
 

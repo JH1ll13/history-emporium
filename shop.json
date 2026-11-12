@@ -2,9 +2,10 @@
   "_note": "Paste each product's Payhip link into its \"url\". Items with an empty url show as Coming soon. Then run: python3 build.py",
   "fullYear": {
     "title": "The Full Year Bundle",
-    "price": "$25",
+    "price": "$50",
     "url": "",
-    "blurb": "Every unit in the store, lesson decks and practice decks, plus every new unit as it's released at no extra cost. The price goes up as units are added; buy once and you get them all."
+    "blurb": "Every unit in the store, lesson decks and practice decks, plus every new unit as it's released at no extra cost. The price goes up as units are added; buy once and you get them all.",
+    "time": "About 45–63 class periods once all nine units are in (roughly 9–13 weeks)"
   },
   "units": [
     {
@@ -13,7 +14,12 @@
       "unit": "Renaissance & Reformation",
       "blurb": "From Florence to the Reformation: patrons, humanism, the Renaissance man and the Church's loss of authority, taught one idea per slide with built-in turn-and-talks.",
       "items": [
-        {"kind": "Lesson Deck", "price": "$5", "url": ""}
+        {
+          "kind": "Lesson Deck",
+          "price": "$10",
+          "url": "",
+          "time": "About 2–3 class periods"
+        }
       ]
     },
     {
@@ -22,9 +28,25 @@
       "unit": "The Enlightenment",
       "blurb": "Hobbes, Locke, Montesquieu and Rousseau: natural rights, the social contract and separation of powers, with practice that builds to primary source analysis and Claim, Evidence, Reasoning writing.",
       "items": [
-        {"kind": "Lesson Deck", "price": "$5", "url": ""},
-        {"kind": "Practice Deck", "price": "$4", "url": ""},
-        {"kind": "Unit Bundle", "price": "$7", "url": "", "note": "Lesson + Practice, save $2"}
+        {
+          "kind": "Lesson Deck",
+          "price": "$10",
+          "url": "",
+          "time": "About 2–3 class periods"
+        },
+        {
+          "kind": "Practice Deck",
+          "price": "$8",
+          "url": "",
+          "time": "About 2–3 class periods"
+        },
+        {
+          "kind": "Unit Bundle",
+          "price": "$14",
+          "url": "",
+          "note": "Lesson + Practice, save $4",
+          "time": "About 4–6 class periods"
+        }
       ]
     },
     {
@@ -33,9 +55,25 @@
       "unit": "The French Revolution",
       "blurb": "Louis XVI, the Estates and the road from Versailles to the Republic, with practice that builds from recall to cause-and-effect sorting, primary sources and Claim, Evidence, Reasoning writing.",
       "items": [
-        {"kind": "Lesson Deck", "price": "$5", "url": ""},
-        {"kind": "Practice Deck", "price": "$4", "url": ""},
-        {"kind": "Unit Bundle", "price": "$7", "url": "", "note": "Lesson + Practice, save $2"}
+        {
+          "kind": "Lesson Deck",
+          "price": "$10",
+          "url": "",
+          "time": "About 3–5 class periods"
+        },
+        {
+          "kind": "Practice Deck",
+          "price": "$8",
+          "url": "",
+          "time": "About 2–3 class periods"
+        },
+        {
+          "kind": "Unit Bundle",
+          "price": "$14",
+          "url": "",
+          "note": "Lesson + Practice, save $4",
+          "time": "About 5–8 class periods"
+        }
       ]
     },
     {
@@ -44,9 +82,25 @@
       "unit": "Industrial Revolution",
       "blurb": "Inventions, inventors, factories and cities: the key terms, people and places of the Industrial Revolution, with practice that ends in primary source analysis and Claim, Evidence, Reasoning writing.",
       "items": [
-        {"kind": "Lesson Deck", "price": "$5", "url": ""},
-        {"kind": "Practice Deck", "price": "$4", "url": ""},
-        {"kind": "Unit Bundle", "price": "$7", "url": "", "note": "Lesson + Practice, save $2"}
+        {
+          "kind": "Lesson Deck",
+          "price": "$10",
+          "url": "",
+          "time": "About 3–4 class periods"
+        },
+        {
+          "kind": "Practice Deck",
+          "price": "$8",
+          "url": "",
+          "time": "About 2–3 class periods"
+        },
+        {
+          "kind": "Unit Bundle",
+          "price": "$14",
+          "url": "",
+          "note": "Lesson + Practice, save $4",
+          "time": "About 5–7 class periods"
+        }
       ]
     }
   ]
