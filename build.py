@@ -158,9 +158,16 @@ write("teachers/index.html", head(f"For Teachers | {SITE_NAME}", "How to use His
 <ul>
 <li><strong>Cognitive Load Theory (Sweller).</strong> Working memory is limited. Slides carry one idea at a time, and games build automatic recall of the basics so students have room left to think about causes, connections and big questions.</li>
 <li><strong>Desirable Difficulties (Bjork).</strong> Learning lasts when it takes some effort. Practice uses frequent retrieval, spacing over time and interleaved topics instead of one-and-done review.</li>
-<li><strong>Culturally relevant pedagogy (Ladson-Billings).</strong> Lessons aim for academic success, cultural competence and critical consciousness, so students see people and perspectives from around the world and connect history to their own lives.</li>
 </ul>
 <p>Every game gives students lots of quick, low-stakes retrieval practice on the key terms, people and places of each unit, wrapped in gameplay they actually want to keep playing.</p>
+<h3>Historical reasoning</h3>
+<p>Beyond recall, students practice the thinking historians do with primary documents:</p>
+<ul>
+<li><strong>Sourcing.</strong> Who created this, when, and why? What might their purpose or perspective be?</li>
+<li><strong>Corroborating.</strong> Do other sources agree or disagree? Which details hold up across sources?</li>
+<li><strong>Contextualizing.</strong> What was happening at the time, and how does that shape what the document says?</li>
+</ul>
+<p>Students gather their best evidence from each source and use it in Claim, Evidence, Reasoning writing.</p>
 <h3>A suggested daily routine</h3>
 <p>A simple, repeatable pattern for covering the foundational direct instruction well:</p>
 <ol>
@@ -191,7 +198,7 @@ write("about/index.html", head(f"About | {SITE_NAME}", "About Mr. Teacher's Hist
 <main class="wrap"><div class="prose">
 <h2>Learning history should feel like play</h2>
 <p>Mr. Teacher's History Emporium is a free collection of world history games for middle school students. It covers the last five hundred years, from the Renaissance to World War II, with a final challenge, History Hero, that brings the whole year together.</p>
-<p>Each game is built around the research on how memory works, including Sweller's Cognitive Load Theory and Bjork's Desirable Difficulties: short, frequent questions spaced out over time, mixed together and tied to the story of each era, with culturally relevant pedagogy shaping whose stories are told. The goal is simple: students who remember the basics automatically have room to think about the big questions.</p>
+<p>Each game is built around the research on how memory works, including Sweller's Cognitive Load Theory and Bjork's Desirable Difficulties: short, frequent questions spaced out over time, mixed together and tied to the story of each era, then applied to real primary sources through sourcing, corroborating and contextualizing. The goal is simple: students who remember the basics automatically have room to think about the big questions.</p>
 <h3>About the teacher</h3>
 <p>Made by a 7th grade world history teacher: M.Ed., National Board Certified Teacher (NBCT), 15 years of classroom experience.</p>
 <h3>Safe for school</h3>
@@ -242,7 +249,7 @@ units_html = "".join(f"""<article class="sunit" style="--c:{next((g['color'] for
 </article>""" for u in shopdata["units"])
 fy = shopdata["fullYear"]
 write("shop/index.html", head(f"Teacher Shop | {SITE_NAME}", "Middle school world history lesson decks and practice decks in Google Slides, standards aligned and made by an M.Ed., NBCT world history teacher to match the History Emporium games.", "/shop/") + f"""<body>
-<header class="shop">{nav("/shop/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">Teacher Shop</h1><p>Lesson and practice decks in Google Slides that match each game. Standards aligned and built on Cognitive Load Theory, Desirable Difficulties and culturally relevant pedagogy. Made by a 7th grade world history teacher (M.Ed., NBCT, 15 years).</p></div></header>
+<header class="shop">{nav("/shop/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">Teacher Shop</h1><p>Lesson and practice decks in Google Slides that match each game. Standards aligned and built on Cognitive Load Theory, Desirable Difficulties and historical reasoning with primary sources. Made by a 7th grade world history teacher (M.Ed., NBCT, 15 years).</p></div></header>
 <main class="wrap">
   <div class="fullyear">
     <div><div class="unit" style="color:var(--brass-lt)">Best value</div><h2>{e(fy['title'])}</h2><p>{e(fy['blurb'])}</p><p style="margin-top:6px;color:var(--brass-lt)">{e(fy.get('time',''))}</p></div>
