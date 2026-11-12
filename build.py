@@ -161,6 +161,15 @@ write("teachers/index.html", head(f"For Teachers | {SITE_NAME}", "How to use His
 <li><strong>Culturally relevant pedagogy (Ladson-Billings).</strong> Lessons aim for academic success, cultural competence and critical consciousness, so students see people and perspectives from around the world and connect history to their own lives.</li>
 </ul>
 <p>Every game gives students lots of quick, low-stakes retrieval practice on the key terms, people and places of each unit, wrapped in gameplay they actually want to keep playing.</p>
+<h3>A suggested daily routine</h3>
+<p>A simple, repeatable pattern for covering the foundational direct instruction well:</p>
+<ol>
+<li><strong>Start with a bell ringer.</strong> Pick a favorite to settle students in and activate what they already know.</li>
+<li><strong>Present a section of the lesson deck.</strong> Teach one chunk of the unit, one idea at a time.</li>
+<li><strong>Guide students through a section of the practice deck.</strong> Students work on the matching practice slides: key terms, people and places, graphic organizers, primary sources and Claim, Evidence, Reasoning writing.</li>
+<li><strong>Finish with game time.</strong> The matching game reinforces recall and rewards excellent habits.</li>
+</ol>
+<p>Use it as a rhythm, not a script. There is always room to interleave your own materials, address knowledge gaps, introduce projects and adjust pacing to your class. The goal is a dependable routine that covers the core content so the rest of your time stays yours.</p>
 <h3>The games, in unit order</h3>
 <ul>{rows}</ul>
 <h3>Classroom notes</h3>
