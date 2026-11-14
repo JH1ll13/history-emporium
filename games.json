@@ -82,6 +82,16 @@
     "controls": "Keyboard, mouse or touch."
   },
   {
+    "slug": "the-red-imposter",
+    "title": "The Red Imposter",
+    "unit": "The Cold War & the Red Scare",
+    "years": "1950–1954",
+    "color": "#a8323e",
+    "blurb": "Go undercover as a Soviet spy in 1950s Maple Grove. Run spy missions, convert townsfolk when no one is watching, and steer hearings where the town votes on little real evidence.",
+    "learn": "Cold War key terms, people and places, plus how McCarthyism and the Red Scare harmed innocent people.",
+    "controls": "WASD or arrow keys to move, E to use, Q to convert, F for a blackout; tap controls on touchscreens."
+  },
+  {
     "slug": "history-hero",
     "title": "History Hero",
     "unit": "All Eras",
