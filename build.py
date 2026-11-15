@@ -233,14 +233,21 @@ write("404.html", head(f"Page not found | {SITE_NAME}", "Page not found.", "/404
 
 # ---------- teacher shop ----------
 shopdata = json.load(open(os.path.join(ROOT, "shop.json"), encoding="utf-8"))
+FREE = shopdata.get("free", {})
+FREE_ON = bool(FREE.get("on"))
 def buy(item):
-    label = f"{e(item['kind'])} · {e(item['price'])}"
+    price = e(item['price'])
+    if FREE_ON:
+        label = f"{e(item['kind'])} · <s>{price}</s> <span class=\"free\">FREE</span>"
+    else:
+        label = f"{e(item['kind'])} · {price}"
     tm = f'<span class="tm">{e(item["time"])}</span>' if item.get("time") else ""
     left = f'<span class="bl"><b>{label}</b>{tm}</span>'
     if item.get("url"):
         note = f"<small>{e(item['note'])}</small>" if item.get("note") else ""
-        return f'<a class="buy{" best" if item.get("note") else ""}" href="{e(item["url"])}" rel="noopener">{left}{note}</a>'
-    return f'<span class="buy soon">{left}<small>Coming soon</small></span>'
+        cta = "<small>Get your free copy ▸</small>" if FREE_ON and not note else note
+        return f'<a class="buy{" best" if item.get("note") else ""}" href="{e(item["url"])}" rel="noopener">{left}{cta}</a>'
+    return f'<span class="buy soon">{left}<small>Link coming soon</small></span>'
 units_html = "".join(f"""<article class="sunit" style="--c:{next((g['color'] for g in games if g['slug']==u['game']), '#555')}">
   <div class="thumb" style="background-image:url(/assets/thumbs/{u['game']}.webp)"></div>
   <div class="body"><div class="unit">{e(u['unit'])}</div><h3>{e(u['title'])}</h3><p>{e(u['blurb'])}</p>
@@ -248,16 +255,19 @@ units_html = "".join(f"""<article class="sunit" style="--c:{next((g['color'] for
   <a class="tiny" href="/games/{u['game']}/">Play the matching game ▸</a></div>
 </article>""" for u in shopdata["units"])
 fy = shopdata["fullYear"]
-write("shop/index.html", head(f"Teacher Shop | {SITE_NAME}", "Middle school world history lesson decks and practice decks in Google Slides, standards aligned and made by an M.Ed., NBCT world history teacher to match the History Emporium games.", "/shop/") + f"""<body>
-<header class="shop">{nav("/shop/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">Teacher Shop</h1><p>Lesson and practice decks in Google Slides that match each game. Standards aligned and built on Cognitive Load Theory, Desirable Difficulties and historical reasoning with primary sources. Made by a 7th grade world history teacher (M.Ed., NBCT, 15 years).</p></div></header>
-<main class="wrap">
-  <div class="fullyear">
+fullyear_html = "" if FREE_ON else f"""  <div class="fullyear">
     <div><div class="unit" style="color:var(--brass-lt)">Best value</div><h2>{e(fy['title'])}</h2><p>{e(fy['blurb'])}</p><p style="margin-top:6px;color:var(--brass-lt)">{e(fy.get('time',''))}</p></div>
     {buy({'kind': 'Get the bundle', 'price': fy['price'], 'url': fy['url']})}
   </div>
+"""
+write("shop/index.html", head(f"Teacher Shop | {SITE_NAME}", "Middle school world history lesson decks and practice decks in Google Slides, standards aligned and made by an M.Ed., NBCT world history teacher to match the History Emporium games.", "/shop/") + f"""<body>
+<header class="shop">{nav("/shop/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">Teacher Shop</h1><p>Lesson and practice decks in Google Slides that match each game. Standards aligned and built on Cognitive Load Theory, Desirable Difficulties and historical reasoning with primary sources. Made by a 7th grade world history teacher (M.Ed., NBCT, 15 years).</p></div></header>
+<main class="wrap">
+  {f'<div class="freebar"><b>{e(FREE.get("headline",""))}</b> {e(FREE.get("text",""))}{" Free through " + e(FREE["until"]) + "." if FREE.get("until") else ""}</div>' if FREE_ON else ''}
+  {fullyear_html}
   <div class="shelf-head" style="margin-top:34px"><h2>Units</h2><p>Practice decks are student-ready: every activity has a space for students to type their answers.</p></div>
   <div class="sgrid">{units_html}</div>
-  <div class="note"><p>Purchases are handled securely by Payhip. You'll get your files by email right away. Class-period estimates assume 50-minute classes, moderate use of each deck, and teachers mixing in their own material.</p></div>
+  <div class="note"><p>{'Free decks open as your own copy in Google Slides, ready to assign. ' if FREE_ON else 'Purchases are handled securely by Payhip. You will get your files by email right away. '}Class-period estimates assume 50-minute classes, moderate use of each deck, and teachers mixing in their own material.</p></div>
 </main>
 {FOOT}""")
 

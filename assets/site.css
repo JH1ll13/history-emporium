@@ -124,3 +124,7 @@ footer a{color:var(--brass-lt);text-decoration:none;margin-right:14px}
 .tiny{font-size:14px;margin-top:6px}
 .bl{display:flex;flex-direction:column;gap:1px;text-align:left}
 .tm{font-weight:400;font-size:12px;opacity:.85}
+
+.freebar{background:var(--brass-lt,#e8c77a);color:#2b1a0e;border:2px solid var(--brass,#b8862b);border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:1.05rem}
+.buy s{opacity:.6}
+.buy .free{background:#2f7d4f;color:#fff;border-radius:6px;padding:1px 7px;font-size:.8em;letter-spacing:.04em}

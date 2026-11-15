@@ -19,6 +19,33 @@
           "price": "$10",
           "url": "",
           "time": "About 2–3 class periods"
+        },
+        {
+          "kind": "Practice Deck",
+          "price": "$8",
+          "url": "",
+          "time": "About 2–3 class periods"
+        },
+        {
+          "kind": "Unit Bundle",
+          "price": "$14",
+          "url": "",
+          "time": "About 4–6 class periods",
+          "note": "Lesson + Practice, save $4"
+        }
+      ]
+    },
+    {
+      "game": "beyond-the-horizon",
+      "title": "The Age of Exploration",
+      "unit": "Age of Exploration",
+      "blurb": "Dias, Columbus, da Gama and Magellan: the key terms, people and places of the voyages, with practice that ends in primary source analysis and Claim, Evidence, Reasoning writing.",
+      "items": [
+        {
+          "kind": "Practice Deck",
+          "price": "$8",
+          "url": "",
+          "time": "About 2–3 class periods"
         }
       ]
     },
@@ -102,6 +129,54 @@
           "time": "About 5–7 class periods"
         }
       ]
+    },
+    {
+      "game": "empire-chase",
+      "title": "The Age of Imperialism",
+      "unit": "Age of Imperialism",
+      "blurb": "The Scramble for Africa and the Great Game in Asia: the key terms, people and places of imperialism, with practice that ends in primary source analysis and Claim, Evidence, Reasoning writing.",
+      "items": [
+        {
+          "kind": "Practice Deck",
+          "price": "$8",
+          "url": "",
+          "time": "About 2–3 class periods"
+        }
+      ]
+    },
+    {
+      "game": "over-the-top",
+      "title": "World War I",
+      "unit": "World War I",
+      "blurb": "The causes, fronts and turning points of the Great War: the key terms, people and places, with practice that ends in primary source analysis and Claim, Evidence, Reasoning writing.",
+      "items": [
+        {
+          "kind": "Practice Deck",
+          "price": "$8",
+          "url": "",
+          "time": "About 2–3 class periods"
+        }
+      ]
+    },
+    {
+      "game": "front-line",
+      "title": "World War II",
+      "unit": "World War II",
+      "blurb": "The key terms, people and places of World War II, with practice that ends in primary source analysis and Claim, Evidence, Reasoning writing.",
+      "items": [
+        {
+          "kind": "Practice Deck",
+          "price": "$8",
+          "url": "",
+          "time": "About 2–3 class periods"
+        }
+      ]
     }
-  ]
+  ],
+  "free": {
+    "on": true,
+    "until": "",
+    "headline": "Free for a limited time",
+    "text": "Every lesson deck and practice deck below is free while we get started. Grab what you need now."
+  }
 }
