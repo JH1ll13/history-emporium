@@ -167,6 +167,26 @@
           "time": "About 4–6 class periods"
         }
       ]
+    },
+    {
+      "game": "the-red-imposter",
+      "title": "The Cold War & the Red Scare",
+      "unit": "The Cold War",
+      "blurb": "Containment, the arms race and McCarthyism: the key terms, people and places of the Cold War, with practice that ends in primary source analysis and Claim, Evidence, Reasoning writing.",
+      "items": [
+        {
+          "kind": "Lesson Deck",
+          "price": "$6.70",
+          "url": "https://docs.google.com/presentation/d/1PVnd2bx5GIWatJR3ap7PeoeP_xFfSyAh01y8_gPcwAA/copy",
+          "time": "About 6–10 class periods"
+        },
+        {
+          "kind": "Practice Deck",
+          "price": "$5.35",
+          "url": "https://docs.google.com/presentation/d/1MWFVWP2ZlZkcclX3rWjnx_2pKsfFspTqf5vAoFPY8_A/copy",
+          "time": "About 4–6 class periods"
+        }
+      ]
     }
   ],
   "free": {
