@@ -114,7 +114,7 @@ a{color:var(--accent)}
   <header id="hud">
     <div class="lvl"><b id="hLvl">Empire Chase</b><small id="hSub">Age of Imperialism</small></div>
     <div class="chip"><span class="k">SCORE</span><span id="hScore">0</span></div>
-    <div class="chip" id="lives">❤️❤️❤️</div>
+    <div class="chip" id="lives">❤️❤️❤️❤️</div>
     <button class="ibtn" id="bPause" title="Pause (P)">⏸</button>
     <button class="ibtn" id="bMute" title="Sound">🔊</button>
   </header>
@@ -345,7 +345,7 @@ const SETS=[
   quote:{q:'Rich country, strong army',by:'Meiji-era slogan (fukoku kyōhei)',note:'Japan modernized to avoid China\'s fate — then built its own empire.'}}
  ]}
 ];
-SETS.forEach((S,si)=>S.levels.forEach((L,li)=>{L.si=si;L.li=li;L.terms.forEach(t=>t.lvl=li);}));
+SETS.forEach((S,si)=>S.levels.forEach((L,li)=>{L.si=si;L.li=li;L.ghosts=L.ghosts.slice(0,-1);L.terms.forEach(t=>t.lvl=li);}));
 const revealed=(L)=>(store.stars[L.id]||0)>0;
 const setDone=(S)=>S.levels.every(revealed);
 
@@ -487,12 +487,13 @@ const cv=$('#cv'),ctx=cv.getContext('2d');
 let T=24,DPR=1,mapLayer=null;
 const G={state:'menu',paused:false,particles:[],pops:[]};
 let want=null;
+const GHOST_SPEED=0.9; // ghosts a further 10% slower
 const SPEED=0.9;      // all movement 10% slower
 const ROAD=1.1;       // paths drawn 10% wider
 const TURN_GRACE=0.3; // turns within 30% of a tile of a junction still count
 
 function newRun(si,li){
-  G.si=si;G.S=SETS[si];G.score=0;G.lives=3;G.nextLife=10000;G.streak=0;G.ace=$('#aceIn').checked;
+  G.si=si;G.S=SETS[si];G.score=0;G.lives=4;G.nextLife=10000;G.streak=0;G.ace=$('#aceIn').checked;
   G.run={asked:0,correct:0,times:[],missed:[],seenLevels:[],startLevel:li};
   startLevel(li);
 }
@@ -599,7 +600,7 @@ function update(dt){
   for(const gh of G.gh){
     if(gh.st==='wait'){gh.wait-=dt;if(gh.wait<=0){gh.st='go';}continue;}
     if(G.freeze>0&&gh.st!=='eyes')continue;
-    const sp=(gh.st==='eyes'?9:gh.fr?2.7:G.gSpeed)*SPEED;
+    const sp=(gh.st==='eyes'?9:gh.fr?2.7:G.gSpeed)*SPEED*GHOST_SPEED;
     moveEnt(gh,sp*dt,ghostDecide,ghostArrive);
   }
   // collisions
