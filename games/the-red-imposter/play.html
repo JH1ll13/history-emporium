@@ -110,6 +110,7 @@ body.touch #actions{display:flex}body.touch #actions .btn{min-width:0;width:70px
 .headline{font-family:Righteous;font-size:40px;line-height:1.05;color:var(--cherry);text-align:center;margin:6px 0 10px}
 @media (max-width:760px){#topbar{left:8px;transform:none;gap:8px;padding:4px 10px}.tb.mini{width:52px}#charges{font-size:15px!important}#corner{flex-direction:column}#drawer{right:54px;top:8px;width:230px}#banner{top:auto;bottom:150px}.paper .cols,.facts{grid-template-columns:1fr}.suspects{grid-template-columns:repeat(3,1fr)}.pickGrid{grid-template-columns:repeat(3,1fr)}#said{grid-template-columns:1fr}#mini{width:140px;height:88px}#tasks span{display:none}#tasks div{font-size:11px}#tasks .done{display:none}#banner{top:auto;bottom:150px;font-size:14px;max-width:92vw;width:max-content;padding:8px 12px}#prompt{font-size:13px;bottom:96px;white-space:normal;max-width:92vw;text-align:center}#intro .card{padding:14px 14px 0}#intro .startRow{position:sticky;bottom:0;background:#F4EBD5;padding:10px 0 14px;margin-top:6px}#intro .card p,#intro li{font-size:14px!important}#actions .btn{min-width:84px;font-size:14px;padding:10px 10px}.headline{font-size:28px}.paper .head{font-size:28px}.paper .mast h1{font-size:28px}.card h2{font-size:22px}}
 </style>
+<script src="/assets/cards-core.js"></script>
 </head>
 <body>
 <canvas id="game"></canvas>
@@ -1014,7 +1015,7 @@ const FACTS=[
  ['1954 · “Have you no sense of decency?”','TV newsman Edward R. Murrow challenged McCarthy, and lawyer Joseph Welch confronted him at the Army-McCarthy hearings.'],
  ['Dec 1954 · Censured','The U.S. Senate officially condemned McCarthy. The worst of the hysteria faded, but the blacklist lasted for years.'],
 ];
-function endGame(kind){if(S.over)return;S.over=true;S.paused=true;
+function endGame(kind){if(S.over)return;S.over=true;S.paused=true;try{window.EmporiumCards&&EmporiumCards.award('the-red-imposter')}catch(_){} 
  const win=kind==='hysteria'||kind==='parity';
  const T={hysteria:['☭ MASS HYSTERIA!','Maple Grove is so busy accusing itself that nobody trusts anyone. The Red Imposter wins.'],
   parity:['☭ THE TOWN IS TURNED','Your converts now equal the loyal townsfolk. The Red Imposter wins.'],

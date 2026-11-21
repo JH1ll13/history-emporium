@@ -176,6 +176,7 @@ body.touch #prompt{bottom:172px}body.touch #toasts{bottom:220px}
 .pcol{position:relative}.crown{position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-size:40px;animation:sppulse .7s ease-in-out infinite alternate}
 .rank{font-size:11px;font-weight:800;color:#6a3d8f}
 </style>
+<script src="/assets/cards-core.js"></script>
 </head>
 <body>
 <canvas id="game"></canvas>
@@ -1606,7 +1607,7 @@ function newGameScreen(){let sel=0;openOv(`<div class="panel card"><h2 class="tf
  ov.querySelector('.go').onclick=()=>{const nm=inp.value.trim().slice(0,18)||'Scholar';S=newState(nm,sel);S.explored=null;ov.className='';ov.innerHTML='';SND.play('slideup');startGame(S,true)}}
 function startGame(state,fresh){S=state;S.buffs=S.buffs||{};S.items.tonic=S.items.tonic||0;S.items.cloak=S.items.cloak||0;G.p.x=S.px;G.p.y=S.py;G.p.dir='down';applyExplored();buildInteract();initWorldEntities();G.regionNow='';G.mode='play';$('#hud').style.display='block';$('#touch').style.display=isTouch?'block':'none';document.body.classList.toggle('touch',isTouch);updateHUD();
  if(fresh){revealRegion('hub');setTimeout(()=>{say('owl',`Hoo-hoo! Over here, ${S.name}! Walk with ${isTouch?'the joystick':'WASD or the arrow keys'} and press ${isTouch?'✋':'SPACE'} near someone to talk.`,minervaChoice)},700)}else toast(`Welcome back, ${esc(S.name)}!`)}
-function showEnding(){G.mode='ending';const acc=S.stats.c+S.stats.w?Math.round(S.stats.c/(S.stats.c+S.stats.w)*100):0;const mast=TERMS.filter(t=>(S.srs['t:'+t.id]||{}).b>=4).length;const weak=TERMS.filter(t=>S.unlocked.includes('t:'+t.id)).sort((a,b)=>(S.srs['t:'+a.id]||{b:0}).b-(S.srs['t:'+b.id]||{b:0}).b).slice(0,5);
+function showEnding(){G.mode='ending';try{window.EmporiumCards&&EmporiumCards.award('lantern-of-reason')}catch(_){} const acc=S.stats.c+S.stats.w?Math.round(S.stats.c/(S.stats.c+S.stats.w)*100):0;const mast=TERMS.filter(t=>(S.srs['t:'+t.id]||{}).b>=4).length;const weak=TERMS.filter(t=>S.unlocked.includes('t:'+t.id)).sort((a,b)=>(S.srs['t:'+a.id]||{b:0}).b-(S.srs['t:'+b.id]||{b:0}).b).slice(0,5);
  openOv(`<div class="panel"><div class="cert"><div class="tf" style="font-size:16px;color:var(--ink)">The Salon of Paris proudly presents the</div><div class="tf" style="font-size:34px">Certificate of Enlightenment</div><div>to</div><div class="tf" style="font-size:30px;color:var(--red)">${esc(S.name)}</div><div style="margin:8px 0">for lighting the four Lanterns of Reason and helping write a constitution with <b>limited power</b>, <b>separation of powers</b>, <b>natural rights</b>, and <b>popular sovereignty</b>.</div>
  <div class="statg"><div>🎯 Accuracy: ${acc}%</div><div>⭐ Level ${S.level}</div><div>🧠 Mastered: ${mast}/${TERMS.length}</div><div>✍️ Recall Strikes: ${S.stats.typed}</div><div>👻 Goons: ${S.stats.goons}</div><div>⏱️ ${Math.floor(S.stats.time/60)} min</div></div>
  <div style="text-align:left;font-size:14px"><b>Keep practicing these:</b> ${weak.map(t=>esc(t.t)).join(', ')}</div><div style="margin-top:8px;font-size:13px">— Professor Minerva 🦉, Paris</div></div>

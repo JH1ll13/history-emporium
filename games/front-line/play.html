@@ -335,6 +335,7 @@ h1{font-family:var(--f-display);font-weight:400;white-space:nowrap;font-size:cla
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition-duration:.01s!important}}
 
 </style>
+<script src="/assets/cards-core.js"></script>
 </head>
 <body>
 <div id="app">
@@ -1229,7 +1230,7 @@ function tick(now) {
 
 /* ============================== results ============================== */
 function finish(win) {
-  if (G.over) return; G.over = true; G.locked = true;
+  if (G.over) return; G.over = true; G.locked = true;try{window.EmporiumCards&&EmporiumCards.award('front-line')}catch(_){} 
   const tot = G.right + G.wrong, acc = tot ? Math.round(100 * G.right / tot) : 0, m = G.m, got = [];
   const give = id => { if (!S.medals[id]) { S.medals[id] = 1; got.push(id); } };
   let stars = 0, xp = 0;

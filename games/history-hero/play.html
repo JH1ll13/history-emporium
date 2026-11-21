@@ -1,5 +1,6 @@
 <!doctype html><html><head>
-<link rel="stylesheet" href="/assets/fonts.css"><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="stylesheet" href="/assets/fonts.css"><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script src="/assets/cards-core.js"></script>
+</head><body>
 <title>History Hero (Classroom)</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
@@ -1438,7 +1439,7 @@ function startDuel(foe,mine){
 
 /* ---------- end of match ---------- */
 function endMatch(won,by){
-  if(G.over) return; G.over=true; G.paused=true; $('#modal').hidden=true; G.explored.fill(1); fogDirty=true; closeDock();
+  if(G.over) return; G.over=true; G.paused=true;try{window.EmporiumCards&&EmporiumCards.award('history-hero')}catch(_){}  $('#modal').hidden=true; G.explored.fill(1); fogDirty=true; closeDock();
   const place=won?1:(G.place||G.heroes.filter(h=>h.alive).length+1), n=G.heroes.length, champ=!won&&G.heroes.filter(h=>h.alive).length===1?G.heroes.find(h=>h.alive):null;
   const acc=G.stats.asked?Math.round(100*G.stats.right/G.stats.asked):0;
   const missed=[...G.missed.values()];

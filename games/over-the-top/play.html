@@ -202,6 +202,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .howto{font-family:'Special Elite';font-size:16px;line-height:1.55}
 .howto li{margin:6px 0 6px 20px}
 </style>
+<script src="/assets/cards-core.js"></script>
 </head>
 <body>
 
@@ -1294,7 +1295,7 @@ setInterval(()=>{if(G&&G.coach===1&&G.mg[0].filter(Boolean).length>=2)advanceCoa
 
 /* ---------------- END ---------------- */
 function endBattle(res){
- if(G.over)return;G.over=true;G.art.fire=false;
+ if(G.over)return;G.over=true;G.art.fire=false;try{window.EmporiumCards&&EmporiumCards.award('over-the-top')}catch(_){} 
  const b=G.b,s=G.stats,tot=s.correct+s.wrong,acc=tot?s.correct/tot:0;
  let stars=0;if(res==='victory'){stars=1;if(acc>=.8)stars++;if(acc>=.8&&s.correct>=20)stars++}
  let score=Math.round(G.score+(res==='victory'?1500+G.str[0]*10:0));G.finalScore=score;

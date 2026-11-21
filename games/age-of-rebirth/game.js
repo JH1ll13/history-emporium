@@ -1947,7 +1947,7 @@ class Level {
         <td class="num">${fluencyCell(c)}</td>
         <td class="num">${bc.right}<span class="tiny"> ✓</span> ${bc.wrong ? `<span class="miss">${bc.wrong} ✗</span>` : ""}</td></tr>`;
     }).join("");
-    openPanel(`<div class="eyebrow">${this.def.label || "Level " + this.def.num} complete · ${esc(this.def.title)}</div>
+try{window.EmporiumCards&&EmporiumCards.award('age-of-rebirth')}catch(_){}     openPanel(`<div class="eyebrow">${this.def.label || "Level " + this.def.num} complete · ${esc(this.def.title)}</div>
       <h2 class="center">${esc(this.def.win.title)}</h2>
       <div class="stars" aria-label="${stars} of 3 stars">${"★".repeat(stars)}<span>${"★".repeat(3 - stars)}</span></div>
       <div class="stats">

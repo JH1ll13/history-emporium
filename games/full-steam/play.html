@@ -89,6 +89,7 @@ body.touch #topbtns{bottom:auto;top:150px;left:10px;flex-direction:column}
 .pips{flex:0 0 auto;font-size:15px;letter-spacing:1px;color:#f0b84a}
 .lgh{font-weight:800;letter-spacing:2px;margin-top:12px;color:#e9c27a}
 </style>
+<script src="/assets/cards-core.js"></script>
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -458,7 +459,7 @@ function finalScore(){return G.sumT!=null?10000+Math.round(G.L-G.sumT):Math.floo
 function endRound(reason){
   if(state!=='run'&&state!=='q')return;
   const won=G.sumT!=null;
-  state='over'; closeQ(); won?SFX.win():SFX.over();
+  state='over'; closeQ();try{window.EmporiumCards&&EmporiumCards.award('full-steam')}catch(_){}  won?SFX.win():SFX.over();
   $('topbtns').classList.remove('show');$('refuel').classList.remove('show');$('touch').classList.remove('show');
   const v=finalScore(), alt=Math.floor(G.alt);
   const prevBest=bestByName().find(e=>e.name===PROF.name&&e.len===G.len);

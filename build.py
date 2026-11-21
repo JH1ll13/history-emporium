@@ -41,7 +41,7 @@ def head(title, desc, path, extra=""):
 """
 
 def nav(active=""):
-    items = [("/", "Games"), ("/teachers/", "For Teachers"), ("/shop/", "Teacher Shop"), ("/about/", "About")]
+    items = [("/", "Games"), ("/teachers/", "For Teachers"), ("/cards/", "Cards"), ("/shop/", "Teacher Shop"), ("/about/", "About")]
     links = "".join(f'<a href="{h}"{" aria-current=page" if h == active else ""}>{t}</a>' for h, t in items)
     return f"""<nav class="topnav wrap" aria-label="Main">
   <a class="brand" href="/">{MARK}<span>History Emporium</span></a>
@@ -215,13 +215,20 @@ write("privacy/index.html", head(f"Privacy | {SITE_NAME}", "Privacy policy for M
 <p>This site is made for students, including children under 13. We do not ask for, collect or store personal information.</p>
 <ul>
 <li><strong>No accounts.</strong> Students do not sign up or log in.</li>
-<li><strong>Game progress</strong> and any name a student types into a game are saved only in that student's own browser (local storage). That data never leaves the device, and clearing the browser deletes it.</li>
+<li><strong>Card collection.</strong> Cards, packs and streaks are saved only in the student\u2019s own browser.</li>\n<li><strong>Game progress</strong> and any name a student types into a game are saved only in that student's own browser (local storage). That data never leaves the device, and clearing the browser deletes it.</li>
 <li><strong>Visitor statistics.</strong> We may count page visits with Cloudflare Web Analytics, which does not use cookies and does not track individual visitors.</li>
 <li><strong>Class mode in History Hero.</strong> When students choose to join a class game, their devices connect directly to each other using a connection service (PeerJS). Only the game moves and the nickname a student chooses are exchanged.</li>
 <li><strong>Teacher Shop purchases</strong> are processed by Payhip on its own site. We never see or store card details. Payhip's privacy policy covers that checkout.</li>\n<li><strong>No advertising</strong> is shown on this site at this time. If that changes, this policy will be updated first.</li>
 </ul>
 <p>Questions? Contact the site owner.</p>
 </div></main>
+{FOOT}""")
+
+# ---------- cards ----------
+write("cards/index.html", head(f"History Cards | {SITE_NAME}", "Collect history cards, open packs and battle in quizzes. Earn packs by playing the games.", "/cards/", '<link rel="stylesheet" href="/assets/cards.css">\n') + f"""<body>
+<header class="shop">{nav("/cards/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">History Cards</h1><p>Play the games to earn packs, collect every era, and unlock Foil and Holographic skins.</p></div></header>
+<main class="wrap"><div id="cardsApp"><noscript>This page needs JavaScript.</noscript></div></main>
+<script src="/assets/cards-data.js"></script><script src="/assets/cards-core.js"></script><script src="/assets/cards-ui.js"></script>
 {FOOT}""")
 
 # ---------- 404 ----------
@@ -272,7 +279,7 @@ write("shop/index.html", head(f"Teacher Shop | {SITE_NAME}", "Middle school worl
 {FOOT}""")
 
 # ---------- sitemap / robots ----------
-urls = ["/", "/teachers/", "/shop/", "/about/", "/privacy/"] + [f"/games/{g['slug']}/" for g in games]
+urls = ["/", "/cards/", "/teachers/", "/shop/", "/about/", "/privacy/"] + [f"/games/{g['slug']}/" for g in games]
 write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       "".join(f"  <url><loc>{SITE_URL}{u}</loc></url>\n" for u in urls) + "</urlset>\n")
 write("robots.txt", f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n")

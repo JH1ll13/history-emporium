@@ -418,6 +418,7 @@ svg.bg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .afact{font-size:14px;line-height:1.4;opacity:.9;margin-bottom:8px;text-align:left}
 .arcb{position:absolute;right:10px;bottom:10px;padding:6px 10px;border-radius:10px;background:linear-gradient(180deg,#ffe596,#f0b93a);color:#3a1a04;font-weight:900;font-size:13px;border:2px solid #fff3c0;box-shadow:0 3px 0 #7a4a0a}
 </style>
+<script src="/assets/cards-core.js"></script>
 </head>
 <body>
 <div id="app">
@@ -2623,7 +2624,7 @@ const ACT = (() => {
 
   function stopPlay() { G.running = false; G.over = true; clearTimeout(G.rt); AU.crowd(0); AU.tempo(1); $('#boss').classList.remove('on'); $('#play').classList.remove('fever'); }
 
-  async function win() {
+  async function win() {try{window.EmporiumCards&&EmporiumCards.award('the-last-king')}catch(_){} 
     stopPlay(); AU.sfx('win'); flash('#fff4c8');
     const acc = G.correct / Math.max(1, G.answered);
     const stars = 1 + (acc >= .75 ? 1 : 0) + (acc >= .9 && G.fury < 50 ? 1 : 0);

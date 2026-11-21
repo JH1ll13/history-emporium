@@ -256,7 +256,7 @@ const Game = (() => {
     const newRank = UI.rankFor(S.xp).r.t;
     S.voyages[ex.id] = Object.assign(prev, { done: true, stars: Math.max(prev.stars || 0, stars), report: Math.max(prev.report || 0, report.right) });
     S.checkpoint = null;
-    Save.write();
+    Save.write();try{window.EmporiumCards&&EmporiumCards.award('beyond-the-horizon')}catch(_){} 
     Sound.music('victory');
     UI.results(st, { stars, ducats, xp, quizFrac, report, rankUp: newRank !== oldRank ? newRank : null }, () => toMenu({ reveal: firstTime }));
     if (newRank !== oldRank) setTimeout(() => Sound.play('rankup'), 1400);

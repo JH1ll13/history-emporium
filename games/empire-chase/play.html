@@ -108,6 +108,7 @@ a{color:var(--accent)}
 .center{text-align:center}
 .mt{margin-top:14px}
 </style>
+<script src="/assets/cards-core.js"></script>
 </head>
 <body>
 <div id="app">
@@ -760,7 +761,7 @@ function showResults(){
   updHud();
 }
 function gameOver(){G.state='over';endRun(false);}
-function endRun(won){
+function endRun(won){try{window.EmporiumCards&&EmporiumCards.award('empire-chase')}catch(_){} 
   const S=G.S,name=($('#nameIn').value||'Player').trim().slice(0,14)||'Player';
   const acc=G.run.asked?Math.round(G.run.correct/G.run.asked*100):0;
   const avg=G.run.times.length?(G.run.times.reduce((a,b)=>a+b,0)/G.run.times.length/1000):0;
