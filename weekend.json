@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "slime-forge",
+    "title": "Slime Forge",
+    "unit": "Weekend Fun",
+    "years": "Merge & Battle",
+    "color": "#6a3cf0",
+    "blurb": "Merge matching slimes into stronger ones, beat bosses before the timer runs out, defeat the Slime God and ascend for permanent perks.",
+    "learn": "Collect 15 kinds of slime, hunt for rare shiny mutations, fill the Slime Book and ascend to unlock new slimes.",
+    "controls": "Drag a slime onto a matching slime to merge. Tap Spawn for more slimes. Tap the boss for bonus damage."
+  },
+  {
+    "slug": "dungeon-dash",
+    "title": "Dungeon Dash",
+    "unit": "Weekend Fun",
+    "years": "Roguelike",
+    "color": "#b3400f",
+    "blurb": "Clear pixel-art dungeon rooms, pick from random power-ups and build a ridiculous combo before you face the Bone King.",
+    "learn": "20 power-ups from common to legendary, a boss every 5 rooms, and gold that buys permanent upgrades between runs.",
+    "controls": "WASD or arrow keys to move, Space to dash. On a touchscreen, drag anywhere to move and tap DASH. Your knight aims and shoots on his own."
+  },
+  {
+    "slug": "neon-drift-royale",
+    "title": "Neon Drift Royale",
+    "unit": "Weekend Fun",
+    "years": "Arena Racer",
+    "color": "#ff3fbf",
+    "blurb": "Drift around a glowing arena to charge your boost, then slam into rival racers to wreck them. Highest score after 90 seconds wins.",
+    "learn": "Drift to charge boost, grab boost orbs, wreck 5 AI rivals and earn credits for new car colors in the garage.",
+    "controls": "A/D or left/right arrows to steer. Hold Space while turning to drift, let go to boost. On a touchscreen, use the arrow and DRIFT buttons."
+  },
+  {
+    "slug": "mech-yard",
+    "title": "Mech Yard",
+    "unit": "Weekend Fun",
+    "years": "Build & Battle",
+    "color": "#ff9a10",
+    "blurb": "Build a battle mech from scrap parts, then take on five giant bosses. Every win earns scrap for better legs, weapons and cores.",
+    "learn": "Mix and match 3 leg types, 5 weapons and 3 power cores, then dodge shockwaves, lasers and drills to beat all five bosses.",
+    "controls": "A/D or arrow keys to move, W, up arrow or Space to jump, E or Shift for your special. Weapons fire on their own. Touchscreen buttons appear on phones and tablets."
+  },
+  {
+    "slug": "gravity-golf",
+    "title": "Gravity Golf: Galaxy",
+    "unit": "Weekend Fun",
+    "years": "Space Mini Golf",
+    "color": "#3fc8ff",
+    "blurb": "Mini golf across the planets. Slingshot your ball around gravity, dodge black holes, warp through wormholes and sink it in the cup.",
+    "learn": "12 holes with moving moons, black holes and wormholes. Earn up to 3 stars per hole and chase a hole-in-one.",
+    "controls": "Drag back from anywhere and let go to launch. The dotted line shows where the ball will go."
+  },
+  {
+    "slug": "tower-titans",
+    "title": "Tower Titans",
+    "unit": "Weekend Fun",
+    "years": "Tower Defense",
+    "color": "#2fae2a",
+    "blurb": "Place fire, ice, rock and lightning creatures along the path. They level up as they fight and evolve into Titans. Survive 25 waves!",
+    "learn": "4 creature types with 3 evolutions each, a boss every 5 waves and the Gigaclops King at wave 25. Mix your elements to win.",
+    "controls": "Pick a creature at the bottom, then tap or click the grass to place it. Tap a creature to evolve or sell it."
+  }
+]

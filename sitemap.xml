@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://mthe.net/</loc></url>
+  <url><loc>https://mthe.net/weekend/</loc></url>
   <url><loc>https://mthe.net/cards/</loc></url>
   <url><loc>https://mthe.net/teachers/</loc></url>
   <url><loc>https://mthe.net/shop/</loc></url>
@@ -16,4 +17,10 @@
   <url><loc>https://mthe.net/games/front-line/</loc></url>
   <url><loc>https://mthe.net/games/the-red-imposter/</loc></url>
   <url><loc>https://mthe.net/games/history-hero/</loc></url>
+  <url><loc>https://mthe.net/games/slime-forge/</loc></url>
+  <url><loc>https://mthe.net/games/dungeon-dash/</loc></url>
+  <url><loc>https://mthe.net/games/neon-drift-royale/</loc></url>
+  <url><loc>https://mthe.net/games/mech-yard/</loc></url>
+  <url><loc>https://mthe.net/games/gravity-golf/</loc></url>
+  <url><loc>https://mthe.net/games/tower-titans/</loc></url>
 </urlset>

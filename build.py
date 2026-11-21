@@ -15,6 +15,7 @@ SITE_URL = "https://mthe.net"
 YEAR = "2026"
 
 games = json.load(open(os.path.join(ROOT, "games.json"), encoding="utf-8"))
+weekend = json.load(open(os.path.join(ROOT, "weekend.json"), encoding="utf-8"))
 e = html.escape
 
 MARK = """<svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="15" width="30" height="21" rx="2" fill="#f6efdf"/>
@@ -41,7 +42,7 @@ def head(title, desc, path, extra=""):
 """
 
 def nav(active=""):
-    items = [("/", "Games"), ("/teachers/", "For Teachers"), ("/cards/", "Cards"), ("/shop/", "Teacher Shop"), ("/about/", "About")]
+    items = [("/", "Games"), ("/weekend/", "Weekend Fun"), ("/teachers/", "For Teachers"), ("/cards/", "Cards"), ("/shop/", "Teacher Shop"), ("/about/", "About")]
     links = "".join(f'<a href="{h}"{" aria-current=page" if h == active else ""}>{t}</a>' for h, t in items)
     return f"""<nav class="topnav wrap" aria-label="Main">
   <a class="brand" href="/">{MARK}<span>History Emporium</span></a>
@@ -102,12 +103,14 @@ write("index.html", head(f"{SITE_NAME} — Free History Games", home_desc, "/",
 {FOOT}""")
 
 # ---------- one page per game ----------
-for i, g in enumerate(games):
-    others = [x for x in games if x["slug"] != g["slug"]]
-    nxt = games[(i + 1) % len(games)]
+for lst in (games, weekend):
+  for i, g in enumerate(lst):
+    wk = lst is weekend
+    others = [x for x in lst if x["slug"] != g["slug"]]
+    nxt = lst[(i + 1) % len(lst)]
     more = "\n".join(card(0, x, small=True) for x in others[:4] if True)
-    desc = f"Play {g['title']}, a free {g['unit']} history game. {g['blurb']}"
-    write(f"games/{g['slug']}/index.html", head(f"{g['title']} — {g['unit']} Game | History Emporium", desc, f"/games/{g['slug']}/") + f"""<body class="player-body">
+    desc = f"Play {g['title']}, a free {'weekend arcade' if wk else g['unit'] + ' history'} game. {g['blurb']}"
+    write(f"games/{g['slug']}/index.html", head(f"{g['title']} — {'Weekend Fun' if wk else g['unit']} Game | History Emporium", desc, f"/games/{g['slug']}/") + f"""<body class="player-body">
 <div class="bar">
   <a class="brand" href="/" title="Back to all games">{MARK}<span class="brand-text">History Emporium</span></a>
   <div class="title">{e(g['title'])}<span>{e(g['unit'])} · {e(g['years'])}</span></div>
@@ -124,12 +127,12 @@ for i, g in enumerate(games):
       <h2>{e(g['title'])}</h2>
       <p>{e(g['blurb'])}</p>
       {'<p><a class="btn" id="tl" href="#trailer">▶ Watch the video</a></p>' if g.get('trailer') else ''}
-      <div class="panel"><h3>What students learn</h3><p style="margin:0">{e(g['learn'])}</p></div>
+      <div class="panel"><h3>{"What's inside" if wk else "What students learn"}</h3><p style="margin:0">{e(g['learn'])}</p></div>
     </div>
     <div class="panel"><h3>How to play</h3><p style="margin:0">{e(g['controls'])}</p>
-      <h3 style="margin-top:14px">Era</h3><p style="margin:0">{e(g['unit'])}, {e(g['years'])}</p></div>
+      <h3 style="margin-top:14px">{"Game type" if wk else "Era"}</h3><p style="margin:0">{e(g['years']) if wk else e(g['unit']) + ", " + e(g['years'])}</p></div>
   </div>
-  <div class="more"><div class="shelf-head"><h2 style="font-size:20px">More from the Emporium</h2><a href="/">All games ▸</a></div>
+  <div class="more"><div class="shelf-head"><h2 style="font-size:20px">More from the Emporium</h2><a href="{"/weekend/" if wk else "/"}">All games ▸</a></div>
     <div class="grid">{more}</div></div>
 </div></section>
 <script>
@@ -145,6 +148,18 @@ document.getElementById('fs').addEventListener('click',()=>{{
   const r=s.requestFullscreen||s.webkitRequestFullscreen; if(r) r.call(s); f.focus();
 }});
 </script>
+{FOOT}""")
+
+# ---------- weekend fun ----------
+wcards = "\n".join(card(i, g) for i, g in enumerate(weekend))
+write("weekend/index.html", head(f"Weekend Fun | {SITE_NAME}", "Free arcade games for the weekend: merge slimes, crawl dungeons, drift neon racers, build battle mechs, play space mini golf and defend with evolving creatures.", "/weekend/") + f"""<body>
+<header class="shop">{nav("/weekend/")}<div class="sign wrap" style="padding-top:14px;padding-bottom:40px"><h1 style="font-size:clamp(30px,5vw,52px)">Weekend Fun</h1><p>No history homework here. Just games for fun, made to play on your own time.</p></div></header>
+<main class="wrap">
+  <div class="shelf-head"><h2>Arcade Games</h2><p>Free, no sign-up · progress saves in your browser</p></div>
+  <div class="grid">
+{wcards}
+  </div>
+</main>
 {FOOT}""")
 
 # ---------- teachers ----------
@@ -279,8 +294,8 @@ write("shop/index.html", head(f"Teacher Shop | {SITE_NAME}", "Middle school worl
 {FOOT}""")
 
 # ---------- sitemap / robots ----------
-urls = ["/", "/cards/", "/teachers/", "/shop/", "/about/", "/privacy/"] + [f"/games/{g['slug']}/" for g in games]
+urls = ["/", "/weekend/", "/cards/", "/teachers/", "/shop/", "/about/", "/privacy/"] + [f"/games/{g['slug']}/" for g in games + weekend]
 write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       "".join(f"  <url><loc>{SITE_URL}{u}</loc></url>\n" for u in urls) + "</urlset>\n")
 write("robots.txt", f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n")
-print(f"Built {len(games)} game pages + home, teachers, about, privacy, 404, sitemap.")
+print(f"Built {len(games)} + {len(weekend)} game pages + home, teachers, about, privacy, 404, sitemap.")
