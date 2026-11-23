@@ -58,5 +58,25 @@
     "blurb": "Place fire, ice, rock and lightning creatures along the path. They level up as they fight and evolve into Titans. Survive 25 waves!",
     "learn": "4 creature types with 3 evolutions each, a boss every 5 waves and the Gigaclops King at wave 25. Mix your elements to win.",
     "controls": "Pick a creature at the bottom, then tap or click the grass to place it. Tap a creature to evolve or sell it."
+  },
+  {
+    "slug": "lane-clash",
+    "title": "Lane Clash",
+    "unit": "Weekend Fun",
+    "years": "Card Battler",
+    "color": "#2e6fe0",
+    "blurb": "Drop knights, archers, giants and dragons into two lanes and knock down the enemy towers before they knock down yours.",
+    "learn": "11 cards to collect and upgrade, trophies to climb, new cards to unlock and an AI opponent that gets tougher as you rank up.",
+    "controls": "Drag a card from your hand onto your side of the arena, or tap a card and then tap the arena. Elixir refills over time."
+  },
+  {
+    "slug": "kaiju-rampage",
+    "title": "Kaiju Rampage",
+    "unit": "Weekend Fun",
+    "years": "Monster Smash",
+    "color": "#4caf50",
+    "blurb": "Play as a giant monster. Stomp the city, blast it with atomic breath and eat tanks to grow big enough to crush skyscrapers.",
+    "learn": "3 cities, 8 monster sizes, a military that fights back with tanks, helicopters, jets and a giant robot, plus DNA upgrades and monster skins.",
+    "controls": "WASD or arrow keys to move, Space to stomp, hold Shift or E for atomic breath. On a touchscreen, drag to move and use the STOMP and BREATH buttons."
   }
 ]
