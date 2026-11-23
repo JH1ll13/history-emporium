@@ -1,5 +1,15 @@
 [
   {
+    "slug": "nova-strike",
+    "title": "Nova Strike",
+    "unit": "Weekend Fun",
+    "years": "3D Space Shooter",
+    "color": "#3ff7ff",
+    "blurb": "Pilot a starfighter through four alien sectors in full 3D. Blast through asteroid fields, canyons and crystal nebulas, then take down giant bosses.",
+    "learn": "Lock-on missile combos, barrel rolls that bounce bullets back, four boss fights, a hangar of ships and upgrades, ranks to earn and an Endless mode.",
+    "controls": "Mouse or WASD to fly. Hold left-click or Space to lock on, release to fire missiles. Shift or right-click to barrel roll. On phones: drag to fly, hold LOCK, tap ROLL."
+  },
+  {
     "slug": "slime-forge",
     "title": "Slime Forge",
     "unit": "Weekend Fun",
