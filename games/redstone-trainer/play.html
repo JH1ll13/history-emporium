@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redstone Trainer</title>
+<link rel="stylesheet" href="/assets/fonts.css">
+<style>
+:root{--bg:#171916;--panel:#23261f;--panel2:#2c3028;--line:#3a3f35;--ink:#ecefe6;--mute:#a9b0a0;--red:#ff4b3e;--red2:#c7251c;--gold:#f6c453;--green:#7cc24a;--blue:#7fe0ff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Nunito,system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:var(--gold)}
+.top{position:sticky;top:0;z-index:10;background:rgba(23,25,22,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.top .in{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:8px 12px}
+.brand{font-family:'Press Start 2P',monospace;color:var(--ink);text-decoration:none;white-space:nowrap;font-size:11px}
+.brand i{display:inline-block;width:10px;height:10px;background:var(--red);box-shadow:0 0 8px var(--red);margin-right:7px;transform:rotate(45deg)}
+.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav::-webkit-scrollbar{display:none}
+.nav a{color:var(--mute);text-decoration:none;font-size:14px;font-weight:600;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.nav a.on{background:var(--panel2);color:var(--ink)}
+main{max-width:820px;margin:0 auto;padding:14px 14px 60px}
+h1,h2{font-family:Fredoka,system-ui,sans-serif;font-weight:700;letter-spacing:.3px;line-height:1.2}
+h1{font-family:'Press Start 2P',monospace;font-weight:400;line-height:1.4}
+h1{font-size:26px;margin:10px 0 6px}
+h2{font-size:24px;margin:8px 0 8px}
+h3{font-size:18px;margin:14px 0 6px}
+h4{font-size:15px;margin:12px 0 4px;color:var(--gold)}
+p{margin:6px 0 10px}
+.lead{font-size:17px;color:#dfe3d8}
+.fine,.note{color:var(--mute);font-size:14px}
+.card{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;color:var(--ink);text-decoration:none}
+a.card:hover{border-color:#556049}
+.hero{text-align:center;padding:12px 0 4px}
+.hero-art canvas{border-radius:8px;border:1px solid var(--line);max-width:100%}
+.stages{display:grid;gap:4px}
+.stage{display:flex;gap:14px;align-items:flex-start}
+.stage-n{font-family:'Press Start 2P',monospace;font-size:18px;width:42px;height:42px;flex:none;display:grid;place-items:center;background:var(--red2);border-radius:10px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.3)}
+.stage-b{flex:1}.stage-b h3{margin:0 0 2px}.stage-b p{margin:0 0 8px;color:var(--mute);font-size:14px}.stage-b small{color:var(--mute)}
+.pbar{height:6px;background:#11130f;border-radius:4px;overflow:hidden;margin-bottom:4px}.pbar i{display:block;height:100%;background:var(--green)}
+.sandbox-link span,.quiz-link span{color:var(--mute)}
+.crumb{display:block;width:max-content;color:var(--mute);text-decoration:none;font-size:14px;margin:2px 0 6px}
+.tag{display:inline-block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 8px;border-radius:6px;background:#3b4134;color:#d7dccf}
+.t-logic{background:#294a6b}.t-clock{background:#6b3b29}.t-memory{background:#4f2f6b}.t-pulse{background:#6b5a29}.t-doors{background:#2f6b4f}.t-automation{background:#3d6b29}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid #556049;color:#cfe3b9;margin:2px 4px 2px 0}
+.grp{color:var(--gold);font-family:'Press Start 2P',monospace;font-weight:400;font-size:12px;margin-top:20px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.comp{display:flex;gap:12px;align-items:flex-start;margin:0}
+.comp canvas,.noicon{flex:none;border-radius:6px;background:#2f342d}
+.noicon{width:40px;height:40px;display:grid;place-items:center;color:var(--mute)}
+.comp p{margin:2px 0;font-size:13.5px;color:var(--mute)}
+.comp.seen{border-color:#4c5d3c}.comp.seen b::after{content:" ✓";color:var(--green)}
+.chead{display:flex;gap:14px;align-items:center}.chead canvas{border-radius:8px;background:#2f342d}.chead h2{margin:4px 0 0}
+.facts{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px 10px 30px}
+.facts li{margin:4px 0}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.mech{margin:0}.mech h3{margin:8px 0 4px}.mech p{color:var(--mute);font-size:14px;margin:0 0 4px}
+.mtop{display:flex;justify-content:space-between;align-items:center}
+.tick{color:var(--green);font-weight:700}
+.mech.done{border-color:#4c5d3c}
+.used{font-size:14.5px;color:#cdd3c3;background:var(--panel);border-left:3px solid var(--gold);padding:8px 12px;border-radius:0 8px 8px 0}
+.gotcha{background:#3a2a18;border-radius:8px;padding:8px 10px;font-size:14.5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:600 14px Nunito,system-ui,sans-serif;color:var(--ink);background:var(--panel2);border:1px solid #4a5142;border-radius:10px;padding:9px 14px;cursor:pointer;text-decoration:none;min-height:40px;touch-action:manipulation}
+.btn:hover{border-color:#6c7760}.btn:disabled{opacity:.4}
+.btn.on{background:#3b4a2c;border-color:var(--green)}
+.btn.primary{background:var(--red2);border-color:#e1463b;color:#fff}
+.btn.primary:hover{background:#d8302a}
+.btn.big{font-size:16px;padding:11px 18px}
+.btn.sm{padding:6px 10px;min-height:34px;font-size:13px}
+.btn.next{margin-top:14px}
+.navrow,.actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.ed{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;margin:10px 0}
+.ed-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.ed-stage{display:flex;justify-content:center;overflow:hidden}
+.ed-cv{display:block;touch-action:manipulation;border-radius:6px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ed-status{font-size:13.5px;color:#d6dbcc;min-height:22px;margin:8px 2px 6px;padding:6px 10px;background:#1b1e18;border-radius:8px}
+.ed-toolrow{display:flex;gap:6px;align-items:stretch}
+.ed-tools{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;flex:1;scrollbar-width:thin}
+.tool{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:62px;min-height:62px;background:var(--panel2);border:2px solid transparent;border-radius:10px;color:var(--ink);font:600 10.5px Nunito,system-ui,sans-serif;cursor:pointer;padding:4px 2px;touch-action:manipulation}
+.tool span{line-height:1.1;text-align:center}
+.tool .emo{font-size:22px;line-height:34px}
+.tool.sel{border-color:var(--gold);background:#3a3a26}
+.tool.face{background:#26313a;border-color:#3e5566}.tool.face b{font-size:24px;line-height:32px;color:var(--blue)}
+.stepbox{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stepbox p{margin:6px 0}
+.dots{display:flex;gap:5px}.dots i{width:22px;height:6px;border-radius:3px;background:#444b3d}.dots i.on{background:var(--blue)}
+.results{margin:6px 0}
+.res{border-radius:12px;padding:12px 14px;margin:8px 0;border:1px solid}
+.res h3{margin:0 0 4px}
+.res.pass{background:#1f3318;border-color:#4f8a35}
+.res.fail{background:#341b18;border-color:#8a3a30}
+.res ul,.res ol{margin:4px 0;padding-left:22px}.res li{margin:5px 0}
+.miss{list-style:none;padding-left:0!important}.miss li{display:flex;gap:10px;align-items:center}.miss canvas{background:#2f342d;border-radius:5px;flex:none}
+.lints li::marker{color:#ff5147;font-weight:700}
+.hint{background:#2e2a17;border-left:3px solid var(--gold);padding:8px 10px;border-radius:0 8px 8px 0;font-size:14.5px}
+.skills{margin:2px 0 8px}
+.howto summary{cursor:pointer;font-weight:700}.howto li{margin:5px 0;font-size:14.5px}
+.quiz .opts{display:grid;gap:8px;margin:10px 0}
+.opt{text-align:left;font:500 15px Nunito,system-ui,sans-serif;color:var(--ink);background:var(--panel2);border:2px solid #4a5142;border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt.right{border-color:var(--green);background:#22361a}.opt.wrong{border-color:var(--red);background:#3a1c18}
+.fb{min-height:24px}
+@media (max-width:520px){h1{font-size:20px}h2{font-size:20px}main{padding:10px 10px 50px}.card{padding:12px}.lead{font-size:16px}.brand span{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+<a class="brand" href="#home"><i></i><span>Redstone Trainer</span></a>
+<nav class="nav">
+<a href="#components" data-r="components c- quiz">Learn</a>
+<a href="#mechanisms" data-r="mechanisms m-">Mechanisms</a>
+<a href="#practice" data-r="practice p-">Practice</a>
+<a href="#tests" data-r="tests t-">Tests</a>
+<a href="#sandbox" data-r="sandbox">Sandbox</a>
+</nav></div></header>
+<main id="view"></main>
+<script>
+// ===== Redstone Trainer simulation engine (top-down, 1 layer, redstone ticks) =====
+const R = (function () {
+  const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // N E S W
+  const DN = { N: 0, E: 1, S: 2, W: 3 };
+  const opp = d => (d + 2) & 3;
+  let NEXT_ID = 1;
+  const SRC_SIMPLE = new Set(['lever', 'button', 'plate']);
+  const MOVABLE = new Set(['block', 'glass', 'rblock', 'lamp', 'observer', 'piston', 'sticky']);
+  const BREAK = new Set(['dust', 'torch', 'lever', 'button', 'plate', 'repeater', 'comparator', 'cane']);
+  const DIRECTIONAL = new Set(['torch', 'repeater', 'comparator', 'observer', 'piston', 'sticky', 'hopper']);
+  const GROW = 24, BUTTON_T = 10, HOP_CD = 4, HOP_CAP = 320;
+
+  function newTile(t, d = 1, o = {}) {
+    const tile = { id: NEXT_ID++, t, d: DIRECTIONAL.has(t) || t === 'head' ? d : 0 };
+    switch (t) {
+      case 'lever': case 'plate': tile.on = false; break;
+      case 'button': tile.on = false; tile.timer = 0; break;
+      case 'torch': tile.on = true; break;
+      case 'repeater': tile.on = false; tile.delay = 1; tile.pend = 0; break;
+      case 'comparator': tile.out = 0; tile.mode = 'c'; break;
+      case 'observer': tile.on = false; tile.fire = false; tile.prev = '#'; break;
+      case 'lamp': tile.lit = false; tile.off = 0; break;
+      case 'piston': case 'sticky': tile.ext = false; tile.over = false; break;
+      case 'hopper': tile.items = 0; tile.cd = 0; break;
+      case 'cane': tile.grown = false; tile.age = 0; break;
+    }
+    Object.assign(tile, o);
+    return tile;
+  }
+
+  class World {
+    constructor(w, h) { this.w = w; this.h = h; this.c = new Array(w * h).fill(null); this.time = 0; this.harvested = 0; this.P = null; this.stats = null; }
+    in(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h; }
+    get(x, y) { return this.in(x, y) ? this.c[y * this.w + x] : null; }
+    set(x, y, t) { if (this.in(x, y)) this.c[y * this.w + x] = t; }
+    each(fn) { for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) { const t = this.c[y * this.w + x]; if (t) fn(t, x, y); } }
+  }
+
+  function clone(w) {
+    const n = new World(w.w, w.h);
+    n.c = w.c.map(t => (t ? { ...t } : null));
+    n.time = w.time; n.harvested = w.harvested;
+    return n;
+  }
+
+  // ---- helpers ----
+  function outDir(t) {
+    if (t.t === 'repeater' || t.t === 'comparator') return t.d;
+    if (t.t === 'observer') return opp(t.d);
+    return -1;
+  }
+  function outLvl(t) {
+    if (t.t === 'repeater') return t.on ? 15 : 0;
+    if (t.t === 'comparator') return t.out;
+    if (t.t === 'observer') return t.on ? 15 : 0;
+    return 0;
+  }
+  function containerSignal(items) { return items <= 0 ? 0 : Math.floor(1 + (items / HOP_CAP) * 14); }
+
+  // does dust at (x,y) connect toward direction k?
+  function connects(w, x, y, k) {
+    const n = w.get(x + DIRS[k][0], y + DIRS[k][1]);
+    if (!n) return false;
+    switch (n.t) {
+      case 'dust': case 'lever': case 'button': case 'plate': case 'torch': case 'rblock': case 'comparator': return true;
+      case 'repeater': return n.d === k || n.d === opp(k);
+      case 'observer': return n.d === k; // its back faces the dust
+      default: return false;
+    }
+  }
+  function pointDirs(w, x, y) {
+    const c = [];
+    for (let k = 0; k < 4; k++) if (connects(w, x, y, k)) c.push(k);
+    if (c.length === 0) return [0, 1, 2, 3];
+    if (c.length === 1) return [c[0], opp(c[0])];
+    return c;
+  }
+  function torchAttach(w, x, y, t) {
+    const b = opp(t.d);
+    return [x + DIRS[b][0], y + DIRS[b][1]];
+  }
+  function torchValid(w, x, y, t) {
+    const [ax, ay] = torchAttach(w, x, y, t);
+    const a = w.get(ax, ay);
+    return !!a && (a.t === 'block' || a.t === 'rblock');
+  }
+
+  function computePower(w) {
+    const N = w.w * w.h, c = w.c;
+    const strong = new Int8Array(N), weak = new Int8Array(N), dust = new Int8Array(N);
+    const P = { w, strong, weak, dust };
+    // strong power into blocks
+    w.each((t, x, y) => {
+      if (SRC_SIMPLE.has(t.t) && t.on) {
+        for (let k = 0; k < 4; k++) {
+          const nx = x + DIRS[k][0], ny = y + DIRS[k][1];
+          const n = w.get(nx, ny);
+          if (n && n.t === 'block') strong[ny * w.w + nx] = 15;
+        }
+      }
+      const od = outDir(t);
+      if (od >= 0) {
+        const l = outLvl(t);
+        if (l > 0) {
+          const nx = x + DIRS[od][0], ny = y + DIRS[od][1];
+          const n = w.get(nx, ny);
+          if (n && n.t === 'block') { const j = ny * w.w + nx; strong[j] = Math.max(strong[j], l); }
+        }
+      }
+    });
+    // dust seeds
+    const q = [];
+    w.each((t, x, y) => {
+      if (t.t !== 'dust') return;
+      let s = 0;
+      for (let k = 0; k < 4; k++) {
+        const nx = x + DIRS[k][0], ny = y + DIRS[k][1];
+        const n = w.get(nx, ny);
+        if (!n) continue;
+        let l = 0;
+        if (SRC_SIMPLE.has(n.t)) l = n.on ? 15 : 0;
+        else if (n.t === 'rblock') l = 15;
+        else if (n.t === 'torch') l = n.on ? 15 : 0;
+        else if (outDir(n) === opp(k)) l = outLvl(n);
+        else if (n.t === 'block') l = strong[ny * w.w + nx];
+        if (l > s) s = l;
+      }
+      const i = y * w.w + x;
+      dust[i] = s;
+      q.push(i);
+    });
+    // relax along dust
+    while (q.length) {
+      const i = q.pop(); const x = i % w.w, y = (i / w.w) | 0;
+      const l = dust[i] - 1; if (l <= 0) continue;
+      for (let k = 0; k < 4; k++) {
+        const nx = x + DIRS[k][0], ny = y + DIRS[k][1];
+        const n = w.get(nx, ny);
+        if (n && n.t === 'dust') { const j = ny * w.w + nx; if (dust[j] < l) { dust[j] = l; q.push(j); } }
+      }
+    }
+    // weak power from dust pointing into blocks
+    w.each((t, x, y) => {
+      if (t.t !== 'dust') return;
+      const l = dust[y * w.w + x]; if (l <= 0) return;
+      for (const k of pointDirs(w, x, y)) {
+        const nx = x + DIRS[k][0], ny = y + DIRS[k][1];
+        const n = w.get(nx, ny);
+        if (n && n.t === 'block') { const j = ny * w.w + nx; weak[j] = Math.max(weak[j], l); }
+      }
+    });
+    return P;
+  }
+  function blockLevel(P, x, y) { const i = y * P.w.w + x; return Math.max(P.strong[i], P.weak[i]); }
+
+  // power that (x,y) receives from its neighbour in direction k
+  function powerFrom(P, x, y, k) {
+    const w = P.w; const nx = x + DIRS[k][0], ny = y + DIRS[k][1];
+    const n = w.get(nx, ny);
+    if (!n) return 0;
+    switch (n.t) {
+      case 'lever': case 'button': case 'plate': return n.on ? 15 : 0;
+      case 'rblock': return 15;
+      case 'torch': {
+        if (!n.on) return 0;
+        const [ax, ay] = torchAttach(w, nx, ny, n);
+        return ax === x && ay === y ? 0 : 15;
+      }
+      case 'dust': {
+        const l = P.dust[ny * w.w + nx]; if (l <= 0) return 0;
+        return pointDirs(w, nx, ny).includes(opp(k)) ? l : 0;
+      }
+      case 'repeater': case 'comparator': case 'observer':
+        return outDir(n) === opp(k) ? outLvl(n) : 0;
+      case 'block': return blockLevel(P, nx, ny);
+    }
+    return 0;
+  }
+  function powered(P, x, y, exclude = -1) {
+    for (let k = 0; k < 4; k++) if (k !== exclude && powerFrom(P, x, y, k) > 0) return true;
+    return false;
+  }
+  function torchOff(P, x, y, t) {
+    const w = P.w; const [ax, ay] = torchAttach(w, x, y, t); const a = w.get(ax, ay);
+    if (!a) return false;
+    if (a.t === 'rblock') return true;
+    if (a.t === 'block') return blockLevel(P, ax, ay) > 0;
+    return false;
+  }
+  function sideIn(P, x, y, k) { // comparator / repeater side input
+    const w = P.w; const n = w.get(x + DIRS[k][0], y + DIRS[k][1]);
+    if (!n) return 0;
+    if (n.t === 'dust') return P.dust[(y + DIRS[k][1]) * w.w + x + DIRS[k][0]];
+    if (n.t === 'rblock') return 15;
+    if ((n.t === 'repeater' || n.t === 'comparator') && outDir(n) === opp(k)) return outLvl(n);
+    return 0;
+  }
+  function lockIn(P, x, y, k) {
+    const w = P.w; const n = w.get(x + DIRS[k][0], y + DIRS[k][1]);
+    if (n && (n.t === 'repeater' || n.t === 'comparator') && outDir(n) === opp(k)) return outLvl(n) > 0;
+    return false;
+  }
+  function comparatorRear(P, x, y, t) {
+    const b = opp(t.d); const n = P.w.get(x + DIRS[b][0], y + DIRS[b][1]);
+    if (n && n.t === 'hopper') return containerSignal(n.items);
+    return powerFrom(P, x, y, b);
+  }
+
+  function signature(w, P, x, y) {
+    if (!w.in(x, y)) return 'X';
+    const t = w.get(x, y); if (!t) return '0';
+    switch (t.t) {
+      case 'dust': return 'd' + P.dust[y * w.w + x];
+      case 'lever': case 'button': case 'plate': return t.t + (t.on ? 1 : 0);
+      case 'torch': return 't' + t.d + (t.on ? 1 : 0);
+      case 'repeater': return 'r' + t.d + (t.on ? 1 : 0) + t.delay;
+      case 'comparator': return 'c' + t.d + t.out + t.mode;
+      case 'observer': return 'o' + t.d + (t.on ? 1 : 0);
+      case 'lamp': return 'l' + (t.lit ? 1 : 0);
+      case 'piston': case 'sticky': return 'p' + t.d + (t.ext ? 1 : 0);
+      case 'hopper': return 'h' + t.d;
+      case 'cane': return 'k' + (t.grown ? 1 : 0);
+      case 'head': return 'H' + t.d;
+    }
+    return t.t;
+  }
+
+  function canMove(t) {
+    if (!t) return true;
+    if (t.t === 'piston' || t.t === 'sticky') return !t.ext;
+    return MOVABLE.has(t.t);
+  }
+  function extend(w, x, y, p) {
+    const [dx, dy] = DIRS[p.d];
+    const fx = x + dx, fy = y + dy;
+    if (!w.in(fx, fy)) return false;
+    const f = w.get(fx, fy);
+    if (f && f.t === 'cane') {
+      if (f.grown) { f.grown = false; f.age = 0; w.harvested++; }
+      p.ext = true; p.over = true; return true;
+    }
+    const chain = []; let cx = fx, cy = fy;
+    for (;;) {
+      if (!w.in(cx, cy)) return false;
+      const t = w.get(cx, cy);
+      if (!t) break;
+      if (BREAK.has(t.t)) { if (t.t === 'cane' && t.grown) w.harvested++; w.set(cx, cy, null); break; }
+      if (!canMove(t)) return false;
+      chain.push([cx, cy]);
+      if (chain.length > 12) return false;
+      cx += dx; cy += dy;
+    }
+    for (let i = chain.length - 1; i >= 0; i--) {
+      const [ax, ay] = chain[i]; const t = w.get(ax, ay);
+      w.set(ax + dx, ay + dy, t); w.set(ax, ay, null);
+      if (t.t === 'observer') t.prev = '#';
+    }
+    w.set(fx, fy, { id: NEXT_ID++, t: 'head', d: p.d, sticky: p.t === 'sticky' });
+    p.ext = true; p.over = false;
+    return true;
+  }
+  function retract(w, x, y, p) {
+    const [dx, dy] = DIRS[p.d];
+    p.ext = false;
+    if (p.over) { p.over = false; return; }
+    const fx = x + dx, fy = y + dy;
+    const h = w.get(fx, fy);
+    if (h && h.t === 'head') w.set(fx, fy, null); else return;
+    if (p.t === 'sticky') {
+      const bx = fx + dx, by = fy + dy;
+      const b = w.get(bx, by);
+      if (b && b.t !== 'head' && canMove(b)) { w.set(fx, fy, b); w.set(bx, by, null); if (b.t === 'observer') b.prev = '#'; }
+    }
+  }
+
+  function updateLamps(w, P, instant) {
+    w.each((t, x, y) => {
+      if (t.t !== 'lamp') return;
+      if (powered(P, x, y)) { t.lit = true; t.off = 0; }
+      else { t.lit = false; t.off = 0; }
+    });
+  }
+
+  function stat(w, t) { if (!w.stats) return null; return (w.stats[t.id] = w.stats[t.id] || {}); }
+
+  function tick(w) {
+    const P = computePower(w);
+    const upd = [];
+    const pistons = [], hoppers = [];
+    w.each((t, x, y) => {
+      const s = stat(w, t);
+      switch (t.t) {
+        case 'torch': {
+          const v = torchValid(w, x, y, t) && !torchOff(P, x, y, t);
+          upd.push(() => { t.on = v; });
+          if (s) { if (v) s.wasOn = 1; else s.wasOff = 1; }
+          break;
+        }
+        case 'repeater': {
+          const inp = powerFrom(P, x, y, opp(t.d)) > 0;
+          if (s && inp) s.inp = 1;
+          const locked = lockIn(P, x, y, (t.d + 1) & 3) || lockIn(P, x, y, (t.d + 3) & 3);
+          if (!locked) {
+            let on = t.on, pend = t.pend || 0;
+            if (inp !== on) { pend++; if (pend >= t.delay) { on = inp; pend = 0; } } else pend = 0;
+            upd.push(() => { t.on = on; t.pend = pend; });
+          }
+          t.locked = locked;
+          break;
+        }
+        case 'comparator': {
+          const rear = comparatorRear(P, x, y, t);
+          const side = Math.max(sideIn(P, x, y, (t.d + 1) & 3), sideIn(P, x, y, (t.d + 3) & 3));
+          if (s && rear > 0) s.rear = 1;
+          const o = t.mode === 's' ? Math.max(rear - side, 0) : (rear >= side ? rear : 0);
+          upd.push(() => { t.out = o; });
+          break;
+        }
+        case 'observer': {
+          const sg = signature(w, P, x + DIRS[t.d][0], y + DIRS[t.d][1]);
+          const det = t.prev !== undefined && sg !== t.prev;
+          const on = !!t.fire;
+          if (s && on) s.fire = 1;
+          upd.push(() => { t.on = on; t.fire = det && !on; t.prev = sg; });
+          break;
+        }
+        case 'button':
+          if (t.on) upd.push(() => { t.timer--; if (t.timer <= 0) { t.on = false; t.timer = 0; } });
+          break;
+        case 'piston': case 'sticky': {
+          const pw = powered(P, x, y, t.d);
+          if (s && pw) s.pw = 1;
+          pistons.push([t, pw]);
+          break;
+        }
+        case 'hopper': {
+          const locked = powered(P, x, y);
+          t.locked = locked;
+          hoppers.push([t, x, y, locked]);
+          break;
+        }
+        case 'cane':
+          if (!t.grown) upd.push(() => { t.age++; if (t.age >= GROW) { t.grown = true; t.age = 0; } });
+          break;
+        case 'dust':
+          if (s) s.max = Math.max(s.max || 0, P.dust[y * w.w + x]);
+          break;
+      }
+    });
+    upd.forEach(f => f());
+    // pistons (find current position each time; earlier pistons may have moved them)
+    for (const [p, pw] of pistons) {
+      const pos = find(w, p); if (!pos) continue;
+      if (pw && !p.ext) extend(w, pos[0], pos[1], p);
+      else if (!pw && p.ext) retract(w, pos[0], pos[1], p);
+    }
+    // hoppers
+    const moves = [];
+    for (const [h, x, y, locked] of hoppers) {
+      if (w.get(x, y) !== h) continue;
+      if (h.cd > 0) h.cd--;
+      if (locked || h.cd > 0 || h.items <= 0) continue;
+      const tg = w.get(x + DIRS[h.d][0], y + DIRS[h.d][1]);
+      if (tg && tg.t === 'hopper' && tg.items < HOP_CAP) moves.push([h, tg]);
+    }
+    for (const [a, b] of moves) { if (a.items > 0) { a.items--; b.items++; a.cd = HOP_CD; } }
+    w.time++;
+    w.P = computePower(w);
+    updateLamps(w, w.P, false);
+    if (w.stats) w.each(t => { if (t.t === 'lamp' && t.lit) stat(w, t).lit = 1; });
+  }
+
+  function find(w, tile) {
+    for (let i = 0; i < w.c.length; i++) if (w.c[i] === tile) return [i % w.w, (i / w.w) | 0];
+    return null;
+  }
+
+  function refresh(w) { w.P = computePower(w); updateLamps(w, w.P, true); }
+
+  // settle torches sequentially so symmetric circuits (latches) pick a state
+  function settle(w) {
+    for (let round = 0; round < 30; round++) {
+      let changed = false;
+      w.each((t, x, y) => {
+        if (t.t !== 'torch') return;
+        const P = computePower(w);
+        const v = torchValid(w, x, y, t) && !torchOff(P, x, y, t);
+        if (v !== t.on) { t.on = v; changed = true; }
+      });
+      if (!changed) break;
+    }
+    refresh(w);
+  }
+
+  // retract pistons back to their resting layout
+  function normalize(w) {
+    w.each((t, x, y) => {
+      if ((t.t === 'piston' || t.t === 'sticky') && t.ext) retract(w, x, y, t);
+    });
+    // stray heads
+    w.each((t, x, y) => { if (t.t === 'head') w.set(x, y, null); });
+  }
+  function resetStates(w) {
+    normalize(w);
+    w.each(t => {
+      switch (t.t) {
+        case 'torch': t.on = true; break;
+        case 'repeater': t.on = false; t.pend = 0; break;
+        case 'comparator': t.out = 0; break;
+        case 'observer': t.on = false; t.fire = false; t.prev = '#'; break;
+        case 'lamp': t.lit = false; t.off = 0; break;
+        case 'button': t.on = false; t.timer = 0; break;
+        case 'cane': t.grown = false; t.age = 0; break;
+        case 'hopper': t.cd = 0; break;
+      }
+    });
+    w.time = 0; w.harvested = 0;
+    settle(w);
+  }
+
+  // ---- building from piece specs ----
+  // piece: [type, x, y, dir?, opts?]
+  function build(w, h, pieces) {
+    const wd = new World(w, h);
+    for (const p of pieces) place(wd, p);
+    resetStates(wd);
+    return wd;
+  }
+  function place(wd, p) {
+    const [t, x, y, d, o] = p;
+    const dd = typeof d === 'string' ? DN[d] : (d == null ? 1 : d);
+    wd.set(x, y, newTile(t, dd, o ? { ...o } : {}));
+  }
+
+  // ---- Tester ----
+  class Tester {
+    constructor(world) { this.base = clone(world); normalize(this.base); this.stats = {}; this.fails = []; }
+    reset() { this.w = clone(this.base); resetStates(this.w); this.w.stats = this.stats; this.run(12); return this; }
+    at(x, y) { return this.w.get(x, y); }
+    lever(x, y, on) { const t = this.at(x, y); if (t && t.t === 'lever') t.on = on; return this; }
+    press(x, y) { const t = this.at(x, y); if (t && t.t === 'button') { t.on = true; t.timer = BUTTON_T; } return this; }
+    plate(x, y, on) { const t = this.at(x, y); if (t && t.t === 'plate') t.on = on; return this; }
+    run(n, fn) { for (let i = 0; i < n; i++) { tick(this.w); if (fn) fn(this.w, i); } return this; }
+    lit(x, y) { const t = this.at(x, y); return !!(t && t.t === 'lamp' && t.lit); }
+    occupied(x, y) { const t = this.at(x, y); return !!t && ['block', 'glass', 'rblock', 'lamp', 'observer'].includes(t.t); }
+    lampTiles() { const a = []; this.w.each(t => { if (t.t === 'lamp') a.push(t); }); return a; }
+    hopperTiles() { const a = []; this.w.each(t => { if (t.t === 'hopper') a.push(t); }); return a; }
+    // count lamp toggles over n ticks; returns array of {toggles, litTicks}
+    watchLamps(n) {
+      const ls = this.lampTiles(); const res = ls.map(l => ({ tile: l, toggles: 0, lit: 0, last: l.lit }));
+      this.run(n, () => { res.forEach(r => { if (r.tile.lit !== r.last) { r.toggles++; r.last = r.tile.lit; } if (r.tile.lit) r.lit++; }); });
+      return res;
+    }
+    fail(m) { this.fails.push(m); return this; }
+  }
+
+  function count(w) { const c = {}; w.each(t => { if (t.t !== 'head') c[t.t] = (c[t.t] || 0) + 1; }); return c; }
+
+  return { DIRS, DN, opp, World, newTile, clone, computePower, powerFrom, powered, pointDirs, connects, torchValid, torchAttach, blockLevel, containerSignal, tick, refresh, settle, normalize, resetStates, build, place, Tester, count, signature, DIRECTIONAL, find, BUTTON_T, HOP_CAP };
+})();
+if (typeof module !== 'undefined') module.exports = R;
+
+// ===== Content: components, mechanisms, tests, checking =====
+const C = (function () {
+  const NAMES = {
+    dust: 'Redstone Dust', block: 'Solid Block', glass: 'Glass', lever: 'Lever', button: 'Stone Button', plate: 'Pressure Plate',
+    torch: 'Redstone Torch', rblock: 'Block of Redstone', repeater: 'Repeater', comparator: 'Comparator', observer: 'Observer',
+    lamp: 'Redstone Lamp', piston: 'Piston', sticky: 'Sticky Piston', hopper: 'Hopper', cane: 'Sugar Cane', head: 'Piston Arm'
+  };
+  const PALETTE = ['dust', 'block', 'lever', 'button', 'plate', 'torch', 'repeater', 'comparator', 'observer', 'lamp', 'piston', 'sticky', 'rblock', 'hopper', 'glass', 'cane'];
+
+  // ---------- COMPONENTS ----------
+  // sim: true -> it exists in the trainer's grid; demo: [w,h,pieces]
+  const COMPONENTS = [
+    { id: 'dust', group: 'Wiring', sim: true, short: 'The wire. Carries a signal that fades by 1 per block.',
+      body: 'Redstone dust carries power from place to place. A signal starts at strength 15 and drops by 1 for every block of dust it travels, so after 15 blocks it is gone. Dust automatically connects to neighbouring dust and redstone components.',
+      facts: ['Signal strength 0–15, loses 1 per block', 'Powers the block it points into (weak power) and the block it sits on', 'A line that runs <b>past</b> a lamp or piston does not power it; the dust has to <b>point into</b> it', 'In the game it can climb up and down one block at a time'],
+      demo: [8, 3, [['lever', 0, 1], ['dust', 1, 1], ['dust', 2, 1], ['dust', 3, 1], ['dust', 4, 1], ['dust', 5, 1], ['dust', 6, 1], ['lamp', 7, 1], ['lamp', 4, 0]]],
+      demoNote: 'Flip the lever. Turn on "Show signal numbers" to watch the strength drop. The top lamp stays dark: the dust runs past it.' },
+    { id: 'torch', group: 'Power sources', sim: true, short: 'Always ON, until its block is powered. The inverter.',
+      body: 'A redstone torch is a power source that is ON by default. It must be attached to a solid block, and it turns OFF when that block gets powered. That flip-flopped behaviour makes it the NOT gate (inverter) of redstone.',
+      facts: ['Outputs strength 15', 'Turns off 1 redstone tick (0.1 s) after its block is powered', 'Does not power the block it is attached to', 'Burns out if it flips more than 8 times in 3 seconds (Java)'],
+      demo: [6, 3, [['lever', 0, 1], ['dust', 1, 1], ['block', 2, 1], ['torch', 3, 1, 'E'], ['lamp', 4, 1]]],
+      demoNote: 'The torch is attached to the stone block. Power the block and the torch goes out.' },
+    { id: 'lever', group: 'Power sources', sim: true, short: 'An ON/OFF switch that stays where you put it.',
+      body: 'A lever is a toggle switch. Flip it on and it stays on until you flip it back. It powers anything next to it and strongly powers the block it is attached to.',
+      facts: ['Outputs strength 15', 'Stays on until flipped', 'Strongly powers the block it is on, so dust next to that block lights up'],
+      demo: [5, 3, [['lever', 1, 1], ['lamp', 2, 1], ['dust', 0, 1]]], demoNote: 'Tap the lever with the hand tool.' },
+    { id: 'button', group: 'Power sources', sim: true, short: 'A short pulse: press it and it pops back up.',
+      body: 'A button gives a pulse and then turns itself off. A stone button stays pressed for 1 second (10 redstone ticks); a wooden button stays pressed for 1.5 seconds and can also be pressed by arrows.',
+      facts: ['Stone: 10 ticks. Wood: 15 ticks', 'Good for one-shot actions like a doorbell or dispensing one item', 'To make a button\'s effect last, you need memory (a latch)'],
+      demo: [6, 3, [['button', 0, 1], ['dust', 1, 1], ['dust', 2, 1], ['dust', 3, 1], ['lamp', 4, 1]]], demoNote: 'Press the button and watch the pulse end.' },
+    { id: 'plate', group: 'Power sources', sim: true, short: 'ON while something stands on it.',
+      body: 'Pressure plates detect things standing on them. Wooden plates sense any entity (even dropped items), stone plates sense only players and mobs, and weighted plates give a stronger signal the more entities are on them.',
+      facts: ['Outputs 15 (weighted plates: 1–15)', 'Turns off shortly after you step off', 'In this trainer, tap with the hand tool to step on or off'],
+      demo: [5, 3, [['plate', 0, 1], ['dust', 1, 1], ['lamp', 2, 1]]], demoNote: 'Tap the plate to "stand" on it.' },
+    { id: 'rblock', group: 'Power sources', sim: true, short: 'A block that is always powered, and pistons can move it.',
+      body: 'A block of redstone is a permanent power source. Unlike a torch, a piston can push and pull it, so it is "power you can move". Many compact builds slide a redstone block in and out to switch things.',
+      facts: ['Always strength 15', 'Powers dust and components touching it', 'Does not make the solid blocks next to it carry power', 'Movable by pistons; a sticky piston can pull it back'],
+      demo: [5, 3, [['lever', 0, 1], ['sticky', 1, 1, 'E'], ['rblock', 2, 1], ['lamp', 3, 0]]],
+      demoNote: 'The lever pushes the redstone block next to the lamp; flip it off and the sticky piston pulls it away.' },
+    { id: 'repeater', group: 'Wiring', sim: true, short: 'One-way booster with an adjustable delay.',
+      body: 'A repeater takes a signal in its back and sends it out its front at full strength 15. It adds a delay of 1 to 4 redstone ticks (tap it to change). It only works in one direction, which also makes it a "diode" that stops signals from flowing backward.',
+      facts: ['Refreshes any signal to 15', 'Delay 1–4 ticks (0.1–0.4 s)', 'One-way: input at the back (the end without the arrow), output at the front', 'Strongly powers the block in front of it', 'A powered repeater or comparator pointing into its side <b>locks</b> it'],
+      demo: [8, 3, [['lever', 0, 1], ['dust', 1, 1], ['repeater', 2, 1, 'E', { delay: 4 }], ['repeater', 3, 1, 'E', { delay: 4 }], ['dust', 4, 1], ['lamp', 5, 1]]],
+      demoNote: 'Two repeaters at 4 ticks each: the lamp lights 0.8 s after the lever. Tap a repeater to change its delay.' },
+    { id: 'comparator', group: 'Wiring', sim: true, short: 'Measures and compares signals; reads how full containers are.',
+      body: 'A comparator keeps the strength of the signal going through it instead of boosting it. Its back can read a container (hopper, chest, furnace) and output 1–15 depending on how full it is. Its sides take a second signal. In compare mode (front torch off) it outputs the back signal only if it is at least as strong as the side. In subtract mode (front torch lit) it outputs back minus side.',
+      facts: ['Back = main input or container reader. Sides = comparison input', 'Compare mode: outputs back if back ≥ side, else 0', 'Subtract mode: outputs back − side', 'Any items at all in a hopper give at least strength 1', '1 tick delay'],
+      demo: [7, 3, [['hopper', 0, 1, 'E', { items: 3 }], ['comparator', 1, 1, 'E'], ['dust', 2, 1], ['lamp', 3, 1]]],
+      demoNote: 'Tap the hopper with the hand tool to add or remove items. Empty hopper → no signal.' },
+    { id: 'observer', group: 'Detectors', sim: true, short: 'Watches the block in front of it and pulses when it changes.',
+      body: 'An observer has a "face" that watches one block. Whenever that block changes (a crop grows, a lamp turns on, a block is placed, dust changes strength) it sends a very short pulse out of its back, where the red dot is.',
+      facts: ['Face watches; the back (red dot) outputs', 'Pulse is 1 redstone tick long, after a 1 tick delay', 'Strongly powers the block behind it', 'Two observers facing each other make the fastest clock'],
+      demo: [5, 3, [['lever', 0, 1], ['observer', 1, 1, 'W'], ['lamp', 2, 1]]],
+      demoNote: 'The observer watches the lever. Every flip, on or off, gives one quick flash. Try the slow speed.' },
+    { id: 'lamp', group: 'Outputs', sim: true, short: 'Lights up when powered. The simplest output.',
+      body: 'A redstone lamp lights up whenever it is powered and goes dark when the power stops (in the game it lingers for a split second). It is perfect for testing whether your signal arrives.',
+      facts: ['Turns on instantly when powered', 'Powered by dust pointing into it, a powered block, torch, lever, repeater, etc.'],
+      demo: [4, 3, [['lever', 0, 1], ['lamp', 1, 1]]], demoNote: 'Flip the lever.' },
+    { id: 'piston', group: 'Outputs', sim: true, short: 'Pushes blocks when powered.',
+      body: 'A piston pushes the blocks in front of it by one space when it is powered and retracts when power stops. It can push a line of up to 12 blocks. It cannot be powered through its pushing face.',
+      facts: ['Pushes up to 12 blocks', 'Cannot push obsidian, bedrock or blocks with storage like chests and hoppers', 'Breaks fragile things like dust, torches and crops', 'Java "quasi-connectivity": a piston can also be powered as if it were one block higher'],
+      demo: [6, 3, [['lever', 0, 1], ['piston', 1, 1, 'E'], ['block', 2, 1]]], demoNote: 'A regular piston pushes, but leaves the block behind when it pulls back.' },
+    { id: 'sticky', group: 'Outputs', sim: true, short: 'Pushes and pulls the block back.',
+      body: 'A sticky piston works like a piston, but when it retracts it pulls the block in front of it back too. This is how hidden doors and block-moving clocks work.',
+      facts: ['Pulls back one block on retract', 'Very short pulses make it drop the block ("spitting")', 'Cannot pull blocks it cannot push'],
+      demo: [6, 3, [['lever', 0, 1], ['sticky', 1, 1, 'E'], ['block', 2, 1]]], demoNote: 'Compare this with the regular piston.' },
+    { id: 'hopper', group: 'Outputs', sim: true, short: 'Moves items in the direction of its spout. Power locks it.',
+      body: 'A hopper pulls items from above and pushes them out through its spout into whatever container it points at. It moves one item every 0.4 seconds. When a hopper is powered, it is locked and stops moving items, which is the trick behind hopper clocks and item sorters.',
+      facts: ['5 slots; moves 1 item every 8 game ticks (4 redstone ticks)', 'Powered hopper = locked (stops pushing, but can still receive)', 'Comparators can read how full it is', 'Tap a hopper with the hand tool to add items in this trainer'],
+      demo: [6, 3, [['hopper', 0, 1, 'E', { items: 6 }], ['hopper', 1, 1, 'E'], ['hopper', 2, 1, 'E'], ['dust', 1, 0], ['lever', 0, 0]]],
+      demoNote: 'Items flow left to right. Flip the lever to lock the middle hopper.' },
+    { id: 'block', group: 'Wiring', sim: true, short: 'Solid blocks carry power to their neighbours.',
+      body: 'Ordinary solid blocks like stone conduct power. A block is <b>strongly powered</b> by a repeater, comparator, observer, lever or button; a strongly powered block also powers dust beside it. A block that is only <b>weakly powered</b> by dust pointing into it powers nearby components (lamps, pistons, a torch on it) but not other dust.',
+      facts: ['Strong power (repeater, comparator, lever…) → powers neighbouring dust too', 'Weak power (dust) → powers neighbouring components only', 'Torches on a powered block turn off'],
+      demo: [7, 5, [['lever', 0, 1], ['dust', 1, 1], ['block', 2, 1], ['lamp', 2, 0], ['dust', 2, 2], ['lever', 3, 3], ['repeater', 4, 3, 'E'], ['block', 5, 3], ['lamp', 5, 2], ['dust', 5, 4]]],
+      demoNote: 'Left: dust weakly powers the block, so the lamp lights but the dust below the block stays dark. Right: a repeater strongly powers its block, so the lamp lights and the dust below it lights too.' },
+    { id: 'glass', group: 'Wiring', sim: true, short: 'Transparent blocks do not carry power.',
+      body: 'Glass, slabs, leaves and other transparent blocks do not conduct redstone power, and you cannot put a torch on the side of glass. Builders use them to stop signals from leaking where they should not go.',
+      facts: ['Not a conductor', 'Dust pointing into glass does nothing', 'In the game, dust can sit on top of glass, and upward dust "staircases" through glass work'],
+      demo: [5, 3, [['lever', 0, 1], ['dust', 1, 1], ['glass', 2, 1], ['lamp', 3, 1]]], demoNote: 'The signal stops at the glass.' },
+    { id: 'cane', group: 'Outputs', sim: true, short: 'A crop that grows on its own. Perfect for observer farms.',
+      body: 'Sugar cane grows taller over time. In this trainer it switches between short and grown. A piston pushing into grown cane harvests it, and the bottom stays planted to grow again.',
+      facts: ['Observers notice when it grows', 'Pistons break the grown part', 'Same idea works for bamboo, kelp, melons and pumpkins'],
+      demo: null },
+    { id: 'dispenser', group: 'Outputs', sim: false, short: 'Shoots or uses an item when it gets a pulse.',
+      body: 'Each time a dispenser is powered it uses one item: it fires arrows, places water or lava, uses bone meal, equips armour, shoots fireworks. A dropper is its simpler cousin: it just spits items out or pushes them into a container, which is great for item elevators.',
+      facts: ['Activates once per pulse (use a clock for rapid fire)', 'Dropper into a container = moves items without hoppers'] },
+    { id: 'daylight', group: 'Detectors', sim: false, short: 'Outputs a signal that follows the sun.',
+      body: 'A daylight detector outputs a signal based on how bright the sky is: strong at noon, zero at night. Tap it to invert it, so it powers things at night. Classic use: street lamps that turn on at sunset.',
+      facts: ['0–15 depending on sunlight', 'Inverted mode = night sensor'] },
+    { id: 'target', group: 'Detectors', sim: false, short: 'Powers when hit by a projectile.',
+      body: 'A target block gives a redstone pulse when hit by an arrow, trident, snowball or egg. The closer to the centre, the stronger the signal. Dust next to it always points into it, which is handy for wiring.',
+      facts: ['Signal 1–15 based on accuracy', 'Great for archery games and hidden switches'] },
+    { id: 'noteblock', group: 'Outputs', sim: false, short: 'Plays a note each time it is powered.',
+      body: 'A note block plays a sound when it gets a pulse. Tap it to change the pitch; the block beneath it changes the instrument (wood = bass, sand = snare, gold = bell, and more). Chains of repeaters make songs.',
+      facts: ['25 pitches (two octaves)', 'Instrument depends on the block underneath'] },
+    { id: 'slime', group: 'Outputs', sim: false, short: 'Sticky blocks that make pistons move whole structures.',
+      body: 'Slime blocks and honey blocks stick to the blocks around them, so one piston can move a whole group. Slime and honey do not stick to each other, which lets builders make two separate moving parts. Combined with observers, they make flying machines.',
+      facts: ['Still limited to 12 blocks total per push', 'Slime and honey do not stick to each other'] },
+    { id: 'doors', group: 'Outputs', sim: false, short: 'Doors, trapdoors and fence gates open when powered.',
+      body: 'Iron doors and iron trapdoors can only be opened by redstone. Wooden doors, trapdoors and fence gates can be opened by hand or by redstone. Powering a door opens it, removing power closes it.',
+      facts: ['Iron doors need redstone', 'Great output for testing logic gates'] }
+  ];
+
+  const QUIZ = [
+    { q: 'How many blocks of redstone dust can a full-strength signal travel?', a: ['8', '12', '15', '64'], c: 2, why: 'A signal starts at 15 and loses 1 per block of dust.' },
+    { q: 'What happens to a redstone torch when the block it is attached to becomes powered?', a: ['It turns ON', 'It turns OFF', 'It breaks', 'Nothing'], c: 1, why: 'Torches invert: block powered → torch off. That makes them NOT gates.' },
+    { q: 'Which component can read how full a hopper is?', a: ['Repeater', 'Observer', 'Comparator', 'Redstone lamp'], c: 2, why: 'A comparator with a container at its back outputs 1–15 based on fullness.' },
+    { q: 'Which of these can a repeater NOT do?', a: ['Boost a signal to 15', 'Add a delay', 'Send a signal backwards', 'Get locked from the side'], c: 2, why: 'Repeaters are one-way: back in, front out.' },
+    { q: 'What does a sticky piston do that a regular piston can\'t?', a: ['Push 20 blocks', 'Pull the block back when it retracts', 'Push obsidian', 'Work without power'], c: 1, why: 'Sticky pistons pull back the block in front of them.' },
+    { q: 'An observer sends its pulse out of which side?', a: ['Its face', 'Its back (the red dot)', 'All sides', 'The top'], c: 1, why: 'The face watches; the back outputs.' },
+    { q: 'What happens to a hopper when it is powered?', a: ['It moves items faster', 'It is locked and stops pushing items', 'It breaks', 'It turns into a dropper'], c: 1, why: 'Power locks a hopper. Hopper clocks depend on this.' },
+    { q: 'A comparator in subtract mode has 12 at its back and 5 at its side. What does it output?', a: ['0', '5', '7', '12'], c: 2, why: 'Subtract mode outputs back − side = 12 − 5 = 7.' },
+    { q: 'Redstone dust runs right past a lamp without pointing into it. Is the lamp on?', a: ['Yes', 'No'], c: 1, why: 'Dust powers what it points into. A line running past does not power the lamp.' },
+    { q: 'Why might a builder use glass in a redstone build?', a: ['It boosts signals', 'It does not carry power, so it stops leaks', 'It delays signals', 'It reads containers'], c: 1, why: 'Transparent blocks like glass do not conduct redstone power.' }
+  ];
+
+  // ---------- MECHANISMS ----------
+  // each step: {say, add:[pieces]} ; pieces flagged {io:1} are locked in practice
+  const io = o => Object.assign({ io: 1 }, o || {});
+  const MECHS = [
+    {
+      id: 'not', name: 'NOT Gate (Torch Inverter)', tag: 'Logic', size: [6, 3],
+      what: 'Flips a signal: input ON gives output OFF, and input OFF gives output ON.',
+      used: 'Hidden doors that shut when you step off a plate, lights that are on until something happens, and as a building block of AND gates, clocks and latches.',
+      steps: [
+        { say: 'Place a lever on the left. This is the input.', add: [['lever', 0, 1, 0, io()]] },
+        { say: 'Run dust from the lever into a solid block. Dust that points into a block powers it.', add: [['dust', 1, 1], ['block', 2, 1]] },
+        { say: 'Put a redstone torch on the far side of the block. It stays ON until its block is powered.', add: [['torch', 3, 1, 'E']] },
+        { say: 'Add a lamp next to the torch as the output. Now flip the lever and watch the lamp do the opposite.', add: [['lamp', 4, 1, 0, io()]] }
+      ],
+      how: ['Lever OFF → block unpowered → torch ON → lamp lit.', 'Lever ON → block powered → torch OFF (after 1 tick) → lamp dark.'],
+      gotcha: 'The torch must be attached to the block. A torch standing on its own in the air pops off in the game.',
+      check(T) {
+        T.reset().lever(0, 1, false).run(10); if (!T.lit(4, 1)) T.fail('With the lever OFF, the lamp should be ON (the torch should be lit).');
+        T.lever(0, 1, true).run(10); if (T.lit(4, 1)) T.fail('With the lever ON, the lamp should turn OFF.');
+      }
+    },
+    {
+      id: 'or', name: 'OR Gate', tag: 'Logic', size: [6, 3],
+      what: 'Output is ON if either input (or both) is ON.',
+      used: 'Doors with a button on each side, hallway lights with switches at both ends, alarms from several sensors.',
+      steps: [
+        { say: 'Place two levers, one above the other, with a gap between them.', add: [['lever', 0, 0, 0, io()], ['lever', 0, 2, 0, io()]] },
+        { say: 'Run dust from each lever to the right, then turn both lines toward the middle so they meet.', add: [['dust', 1, 0], ['dust', 2, 0], ['dust', 1, 2], ['dust', 2, 2], ['dust', 2, 1]] },
+        { say: 'Lead one dust line out of the meeting point and end it pointing into a lamp.', add: [['dust', 3, 1], ['lamp', 4, 1, 0, io()]] }
+      ],
+      how: ['Dust lines that touch join into one wire.', 'If either lever powers the wire, the whole wire is powered.'],
+      gotcha: 'Because the lines join, power also flows back toward the other lever. That is fine here, but in bigger builds a repeater on each input stops signals from leaking backward.',
+      check(T) {
+        const cases = [[0, 0, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]];
+        for (const [a, b, want] of cases) {
+          T.reset().lever(0, 0, !!a).lever(0, 2, !!b).run(10);
+          if (T.lit(4, 1) !== !!want) T.fail(`With top lever ${a ? 'ON' : 'OFF'} and bottom lever ${b ? 'ON' : 'OFF'}, the lamp should be ${want ? 'ON' : 'OFF'}.`);
+        }
+      }
+    },
+    {
+      id: 'and', name: 'AND Gate', tag: 'Logic', size: [8, 3],
+      what: 'Output is ON only when both inputs are ON.',
+      used: 'Vault doors that need two switches, combination locks, "only at night AND when a player is near".',
+      steps: [
+        { say: 'Place two levers, each touching a solid block. A lever strongly powers the block it touches.', add: [['lever', 0, 0, 0, io()], ['block', 1, 0], ['lever', 0, 2, 0, io()], ['block', 1, 2]] },
+        { say: 'Put a torch on the right side of each block. Each torch is a NOT gate for its lever.', add: [['torch', 2, 0, 'E'], ['torch', 2, 2, 'E']] },
+        { say: 'Join both torch outputs with dust and run the line into a third block.', add: [['dust', 3, 0], ['dust', 3, 1], ['dust', 3, 2], ['dust', 4, 1], ['block', 5, 1]] },
+        { say: 'Add a final torch on that block and a lamp. The lamp lights only when both levers are on.', add: [['torch', 6, 1, 'E'], ['lamp', 7, 1, 0, io()]] }
+      ],
+      how: ['Each lever turns its torch OFF.', 'The middle wire is ON if either torch is still on (an OR of the inverted inputs).', 'Only when both torches are off does the wire go dark, letting the last torch turn ON.', 'NOT(NOT A OR NOT B) = A AND B.'],
+      gotcha: 'Remove the last torch and you have a NAND gate: output OFF only when both are on. That is useful for doors that open when both switches are on.',
+      check(T) {
+        const cases = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 1]];
+        for (const [a, b, want] of cases) {
+          T.reset().lever(0, 0, !!a).lever(0, 2, !!b).run(12);
+          if (T.lit(7, 1) !== !!want) T.fail(`With top lever ${a ? 'ON' : 'OFF'} and bottom lever ${b ? 'ON' : 'OFF'}, the lamp should be ${want ? 'ON' : 'OFF'}.`);
+        }
+      }
+    },
+    {
+      id: 'torchclock', name: 'Repeater Clock (Torch Loop)', tag: 'Clock', size: [6, 4],
+      what: 'Turns itself on and off forever, with no player input.',
+      used: 'Flashing signs, dispensers that fire again and again, automatic farms that run on a timer.',
+      steps: [
+        { say: 'Place a solid block with a redstone torch on its right side.', add: [['block', 1, 1], ['torch', 2, 1, 'E']] },
+        { say: 'Put a repeater in front of the torch, pointing away from it. Tap it with the hand to set a longer delay.', add: [['repeater', 3, 1, 'E', { delay: 3 }]] },
+        { say: 'Run dust from the repeater in a loop that ends pointing into the bottom of the block.', add: [['dust', 4, 1], ['dust', 4, 2], ['dust', 4, 3], ['dust', 3, 3], ['dust', 2, 3], ['dust', 1, 3], ['dust', 1, 2]] },
+        { say: 'Add a lamp touching the torch so you can see the beat.', add: [['lamp', 2, 0, 0, io()]] }
+      ],
+      how: ['The torch powers the loop, which powers the block.', 'A powered block turns the torch off, so the loop goes dark.', 'An unpowered block lets the torch turn back on. Repeat forever.', 'More repeater delay = slower clock.'],
+      gotcha: 'Without the repeater, the torch flips too fast and burns out in the game. The repeater slows the loop down.',
+      check(T) {
+        T.reset(); const r = T.watchLamps(80);
+        const l = r.find(x => x.tile === T.at(2, 0));
+        if (!l || l.toggles < 4) T.fail('The lamp should blink on its own, without touching anything. It changed ' + (l ? l.toggles : 0) + ' times in 8 seconds.');
+      }
+    },
+    {
+      id: 'obsclock', name: 'Observer Clock', tag: 'Clock', size: [6, 3],
+      what: 'Two observers watching each other make a very fast clock.',
+      used: 'Rapid-fire dispensers, kelp and bamboo farms, anything that needs constant fast pulses.',
+      steps: [
+        { say: 'Place an observer with its face pointing right.', add: [['observer', 2, 1, 'E']] },
+        { say: 'Place a second observer to its right with its face pointing left, so their faces meet. Placing it is the change that starts the clock.', add: [['observer', 3, 1, 'W']] },
+        { say: 'Add a lamp on each observer\'s back (the red dot side).', add: [['lamp', 1, 1, 0, io()], ['lamp', 4, 1, 0, io()]] }
+      ],
+      how: ['Observer A pulses, which changes its state.', 'Observer B sees that change and pulses, which changes its state.', 'A sees B change… and the loop never ends.'],
+      gotcha: 'It pulses every 2 ticks, far too fast for some things. To stop it, a piston can push one observer out of line.',
+      check(T) {
+        T.reset(); const r = T.watchLamps(60);
+        if (!r.some(x => x.toggles >= 4)) T.fail('At least one lamp should flash repeatedly on its own.');
+      }
+    },
+    {
+      id: 'pulse', name: 'Observer Pulse (Edge Detector)', tag: 'Pulse', size: [6, 3],
+      what: 'Turns any change, like flipping a lever, into one short pulse.',
+      used: 'Firing a dispenser once per lever flip, triggering pistons in flying machines, detecting crop growth, sending one "ding" to a note block.',
+      steps: [
+        { say: 'Place a lever and run two dust to the right.', add: [['lever', 0, 1, 0, io()], ['dust', 1, 1], ['dust', 2, 1]] },
+        { say: 'Place an observer whose face looks at the end of the dust (face pointing left).', add: [['observer', 3, 1, 'W']] },
+        { say: 'Put a lamp on the observer\'s back. Flip the lever and use slow speed to see the quick flash.', add: [['lamp', 4, 1, 0, io()]] }
+      ],
+      how: ['The observer does not care if the dust is on or off, only that it changed.', 'Lever ON and lever OFF each produce one pulse.'],
+      gotcha: 'The pulse lasts only 0.1 seconds, so the flash is brief. Use the slow speed to see it clearly.',
+      check(T) {
+        T.reset().lever(0, 1, false).run(15);
+        let seen = false; T.lever(0, 1, true).run(6, () => { if (T.lit(4, 1)) seen = true; });
+        if (!seen) T.fail('Flipping the lever ON should flash the lamp.');
+        T.run(10); if (T.lit(4, 1)) T.fail('The lamp should turn back OFF on its own after the flash, even with the lever still ON.');
+        seen = false; T.lever(0, 1, false).run(6, () => { if (T.lit(4, 1)) seen = true; });
+        if (!seen) T.fail('Flipping the lever OFF should also flash the lamp.');
+      }
+    },
+    {
+      id: 'latch', name: 'RS NOR Latch (Memory)', tag: 'Memory', size: [8, 5],
+      what: 'Remembers ON or OFF. One button sets it, another resets it, and it stays put in between.',
+      used: 'Doors that stay open after a button press, a lamp toggled by buttons, remembering whether a farm is switched on, storage-full warnings.',
+      steps: [
+        { say: 'Place two solid blocks, each with a torch. The left torch hangs below its block; the right torch sits above its block.', add: [['block', 2, 1], ['torch', 2, 2, 'S'], ['block', 5, 3], ['torch', 5, 2, 'N']] },
+        { say: 'Run dust from the left torch so it ends pointing into the right block.', add: [['dust', 2, 3], ['dust', 3, 3], ['dust', 4, 3]] },
+        { say: 'Run dust from the right torch so it ends pointing into the left block. Now each torch keeps the other off.', add: [['dust', 5, 1], ['dust', 4, 1], ['dust', 3, 1]] },
+        { say: 'Add a SET button on the left block, a RESET button under the right block, and a lamp next to the right torch.', add: [['button', 1, 1, 0, io()], ['button', 5, 4, 0, io()], ['lamp', 6, 2, 0, io()]] }
+      ],
+      how: ['Only one torch can be on at a time: whichever is on powers the other one\'s block and keeps it off.', 'SET powers the left block → left torch off → right torch free to turn on → lamp ON, and it stays.', 'RESET powers the right block → right torch off → left torch on → lamp OFF, and it stays.'],
+      gotcha: 'Pressing both buttons at once turns both torches off. When you let go, the latch picks a state, so avoid it.',
+      check(T) {
+        T.reset().press(1, 1).run(30); if (!T.lit(6, 2)) T.fail('After pressing SET and letting go, the lamp should stay ON.');
+        T.press(5, 4).run(30); if (T.lit(6, 2)) T.fail('After pressing RESET and letting go, the lamp should stay OFF.');
+        T.press(1, 1).run(30); if (!T.lit(6, 2)) T.fail('Pressing SET again should turn the lamp back ON.');
+      }
+    },
+    {
+      id: 'door', name: 'Hidden Piston Door', tag: 'Doors', size: [6, 5], door: [4, 3],
+      what: 'A wall block that slides out of the way while you stand on a pressure plate, then closes behind you.',
+      used: 'Secret bases, hidden storage rooms, 1-wide flush entrances. Bigger 2×2 and 3×3 doors use the same idea with more pistons.',
+      steps: [
+        { say: 'Place a pressure plate and run dust into a solid block.', add: [['plate', 0, 1, 0, io()], ['dust', 1, 1], ['block', 2, 1]] },
+        { say: 'Add a torch on the block. This NOT gate keeps the door closed while nobody is on the plate.', add: [['torch', 3, 1, 'E']] },
+        { say: 'Next to the torch, place a sticky piston pointing toward the doorway.', add: [['sticky', 4, 1, 'S']] },
+        { say: 'Put a block in front of the piston. The torch pushes it into the doorway (dashed square). Step on the plate to open it.', add: [['block', 4, 2]] }
+      ],
+      how: ['Nobody on the plate → torch ON → sticky piston extended → block fills the doorway.', 'Step on the plate → torch OFF → piston retracts and pulls the block out of the doorway.'],
+      gotcha: 'A regular piston would push the block in but never pull it back out.',
+      check(T) {
+        T.reset().plate(0, 1, false).run(10); if (!T.occupied(4, 3)) T.fail('With nobody on the plate, a block should fill the doorway.');
+        T.plate(0, 1, true).run(10); if (T.occupied(4, 3)) T.fail('While standing on the plate, the doorway should be open.');
+        T.plate(0, 1, false).run(10); if (!T.occupied(4, 3)) T.fail('Stepping off the plate should close the doorway again.');
+      }
+    },
+    {
+      id: 'etho', name: 'Etho Hopper Clock', tag: 'Clock', size: [8, 3],
+      what: 'A slow, adjustable clock that measures time by passing items between two hoppers. Popularised by the YouTuber Etho, it is the classic "hopper clock".',
+      used: 'Long timers: farms that harvest every few minutes, automatic smelters, mob farm resets, day/night lighting cycles. Add items to make it slower.',
+      steps: [
+        { say: 'Place two hoppers pointing into each other. Use the hand tool to put 5 items in the right one.', add: [['hopper', 3, 2, 'E', io()], ['hopper', 4, 2, 'W', io({ items: 5 })]] },
+        { say: 'Put a comparator on each outside end, reading its hopper and pointing away from it.', add: [['comparator', 2, 2, 'W'], ['comparator', 5, 2, 'E']] },
+        { say: 'Add a repeater after each comparator. A nearly empty hopper only gives strength 1, so boost it.', add: [['repeater', 1, 2, 'W'], ['repeater', 6, 2, 'E']] },
+        { say: 'Loop dust up and around so each line ends pointing into the back of a piston spot.', add: [['dust', 0, 2], ['dust', 0, 1], ['dust', 1, 1], ['dust', 7, 2], ['dust', 7, 1], ['dust', 6, 1]] },
+        { say: 'Place two sticky pistons facing each other with a block of redstone between them, touching the left hopper.', add: [['sticky', 2, 1, 'E'], ['rblock', 3, 1], ['sticky', 5, 1, 'W']] },
+        { say: 'Add a lamp above each redstone block spot so you can see it tick back and forth.', add: [['lamp', 3, 0], ['lamp', 4, 0]] }
+      ],
+      how: ['The redstone block locks whichever hopper it touches. The other hopper pushes its items into the locked one.', 'When a hopper runs empty, its comparator turns off and its sticky piston retracts, dragging the redstone block next to that empty hopper.', 'Now the full hopper is unlocked and sends everything back. The roles swap forever.', 'Each item takes 0.4 s to move, so 5 items ≈ 2 s each way. 64 items ≈ 26 s each way.'],
+      gotcha: 'In the game the redstone block usually sits on top of the hoppers. This flat version puts it beside them, but the logic is the same.',
+      check(T) {
+        T.reset();
+        const hs = T.hopperTiles();
+        if (hs.length < 2) { T.fail('This clock needs two hoppers pointing into each other.'); return; }
+        const total = hs.reduce((a, h) => a + h.items, 0);
+        if (total === 0) { T.fail('Your hoppers are empty. Tap one with the hand tool to add items.'); return; }
+        const empties = hs.map(() => 0); const last = hs.map(h => h.items);
+        T.run(320, () => hs.forEach((h, i) => { if (last[i] > 0 && h.items === 0) empties[i]++; last[i] = h.items; }));
+        if (empties.filter(e => e >= 2).length < 2) T.fail('The items should pass back and forth: each hopper should empty out more than once. Right now the items get stuck.');
+      }
+    },
+    {
+      id: 'farm', name: 'Observer Piston Farm', tag: 'Automation', size: [6, 4],
+      what: 'An observer notices when a crop grows and fires a piston to harvest it, with no clock wasting pulses.',
+      used: 'Sugar cane, bamboo, pumpkin and melon farms, and any build that should react the moment something changes.',
+      steps: [
+        { say: 'Start with the sugar cane.', add: [['cane', 3, 2, 0, io()]] },
+        { say: 'Place a piston that points at the cane from above.', add: [['piston', 3, 1, 'S']] },
+        { say: 'Place an observer whose face watches the cane (face pointing right).', add: [['observer', 2, 2, 'E']] },
+        { say: 'Run dust from the observer\'s back so it ends pointing into the side of the piston.', add: [['dust', 1, 2], ['dust', 1, 1], ['dust', 2, 1]] }
+      ],
+      how: ['Cane grows → the observer sees the change → a 1-tick pulse runs to the piston.', 'The piston pushes into the cane and breaks the grown part. The bottom stays planted.', 'In the game the observer and piston sit at the height of the cane\'s second block.'],
+      gotcha: 'An observer pointed the wrong way watches nothing. Its face (the side with the "eyes") must look at the crop.',
+      check(T) {
+        T.reset().run(200); if (T.w.harvested < 3) T.fail('The cane should be harvested automatically every time it grows. It was harvested ' + T.w.harvested + ' times in 20 seconds.');
+      }
+    }
+  ];
+
+  MECHS.forEach(m => { m.pieces = m.steps.flatMap(s => s.add); });
+
+  // ---------- TESTS ----------
+  const TESTS = [
+    {
+      id: 'vault', name: 'The Two-Key Vault', size: [9, 6], door: [7, 2],
+      skills: ['AND / NAND logic', 'Torches', 'Sticky pistons'],
+      brief: 'Build a vault door that opens only when BOTH levers are ON. With either lever off, a block must fill the doorway (dashed square). Use a block moved by a sticky piston as the door.',
+      locked: [['lever', 0, 1, 0, { label: 'A' }], ['lever', 0, 4, 0, { label: 'B' }]],
+      needs: [{ t: 'torch', n: 2, why: 'one inverter for each lever' }, { t: 'sticky', n: 1, why: 'to slide the door block out and back' }, { t: 'block', n: 3, why: 'one for each lever\'s torch, plus the door block itself' }],
+      needSticky: true,
+      hints: ['Put each lever against a solid block with a torch on it. Each torch turns OFF when its lever is ON.', 'Join both torch outputs into one dust line. That line is OFF only when both levers are ON.', 'Point that line into the back or side of a sticky piston, with a block in front of the piston aimed at the doorway.'],
+      solution: [['block', 1, 1], ['torch', 2, 1, 'E'], ['block', 1, 4], ['torch', 2, 4, 'E'], ['dust', 3, 1], ['dust', 3, 2], ['dust', 3, 3], ['dust', 3, 4], ['dust', 4, 2], ['sticky', 5, 2, 'E'], ['block', 6, 2]],
+      check(T) {
+        for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+          T.reset().lever(0, 1, !!a).lever(0, 4, !!b).run(15);
+          const open = !T.occupied(7, 2), want = a && b;
+          if (open !== !!want) T.fail(`Lever A ${a ? 'ON' : 'OFF'}, Lever B ${b ? 'ON' : 'OFF'}: the doorway should be ${want ? 'OPEN' : 'BLOCKED'}, but it was ${open ? 'open' : 'blocked'}.`);
+        }
+      }
+    },
+    {
+      id: 'beacon', name: 'Beacon with an On Switch', size: [10, 5],
+      skills: ['Clocks', 'NOT gate', 'Lamps'],
+      brief: 'Make a lamp blink all by itself, but only while the lever is ON. When the lever is OFF, the lamp must hold still (on or off, your choice).',
+      locked: [['lever', 0, 2]],
+      needs: [{ t: 'torch', n: 2, why: 'one for the clock, one to invert the lever' }, { t: 'repeater', n: 1, why: 'to slow the clock loop' }, { t: 'lamp', n: 1, why: 'the beacon itself' }, { t: 'block', n: 2, why: 'one for each torch' }],
+      hints: ['A torch with a repeater loop back into its own block is a clock.', 'Powering the clock\'s block from outside freezes the clock.', 'So the freeze signal must be ON when the lever is OFF: put a torch inverter between the lever and the clock\'s block.'],
+      solution: [['dust', 1, 2], ['block', 2, 2], ['torch', 3, 2, 'E'], ['dust', 4, 2], ['block', 5, 2], ['torch', 6, 2, 'E'], ['repeater', 7, 2, 'E', { delay: 3 }], ['dust', 8, 2], ['dust', 8, 3], ['dust', 8, 4], ['dust', 7, 4], ['dust', 6, 4], ['dust', 5, 4], ['dust', 5, 3], ['lamp', 6, 1]],
+      check(T) {
+        T.reset().lever(0, 2, false).run(20);
+        if (!T.lampTiles().length) { T.fail('There is no lamp to blink.'); return; }
+        let r = T.watchLamps(60);
+        if (r.some(x => x.toggles > 1)) T.fail('With the lever OFF, the lamp should hold still, but it kept blinking.');
+        T.lever(0, 2, true).run(5); r = T.watchLamps(80);
+        if (!r.some(x => x.toggles >= 4)) T.fail('With the lever ON, a lamp should blink on its own. It didn\'t blink.');
+        T.lever(0, 2, false).run(20); r = T.watchLamps(50);
+        if (r.some(x => x.toggles > 1)) T.fail('Turning the lever back OFF should stop the blinking.');
+      }
+    },
+    {
+      id: 'memorydoor', name: 'The Remember-Me Door', size: [9, 6], door: [8, 2],
+      skills: ['RS latch (memory)', 'Torches', 'Sticky pistons'],
+      brief: 'Buttons only give a short pulse. Build a door that remembers: press CLOSE once and the doorway stays blocked; press OPEN once and it stays open.',
+      locked: [['button', 0, 1, 0, { label: 'CLOSE' }], ['button', 0, 5, 0, { label: 'OPEN' }]],
+      needs: [{ t: 'torch', n: 2, why: 'two cross-connected torches make the memory' }, { t: 'block', n: 3, why: 'two for the latch torches, one for the door' }, { t: 'sticky', n: 1, why: 'to move the door block both ways' }],
+      needSticky: true,
+      hints: ['Build an RS NOR latch: two torch-on-block inverters, each one\'s dust pointing into the other one\'s block.', 'Wire CLOSE into one latch block and OPEN into the other.', 'Let one latch torch power a sticky piston with the door block in front of it.'],
+      solution: [['dust', 1, 1], ['block', 2, 1], ['torch', 2, 2, 'S'], ['dust', 2, 3], ['dust', 3, 3], ['dust', 4, 3], ['block', 5, 3], ['torch', 5, 2, 'N'], ['dust', 5, 1], ['dust', 4, 1], ['dust', 3, 1], ['dust', 1, 5], ['dust', 2, 5], ['dust', 3, 5], ['dust', 4, 5], ['dust', 5, 5], ['dust', 5, 4], ['sticky', 6, 2, 'E'], ['block', 7, 2]],
+      check(T) {
+        T.reset().press(0, 5).run(35);
+        if (T.occupied(8, 2)) T.fail('After pressing OPEN, the doorway should be open and stay open.');
+        T.press(0, 1).run(35);
+        if (!T.occupied(8, 2)) T.fail('After pressing CLOSE and letting go, the doorway should stay BLOCKED.');
+        T.run(30); if (!T.occupied(8, 2)) T.fail('The door should still be closed a while later, with no buttons pressed.');
+        T.press(0, 5).run(35);
+        if (T.occupied(8, 2)) T.fail('Pressing OPEN again should open the doorway and keep it open.');
+      }
+    },
+    {
+      id: 'alarmfarm', name: 'Farm with an Alarm', size: [7, 5],
+      skills: ['Observers', 'Pistons', 'Splitting a signal'],
+      brief: 'Harvest the sugar cane automatically whenever it grows, and flash a lamp every time the piston fires, so you can see the farm working.',
+      locked: [['cane', 3, 2]],
+      needs: [{ t: 'observer', n: 1, why: 'to notice the cane growing' }, { t: 'piston', n: 1, why: 'to break the grown cane (a sticky piston works too)', alt: 'sticky' }, { t: 'lamp', n: 1, why: 'the alarm light' }],
+      hints: ['An observer\'s face must look straight at the cane.', 'From the observer\'s back, dust can branch: one end into the piston, another end into a lamp.', 'Dust has to end pointing into the lamp and the piston, not run past them.'],
+      solution: [['piston', 3, 1, 'S'], ['observer', 2, 2, 'E'], ['dust', 1, 2], ['dust', 1, 1], ['dust', 2, 1], ['dust', 1, 3], ['lamp', 1, 4]],
+      check(T) {
+        T.reset(); let r = T.watchLamps(220);
+        if (T.w.harvested < 3) T.fail('The cane should be harvested automatically each time it grows. It was harvested ' + T.w.harvested + ' times in 22 seconds.');
+        if (!T.lampTiles().length) T.fail('Add a lamp that flashes when the piston fires.');
+        else if (!r.some(x => x.toggles >= 4)) T.fail('A lamp should flash each time the farm harvests.');
+        else if (r.every(x => x.lit > 120)) T.fail('The lamp should flash, not stay on most of the time.');
+      }
+    },
+    {
+      id: 'pauseclock', name: 'Pausable Hopper Clock', size: [8, 5],
+      skills: ['Etho hopper clock', 'Locking hoppers', 'Repeaters'],
+      brief: 'Build an Etho hopper clock (remember to add items with the hand tool), then wire the lever so it can pause the clock. Lever ON must freeze the items in place; lever OFF lets them flow back and forth.',
+      locked: [['lever', 0, 4]],
+      needs: [{ t: 'hopper', n: 2, why: 'the two hoppers that trade items' }, { t: 'comparator', n: 2, why: 'one reading each hopper' }, { t: 'sticky', n: 2, why: 'to slide the redstone block back and forth' }, { t: 'rblock', n: 1, why: 'the moving lock' }, { t: 'repeater', n: 2, why: 'to boost the weak comparator signals' }],
+      hints: ['Build the Etho clock first and make sure it runs on its own.', 'A powered hopper is locked. To pause, the lever must power BOTH hoppers.', 'Dust must point into each hopper. Two dust lines side by side merge, so use a repeater facing into one hopper and dust pointing into the other.'],
+      solution: [['lamp', 3, 0], ['lamp', 4, 0], ['dust', 0, 1], ['dust', 1, 1], ['sticky', 2, 1, 'E'], ['rblock', 3, 1], ['sticky', 5, 1, 'W'], ['dust', 6, 1], ['dust', 7, 1], ['dust', 0, 2], ['repeater', 1, 2, 'W'], ['comparator', 2, 2, 'W'], ['hopper', 3, 2, 'E'], ['hopper', 4, 2, 'W', { items: 5 }], ['comparator', 5, 2, 'E'], ['repeater', 6, 2, 'E'], ['dust', 7, 2], ['dust', 3, 3], ['repeater', 4, 3, 'N'], ['dust', 1, 4], ['dust', 2, 4], ['dust', 3, 4], ['dust', 4, 4]],
+      check(T) {
+        T.reset().lever(0, 4, false);
+        const hs = T.hopperTiles();
+        if (hs.length < 2) { T.fail('A hopper clock needs two hoppers pointing into each other.'); return; }
+        if (hs.reduce((a, h) => a + h.items, 0) === 0) { T.fail('Your hoppers are empty. Tap a hopper with the hand tool to add items.'); return; }
+        const empties = hs.map(() => 0); const last = hs.map(h => h.items);
+        T.run(320, () => hs.forEach((h, i) => { if (last[i] > 0 && h.items === 0) empties[i]++; last[i] = h.items; }));
+        if (empties.filter(e => e >= 2).length < 2) T.fail('With the lever OFF, the clock should run: items should pass back and forth between the hoppers.');
+        T.lever(0, 4, true).run(8);
+        const snap = hs.map(h => h.items); let moved = false;
+        T.run(100, () => { if (hs.some((h, i) => h.items !== snap[i])) moved = true; });
+        if (moved) T.fail('With the lever ON, the items should freeze in place, but they kept moving.');
+        T.lever(0, 4, false); let moved2 = false; const s2 = hs.map(h => h.items);
+        T.run(120, () => { if (hs.some((h, i) => h.items !== s2[i])) moved2 = true; });
+        if (!moved2) T.fail('Turning the lever back OFF should let the clock start again.');
+      }
+    }
+  ];
+
+  // ---------- CHECKING ----------
+  function lint(base, stats, ctx) {
+    const out = []; const seen = new Set();
+    const add = (x, y, msg, key) => { const k = key || (msg + x + ',' + y); if (seen.has(k)) return; seen.add(k); out.push({ x, y, msg }); };
+    const DIRS = R.DIRS;
+    const dirName = ['up', 'right', 'down', 'left'];
+    const nb = (x, y, k) => base.get(x + DIRS[k][0], y + DIRS[k][1]);
+    let hopperCount = 0; base.each(t => { if (t.t === 'hopper') hopperCount++; });
+    base.each((t, x, y) => {
+      const s = stats[t.id] || {};
+      switch (t.t) {
+        case 'torch':
+          if (!R.torchValid(base, x, y, t)) add(x, y, 'This torch isn\'t attached to a solid block. Its base must touch a block (glass doesn\'t count). Tap it to rotate it, or put a block behind it.');
+          break;
+        case 'repeater':
+          if (!s.inp) {
+            const front = nb(x, y, t.d);
+            add(x, y, 'This repeater never got a signal at its back. Repeaters are one-way: the arrow points ' + dirName[t.d] + ', so power must come from the ' + dirName[R.opp(t.d)] + '.' + (front && front.t === 'dust' ? ' It may be facing backwards.' : ''));
+          }
+          break;
+        case 'comparator':
+          if (!s.rear) add(x, y, 'This comparator\'s back (the end with two torches) never received anything. Point its back at the hopper or signal it should read.');
+          break;
+        case 'piston': case 'sticky': {
+          if (!s.pw) {
+            let past = false;
+            for (let k = 0; k < 4; k++) { const n = nb(x, y, k); if (n && n.t === 'dust' && !R.pointDirs(base, x + DIRS[k][0], y + DIRS[k][1]).includes(R.opp(k)) && (stats[n.id] || {}).max > 0) past = true; }
+            add(x, y, past ? 'Powered dust runs past this piston but never points into it. End the dust line at the piston, or feed it through a block.' : 'This piston never got power. Power must reach its back or sides (never its pushing face): dust pointing in, a torch, a powered block, or a repeater.');
+          }
+          if (t.t === 'piston' && ctx.needSticky) add(x, y, 'A regular piston can push the door block but can\'t pull it back out. Use a sticky piston.', 'sticky');
+          break;
+        }
+        case 'observer': {
+          const f = nb(x, y, t.d), b = nb(x, y, R.opp(t.d));
+          if (b && b.t === 'cane' && (!f || f.t !== 'cane')) add(x, y, 'This observer is backwards: its back is against the cane. The face (with the eyes) must look at what it watches.');
+          else if (!f) add(x, y, 'This observer is watching empty air. Turn its face toward the thing that changes.');
+          else if (!s.fire) add(x, y, 'This observer never fired. Nothing it watches ever changed.');
+          break;
+        }
+        case 'lamp':
+          if (!s.lit) {
+            let past = false;
+            for (let k = 0; k < 4; k++) { const n = nb(x, y, k); if (n && n.t === 'dust' && !R.pointDirs(base, x + DIRS[k][0], y + DIRS[k][1]).includes(R.opp(k)) && (stats[n.id] || {}).max > 0) past = true; }
+            add(x, y, past ? 'Powered dust runs past this lamp without pointing into it, so the lamp never lit. Make the dust line end at the lamp.' : 'This lamp never turned on during the test.');
+          }
+          break;
+        case 'dust':
+          if (!(s.max > 0)) {
+            for (let k = 0; k < 4; k++) { const n = nb(x, y, k); if (n && n.t === 'dust' && (stats[n.id] || {}).max === 1) { add(x, y, 'The signal runs out here: dust loses 1 strength per block and dies after 15. Add a repeater to boost it back to 15.', 'fade'); break; } }
+          }
+          break;
+        case 'hopper':
+          if (hopperCount >= 2) { const f = nb(x, y, t.d); if (!f || f.t !== 'hopper') add(x, y, 'This hopper\'s spout points ' + dirName[t.d] + ', not into the other hopper. Tap it to rotate it.'); }
+          break;
+        case 'lever': case 'button': case 'plate': {
+          let any = false; for (let k = 0; k < 4; k++) if (nb(x, y, k)) any = true;
+          if (!any) add(x, y, 'This ' + C.NAMES[t.t].toLowerCase() + ' isn\'t touching anything, so its signal goes nowhere.');
+          break;
+        }
+      }
+    });
+    return out.slice(0, 7);
+  }
+
+  function missing(base, needs) {
+    const c = R.count(base); const out = [];
+    for (const n of needs || []) {
+      const have = (c[n.t] || 0) + (n.alt ? (c[n.alt] || 0) : 0);
+      if (have < n.n) out.push({ t: n.t, need: n.n - have, why: n.why });
+    }
+    return out;
+  }
+
+  // needs derived from a mechanism blueprint (excluding locked io pieces)
+  function blueprintNeeds(pieces) {
+    const c = {};
+    pieces.forEach(p => { if (p[4] && p[4].io) return; c[p[0]] = (c[p[0]] || 0) + 1; });
+    return Object.keys(c).map(t => ({ t, n: c[t], why: 'the blueprint uses ' + c[t] }));
+  }
+
+  function runCheck(world, def) {
+    const T = new R.Tester(world);
+    let err = null;
+    try { def.check(T); } catch (e) { err = e; T.fail('Something went wrong while testing: ' + e.message); }
+    const pass = T.fails.length === 0;
+    const res = { pass, fails: T.fails, lints: [], missing: [] };
+    if (!pass) {
+      res.lints = lint(T.base, T.stats, { needSticky: def.needSticky });
+      res.missing = missing(T.base, def.needs || blueprintNeeds(def.pieces || []));
+    }
+    return res;
+  }
+
+  return { NAMES, PALETTE, COMPONENTS, QUIZ, MECHS, TESTS, runCheck, lint, missing, blueprintNeeds };
+})();
+if (typeof module !== 'undefined') module.exports = C;
+
+// ===== Redstone Trainer UI =====
+(function () {
+  const $ = (s, el = document) => el.querySelector(s);
+  const h = (tag, attrs = {}, ...kids) => {
+    const e = document.createElement(tag);
+    for (const k in attrs) {
+      if (k === 'class') e.className = attrs[k];
+      else if (k === 'html') e.innerHTML = attrs[k];
+      else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
+      else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]);
+    }
+    for (const c of kids.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c));
+    return e;
+  };
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('rst_' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('rst_' + k, JSON.stringify(v)); } catch (e) { } }
+  };
+  let progress = store.get('progress', { comp: {}, mech: {}, prac: {}, test: {}, quiz: null });
+  const saveProgress = () => store.set('progress', progress);
+
+  // ---------- drawing ----------
+  const RED = l => l <= 0 ? '#4a1411' : `hsl(4, 92%, ${30 + l * 2.1}%)`;
+  function rr(g, x, y, w, hh, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + hh, r); g.arcTo(x + w, y + hh, x, y + hh, r); g.arcTo(x, y + hh, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  function chevron(g, y, s, col) { g.fillStyle = col; g.beginPath(); g.moveTo(0, y - s * 0.09); g.lineTo(s * 0.1, y + s * 0.03); g.lineTo(-s * 0.1, y + s * 0.03); g.closePath(); g.fill(); }
+  function dot(g, x, y, r, col, glow) { g.save(); if (glow) { g.shadowColor = col; g.shadowBlur = r * 3; } g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.restore(); }
+
+  // info: {lvl, dirs, strong, weak, valid, hopLocked}
+  function drawTile(g, t, px, py, s, info = {}) {
+    const cx = px + s / 2, cy = py + s / 2, i = s * 0.08;
+    g.save();
+    const rot = () => { g.translate(cx, cy); g.rotate(t.d * Math.PI / 2); };
+    switch (t.t) {
+      case 'dust': {
+        const col = RED(info.lvl == null ? 15 : info.lvl);
+        const dirs = info.dirs || [0, 1, 2, 3];
+        g.strokeStyle = col; g.lineWidth = s * 0.17; g.lineCap = 'round';
+        if (info.lvl > 0) { g.shadowColor = col; g.shadowBlur = s * 0.15; }
+        g.beginPath();
+        for (const k of dirs) { const [dx, dy] = R.DIRS[k]; g.moveTo(cx, cy); g.lineTo(cx + dx * s / 2, cy + dy * s / 2); }
+        g.stroke(); dot(g, cx, cy, s * 0.13, col);
+        break;
+      }
+      case 'block': {
+        g.fillStyle = '#80847d'; g.fillRect(px + 1, py + 1, s - 2, s - 2);
+        g.fillStyle = '#9ca097'; g.fillRect(px + 1, py + 1, s - 2, s * 0.1); g.fillRect(px + 1, py + 1, s * 0.1, s - 2);
+        g.fillStyle = '#5f625b'; g.fillRect(px + 1, py + s * 0.9 - 1, s - 2, s * 0.1); g.fillRect(px + s * 0.9 - 1, py + 1, s * 0.1, s - 2);
+        g.fillStyle = '#6c7069';
+        [[.3, .3], [.62, .22], [.45, .62], [.72, .66], [.22, .7]].forEach(([a, b]) => g.fillRect(px + a * s, py + b * s, s * 0.09, s * 0.09));
+        const st = info.strong || 0, wk = info.weak || 0;
+        if (st > 0 || wk > 0) {
+          g.strokeStyle = '#ff3b2f'; g.lineWidth = Math.max(2, s * 0.07);
+          if (!(st > 0)) g.setLineDash([s * 0.12, s * 0.08]);
+          g.strokeRect(px + s * 0.12, py + s * 0.12, s * 0.76, s * 0.76);
+          g.setLineDash([]);
+        }
+        break;
+      }
+      case 'glass':
+        g.fillStyle = 'rgba(170,220,240,0.16)'; g.fillRect(px + 2, py + 2, s - 4, s - 4);
+        g.strokeStyle = '#d4eef6'; g.lineWidth = 2; g.strokeRect(px + 2, py + 2, s - 4, s - 4);
+        g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1.5;
+        g.beginPath(); g.moveTo(px + s * .25, py + s * .55); g.lineTo(px + s * .55, py + s * .25); g.moveTo(px + s * .4, py + s * .7); g.lineTo(px + s * .7, py + s * .4); g.stroke();
+        break;
+      case 'rblock':
+        g.fillStyle = '#9e1d17'; g.fillRect(px + 1, py + 1, s - 2, s - 2);
+        g.fillStyle = '#e0453a';
+        for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) g.fillRect(px + s * (0.16 + a * 0.26), py + s * (0.16 + b * 0.26), s * 0.16, s * 0.16);
+        g.strokeStyle = '#5e0f0b'; g.lineWidth = 2; g.strokeRect(px + 1, py + 1, s - 2, s - 2);
+        break;
+      case 'lamp': {
+        if (t.lit) { g.shadowColor = '#ffd76a'; g.shadowBlur = s * 0.5; }
+        g.fillStyle = t.lit ? '#f3bb4c' : '#4b3322'; g.fillRect(px + 2, py + 2, s - 4, s - 4);
+        g.shadowBlur = 0;
+        g.strokeStyle = t.lit ? '#fff3c2' : '#2e1f15'; g.lineWidth = Math.max(1.5, s * 0.05);
+        g.beginPath(); g.moveTo(px + s / 2, py + s * .15); g.lineTo(px + s / 2, py + s * .85); g.moveTo(px + s * .15, py + s / 2); g.lineTo(px + s * .85, py + s / 2); g.stroke();
+        g.strokeStyle = t.lit ? '#b8801f' : '#2a1b11'; g.lineWidth = 2; g.strokeRect(px + 2, py + 2, s - 4, s - 4);
+        break;
+      }
+      case 'lever': {
+        g.fillStyle = '#8d8d8d'; rr(g, cx - s * .2, cy - s * .13, s * .4, s * .26, 3); g.fill();
+        g.strokeStyle = '#5a5a5a'; g.lineWidth = 1.5; g.stroke();
+        const ex = cx + (t.on ? s * .22 : -s * .22), ey = cy - s * .3;
+        g.strokeStyle = '#6e5232'; g.lineWidth = s * .09; g.lineCap = 'round';
+        g.beginPath(); g.moveTo(cx, cy); g.lineTo(ex, ey); g.stroke();
+        dot(g, ex, ey, s * .08, t.on ? '#ff3b2f' : '#3b3b3b', t.on);
+        break;
+      }
+      case 'button':
+        g.fillStyle = t.on ? '#6a6a6a' : '#a3a3a3'; rr(g, cx - s * .17, cy - s * .12, s * .34, s * .24, 3); g.fill();
+        g.strokeStyle = '#4e4e4e'; g.lineWidth = 2; g.stroke();
+        if (t.on) dot(g, cx, cy, s * .06, '#ff3b2f', true);
+        break;
+      case 'plate':
+        g.fillStyle = t.on ? '#727272' : '#a3a3a3'; g.fillRect(px + s * .17, py + s * .17, s * .66, s * .66);
+        g.strokeStyle = t.on ? '#ff3b2f' : '#5c5c5c'; g.lineWidth = 2; g.strokeRect(px + s * .17, py + s * .17, s * .66, s * .66);
+        break;
+      case 'torch': {
+        rot();
+        g.strokeStyle = '#7d5a30'; g.lineWidth = s * .13; g.lineCap = 'butt';
+        g.beginPath(); g.moveTo(0, s * .5); g.lineTo(0, -s * .05); g.stroke();
+        dot(g, 0, -s * .14, s * .14, t.on ? '#ff3b2f' : '#5c1d18', t.on);
+        if (t.on) dot(g, 0, -s * .14, s * .06, '#ffb3a8');
+        break;
+      }
+      case 'repeater': case 'comparator': {
+        rot();
+        g.fillStyle = t.t === 'repeater' ? '#b9b9af' : '#c9c6b8'; rr(g, -s / 2 + i, -s / 2 + i, s - 2 * i, s - 2 * i, s * .08); g.fill();
+        g.strokeStyle = '#6d6d64'; g.lineWidth = 1.5; g.stroke();
+        const on = t.t === 'repeater' ? t.on : t.out > 0;
+        g.strokeStyle = on ? RED(15) : '#6b2420'; g.lineWidth = s * .08;
+        g.beginPath(); g.moveTo(0, s * .38); g.lineTo(0, -s * .36); g.stroke();
+        if (t.t === 'repeater') {
+          dot(g, 0, -s * .24, s * .085, on ? '#ff3b2f' : '#5c1d18', on);
+          dot(g, 0, s * .32 - (t.delay - 1) * s * .09, s * .085, on ? '#ff3b2f' : '#5c1d18', on);
+          if (t.locked) { g.fillStyle = '#3a3a3a'; g.fillRect(-s * .34, -s * .03, s * .68, s * .1); }
+        } else {
+          dot(g, -s * .2, s * .24, s * .08, on ? '#ff3b2f' : '#5c1d18', on);
+          dot(g, s * .2, s * .24, s * .08, on ? '#ff3b2f' : '#5c1d18', on);
+          dot(g, 0, -s * .25, s * .08, t.mode === 's' ? '#ff3b2f' : '#5c1d18', t.mode === 's');
+        }
+        chevron(g, -s * .4, s, '#3d3d38');
+        break;
+      }
+      case 'observer': {
+        rot();
+        g.fillStyle = '#5c5c5c'; g.fillRect(-s / 2 + 1, -s / 2 + 1, s - 2, s - 2);
+        g.fillStyle = '#2a2a2a'; g.fillRect(-s / 2 + 1, -s / 2 + 1, s - 2, s * .3);
+        g.fillStyle = '#b5b5b5'; g.fillRect(-s * .28, -s * .42, s * .14, s * .12); g.fillRect(s * .14, -s * .42, s * .14, s * .12);
+        g.strokeStyle = '#3d3d3d'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + 1, -s / 2 + 1, s - 2, s - 2);
+        g.strokeStyle = '#7a7a7a'; g.lineWidth = s * .05;
+        g.beginPath(); g.moveTo(-s * .25, s * .02); g.lineTo(s * .25, s * .02); g.moveTo(-s * .25, s * .14); g.lineTo(s * .25, s * .14); g.stroke();
+        dot(g, 0, s * .34, s * .09, t.on ? '#ff3b2f' : '#3e1512', t.on);
+        break;
+      }
+      case 'piston': case 'sticky': {
+        rot();
+        g.fillStyle = '#787878'; g.fillRect(-s / 2 + 2, -s * .2, s - 4, s * .7 - 2);
+        g.fillStyle = '#8f8f8f'; g.fillRect(-s * .15, -s * .05, s * .3, s * .3);
+        if (!t.ext) {
+          g.fillStyle = '#b8894f'; g.fillRect(-s / 2 + 2, -s / 2 + 2, s - 4, s * .3 - 2);
+          g.strokeStyle = '#8a6334'; g.lineWidth = 1; g.beginPath(); g.moveTo(-s / 2 + 2, -s * .35); g.lineTo(s / 2 - 2, -s * .35); g.stroke();
+          if (t.t === 'sticky') { g.fillStyle = '#7cc24a'; g.fillRect(-s * .18, -s / 2 + 3, s * .36, s * .25); }
+        } else {
+          g.fillStyle = '#a9a9a9'; g.fillRect(-s * .08, -s / 2, s * .16, s * .32);
+        }
+        g.strokeStyle = '#4c4c4c'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + 2, -s / 2 + 2, s - 4, s - 4);
+        break;
+      }
+      case 'head': {
+        rot();
+        g.fillStyle = '#a9a9a9'; g.fillRect(-s * .08, -s * .3, s * .16, s * .8);
+        g.fillStyle = '#b8894f'; g.fillRect(-s / 2 + 2, -s / 2 + 2, s - 4, s * .24);
+        if (t.sticky) { g.fillStyle = '#7cc24a'; g.fillRect(-s * .18, -s / 2 + 3, s * .36, s * .19); }
+        g.strokeStyle = '#7a5a30'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + 2, -s / 2 + 2, s - 4, s * .24);
+        break;
+      }
+      case 'hopper': {
+        rot();
+        g.fillStyle = '#434343'; g.fillRect(-s / 2 + i, -s / 2 + i + s * .06, s - 2 * i, s - 2 * i - s * .06);
+        g.fillStyle = '#1f1f1f'; g.fillRect(-s * .27, -s * .2, s * .54, s * .54);
+        g.fillStyle = '#6a6a6a'; g.fillRect(-s * .13, -s / 2 + 1, s * .26, s * .26); g.strokeStyle = '#2a2a2a'; g.lineWidth = 1.5; g.strokeRect(-s * .13, -s / 2 + 1, s * .26, s * .26);
+        g.strokeStyle = '#2a2a2a'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + i, -s / 2 + i + s * .06, s - 2 * i, s - 2 * i - s * .06);
+        if (info.hopLocked) { g.strokeStyle = '#ff3b2f'; g.lineWidth = 2; g.strokeRect(-s * .27, -s * .2, s * .54, s * .54); }
+        break;
+      }
+      case 'cane': {
+        const n = t.grown ? 3 : 1;
+        [-.2, 0, .2].forEach((ox, j) => {
+          const top = cy + s * .38 - n * s * .22 - (j === 1 ? s * .04 : 0);
+          g.strokeStyle = '#86c95a'; g.lineWidth = s * .09; g.lineCap = 'round';
+          g.beginPath(); g.moveTo(cx + ox * s, cy + s * .4); g.lineTo(cx + ox * s, top); g.stroke();
+          g.strokeStyle = '#5d9a3a'; g.lineWidth = 1;
+          for (let k = 1; k <= n; k++) { const yy = cy + s * .4 - k * s * .22; if (yy > top) { g.beginPath(); g.moveTo(cx + ox * s - s * .05, yy); g.lineTo(cx + ox * s + s * .05, yy); g.stroke(); } }
+        });
+        if (t.grown) { g.strokeStyle = '#a5dc7a'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, cy - s * .1); g.quadraticCurveTo(cx + s * .3, cy - s * .3, cx + s * .38, cy - s * .05); g.stroke(); }
+        break;
+      }
+    }
+    g.restore();
+    // un-rotated overlays
+    if (t.t === 'hopper' && t.items > 0) {
+      g.save(); g.fillStyle = '#ffd76a'; g.font = `bold ${Math.round(s * .3)}px system-ui,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(String(t.items), cx, cy + s * .08); g.restore();
+    }
+    if (t.t === 'repeater' && info.showNum) smallNum(g, px, py, s, t.delay + 't');
+    if (t.t === 'comparator' && (info.showNum || t.out > 0)) smallNum(g, px, py, s, String(t.out));
+  }
+  function smallNum(g, px, py, s, txt) {
+    g.save(); g.font = `bold ${Math.max(9, Math.round(s * .22))}px system-ui,sans-serif`; g.textAlign = 'right'; g.textBaseline = 'bottom';
+    g.fillStyle = 'rgba(0,0,0,.65)'; g.fillText(txt, px + s - 2, py + s - 1); g.fillStyle = '#fff'; g.fillText(txt, px + s - 3, py + s - 2); g.restore();
+  }
+
+  function infoFor(w, P, t, x, y) {
+    const i = y * w.w + x;
+    if (t.t === 'dust') return { lvl: P ? P.dust[i] : 0, dirs: R.pointDirs(w, x, y) };
+    if (t.t === 'block') return { strong: P ? P.strong[i] : 0, weak: P ? P.weak[i] : 0 };
+    if (t.t === 'hopper') return { hopLocked: !!t.locked };
+    return {};
+  }
+
+  function iconCanvas(type, size = 34) {
+    const cv = document.createElement('canvas'); const dpr = window.devicePixelRatio || 1;
+    cv.width = size * dpr; cv.height = size * dpr; cv.style.width = size + 'px'; cv.style.height = size + 'px';
+    const g = cv.getContext('2d'); g.scale(dpr, dpr);
+    const t = R.newTile(type, type === 'torch' ? 0 : 0);
+    if (type === 'torch' || type === 'repeater' || type === 'lever') t.on = true;
+    if (type === 'lamp') t.lit = true;
+    if (type === 'cane') t.grown = true;
+    if (type === 'hopper') t.d = 2;
+    drawTile(g, t, 0, 0, size, { lvl: 15, dirs: [1, 3] });
+    return cv;
+  }
+
+  // ---------- serialization ----------
+  function serialize(w) {
+    const c = R.clone(w); R.normalize(c); const tiles = [];
+    c.each((t, x, y) => {
+      const o = {};
+      ['delay', 'items', 'mode', 'lk', 'label', 'io'].forEach(k => { if (t[k] != null && t[k] !== false) o[k] = t[k]; });
+      if (t.t === 'lever' || t.t === 'plate') o.on = t.on;
+      tiles.push([t.t, x, y, t.d, o]);
+    });
+    return { w: w.w, h: w.h, tiles };
+  }
+  function deserialize(d) { return R.build(d.w, d.h, d.tiles); }
+
+  // ---------- Editor ----------
+  const SPEEDS = [{ n: 'Slow', tps: 3 }, { n: 'Normal', tps: 10 }, { n: 'Fast', tps: 25 }];
+  const DIRNAME = ['up', 'right', 'down', 'left'], ARROW = ['↑', '→', '↓', '←'];
+  const HOP_STEPS = [0, 1, 2, 3, 4, 5, 8, 12, 16, 32, 64];
+  let EDITORS = [];
+
+  class Editor {
+    constructor(host, opt) {
+      this.opt = opt; this.w = opt.world; this.tool = opt.palette ? 'dust' : 'hand'; this.facing = 1;
+      this.running = true; this.speed = 1; this.nums = false; this.flags = []; this.hl = []; this.ghostOn = false; this.acc = 0;
+      this.root = h('div', { class: 'ed' });
+      // bar
+      this.bPlay = h('button', { class: 'btn sm', onclick: () => { this.running = !this.running; this.syncBar(); } });
+      this.bSpeed = h('button', { class: 'btn sm', onclick: () => { this.speed = (this.speed + 1) % 3; this.syncBar(); } });
+      this.bNums = h('button', { class: 'btn sm', onclick: () => { this.nums = !this.nums; this.syncBar(); this.render(); } });
+      const bar = h('div', { class: 'ed-bar' }, this.bPlay,
+        h('button', { class: 'btn sm', onclick: () => { this.running = false; R.tick(this.w); this.syncBar(); this.render(); } }, 'Step'),
+        h('button', { class: 'btn sm', title: 'Reset the circuit to its starting state', onclick: () => { R.resetStates(this.w); this.render(); this.status('Circuit reset to its starting state.'); } }, '↺ Reset'),
+        this.bSpeed, this.bNums);
+      this.cv = h('canvas', { class: 'ed-cv' });
+      this.cv.addEventListener('pointerdown', e => this.tap(e));
+      this.stage = h('div', { class: 'ed-stage' }, this.cv);
+      this.st = h('div', { class: 'ed-status' }, opt.palette ? 'Pick a piece below, then tap the grid. Tap a piece again to rotate it.' : 'Tap levers, buttons, plates, repeaters and hoppers to use them.');
+      this.root.append(bar, this.stage, this.st);
+      if (opt.palette) {
+        this.bFace = h('button', { class: 'tool face', onclick: () => { this.facing = (this.facing + 1) % 4; this.syncTools(); } });
+        const tools = h('div', { class: 'ed-tools' });
+        const mk = (id, label, icon) => {
+          const b = h('button', { class: 'tool', 'data-t': id, onclick: () => { this.tool = id; this.syncTools(); this.status(TOOLTIP[id] || ''); } }, icon, h('span', {}, label));
+          tools.append(b); return b;
+        };
+        mk('hand', 'Use', h('span', { class: 'emo' }, '✋'));
+        mk('erase', 'Erase', h('span', { class: 'emo' }, '⌫'));
+        (opt.allow || C.PALETTE).forEach(t => mk(t, SHORT[t] || C.NAMES[t], iconCanvas(t)));
+        this.toolsEl = tools;
+        this.root.append(h('div', { class: 'ed-toolrow' }, this.bFace, tools));
+        this.syncTools();
+      }
+      host.append(this.root);
+      this.syncBar(); this.resize();
+      EDITORS.push(this);
+    }
+    syncBar() {
+      this.bPlay.textContent = this.running ? '⏸ Pause' : '▶ Run';
+      this.bSpeed.textContent = '⏱ ' + SPEEDS[this.speed].n;
+      this.bNums.textContent = this.nums ? '# Numbers on' : '# Numbers';
+      this.bNums.classList.toggle('on', this.nums);
+    }
+    syncTools() {
+      this.toolsEl.querySelectorAll('.tool').forEach(b => b.classList.toggle('sel', b.dataset.t === this.tool));
+      this.bFace.innerHTML = `<b>${ARROW[this.facing]}</b><span>Facing</span>`;
+    }
+    setWorld(w) { this.w = w; this.flags = []; this.resize(); }
+    resize() {
+      const avail = Math.max(200, (this.stage.clientWidth || this.root.parentElement?.clientWidth || 340) - 4);
+      this.s = Math.max(22, Math.min(56, Math.floor(avail / this.w.w)));
+      const dpr = window.devicePixelRatio || 1;
+      this.cv.width = this.s * this.w.w * dpr; this.cv.height = this.s * this.w.h * dpr;
+      this.cv.style.width = this.s * this.w.w + 'px'; this.cv.style.height = this.s * this.w.h + 'px';
+      this.g = this.cv.getContext('2d'); this.g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!this.w.P) R.refresh(this.w);
+      this.render();
+    }
+    status(m) { this.st.innerHTML = m; }
+    loop(dt) {
+      if (!this.running) return;
+      this.acc += dt * SPEEDS[this.speed].tps / 1000;
+      let n = 0; while (this.acc >= 1 && n < 6) { R.tick(this.w); this.acc -= 1; n++; }
+      if (this.acc > 6) this.acc = 0;
+      if (n) this.render();
+    }
+    cell(e) { const r = this.cv.getBoundingClientRect(); return [Math.floor((e.clientX - r.left) / this.s), Math.floor((e.clientY - r.top) / this.s)]; }
+    tap(e) {
+      e.preventDefault();
+      const [x, y] = this.cell(e); if (!this.w.in(x, y)) return;
+      const w = this.w; const t = w.get(x, y);
+      const tool = this.tool;
+      if (tool === 'hand') { this.interact(t, x, y); }
+      else if (tool === 'erase') {
+        if (!t) return this.status('Nothing to erase there.');
+        if (t.lk) return this.status('That piece is part of the challenge, so it stays.');
+        if (t.t === 'head') {
+          const [dx, dy] = R.DIRS[t.d]; const p = w.get(x - dx, y - dy);
+          if (p && (p.t === 'piston' || p.t === 'sticky')) { if (p.lk) return this.status('That piston is part of the challenge.'); p.ext = false; w.set(x - dx, y - dy, null); }
+          w.set(x, y, null);
+        } else { this.removeHead(t, x, y); w.set(x, y, null); }
+        this.status('Erased.'); this.changed(x, y);
+      } else {
+        if (t && t.t === 'head') return this.status('That space is a piston arm. Erase the piston first.');
+        if (t && t.lk) return this.status('That piece is part of the challenge and can\'t be changed. Use the ✋ tool to operate it.');
+        if (t && t.t === tool && R.DIRECTIONAL.has(tool)) {
+          this.removeHead(t, x, y);
+          t.d = (t.d + 1) % 4; if (tool === 'torch') t.on = true;
+          this.status(`${C.NAMES[tool]} now faces ${DIRNAME[t.d]}.`);
+        } else {
+          if (t) this.removeHead(t, x, y);
+          let d = this.facing;
+          if (tool === 'torch') d = this.autoTorch(x, y, d);
+          const nt = R.newTile(tool, d);
+          w.set(x, y, nt);
+          this.status(placeMsg(nt));
+        }
+        this.changed(x, y);
+      }
+    }
+    autoTorch(x, y, d) {
+      const ok = k => { const b = this.w.get(x + R.DIRS[R.opp(k)][0], y + R.DIRS[R.opp(k)][1]); return b && (b.t === 'block' || b.t === 'rblock'); };
+      if (ok(d)) return d;
+      for (let k = 0; k < 4; k++) if (ok(k)) return k;
+      return d;
+    }
+    removeHead(t, x, y) {
+      if ((t.t === 'piston' || t.t === 'sticky') && t.ext) {
+        if (!t.over) { const [dx, dy] = R.DIRS[t.d]; const hd = this.w.get(x + dx, y + dy); if (hd && hd.t === 'head') this.w.set(x + dx, y + dy, null); }
+        t.ext = false; t.over = false;
+      }
+    }
+    interact(t, x, y) {
+      if (!t) return this.status('Pick a piece from the toolbar to build. The ✋ tool operates levers, buttons and more.');
+      let m = '';
+      switch (t.t) {
+        case 'lever': t.on = !t.on; m = 'Lever ' + (t.on ? 'ON' : 'OFF'); break;
+        case 'button': t.on = true; t.timer = R.BUTTON_T; m = 'Button pressed (1 second pulse)'; break;
+        case 'plate': t.on = !t.on; m = t.on ? 'Standing on the pressure plate' : 'Stepped off the plate'; break;
+        case 'repeater': t.delay = t.delay % 4 + 1; m = `Repeater delay: ${t.delay} tick${t.delay > 1 ? 's' : ''} (${(t.delay / 10).toFixed(1)} s)`; break;
+        case 'comparator': t.mode = t.mode === 's' ? 'c' : 's'; m = t.mode === 's' ? 'Comparator: SUBTRACT mode (back − side)' : 'Comparator: COMPARE mode (back if ≥ side)'; break;
+        case 'hopper': { const k = HOP_STEPS.indexOf(t.items); t.items = HOP_STEPS[(k + 1) % HOP_STEPS.length]; m = `Hopper holds ${t.items} item${t.items === 1 ? '' : 's'}` + (t.items ? ` (comparator reads ${R.containerSignal(t.items)})` : ''); break; }
+        case 'cane': t.grown = !t.grown; t.age = 0; m = t.grown ? 'Cane grown' : 'Cane cut short'; break;
+        default: m = describe(t, this.w, x, y);
+      }
+      this.status(m); R.refresh(this.w); this.render();
+      if (this.opt.onEdit) this.opt.onEdit(this);
+    }
+    changed(x, y) {
+      for (let k = 0; k < 4; k++) {
+        const nx = x + R.DIRS[k][0], ny = y + R.DIRS[k][1]; const n = this.w.get(nx, ny);
+        if (n && n.t === 'observer' && nx + R.DIRS[n.d][0] === x && ny + R.DIRS[n.d][1] === y) n.prev = '#';
+      }
+      const t = this.w.get(x, y); if (t && t.t === 'observer') t.prev = '#';
+      this.flags = this.flags.filter(f => !(f.x === x && f.y === y));
+      R.refresh(this.w); this.render();
+      if (this.opt.onEdit) this.opt.onEdit(this);
+    }
+    render() {
+      const g = this.g, s = this.s, w = this.w, P = w.P;
+      g.clearRect(0, 0, s * w.w, s * w.h);
+      for (let y = 0; y < w.h; y++) for (let x = 0; x < w.w; x++) {
+        g.fillStyle = (x + y) % 2 ? '#2b302a' : '#2f342d'; g.fillRect(x * s, y * s, s, s);
+      }
+      g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = 1;
+      for (let x = 0; x <= w.w; x++) { g.beginPath(); g.moveTo(x * s + .5, 0); g.lineTo(x * s + .5, w.h * s); g.stroke(); }
+      for (let y = 0; y <= w.h; y++) { g.beginPath(); g.moveTo(0, y * s + .5); g.lineTo(w.w * s, y * s + .5); g.stroke(); }
+      const door = this.opt.door;
+      if (door) {
+        const [dx, dy] = door; g.save(); g.strokeStyle = '#f6c453'; g.lineWidth = 2; g.setLineDash([5, 4]);
+        g.strokeRect(dx * s + 3, dy * s + 3, s - 6, s - 6); g.restore();
+        if (!w.get(dx, dy)) { g.fillStyle = '#f6c453'; g.font = `bold ${Math.max(8, Math.round(s * .2))}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('DOOR', dx * s + s / 2, dy * s + s / 2); }
+      }
+      if (this.ghostOn && this.opt.ghost) {
+        g.save(); g.globalAlpha = .33;
+        for (const p of this.opt.ghost) { const [tt, x, y, d] = p; if (w.get(x, y)) continue; const gt = R.newTile(tt, typeof d === 'string' ? R.DN[d] : (d || 0)); drawTile(g, gt, x * s, y * s, s, { lvl: 0, dirs: tt === 'dust' ? ghostDirs(this.opt.ghost, x, y) : null }); }
+        g.restore();
+      }
+      w.each((t, x, y) => { const inf = infoFor(w, P, t, x, y); inf.showNum = this.nums; drawTile(g, t, x * s, y * s, s, inf); });
+      // pistons extended over cane
+      w.each((t, x, y) => { if ((t.t === 'piston' || t.t === 'sticky') && t.ext && t.over) { const [dx, dy] = R.DIRS[t.d]; drawTile(g, { t: 'head', d: t.d, sticky: t.t === 'sticky' }, (x + dx) * s, (y + dy) * s, s); } });
+      if (this.nums && P) {
+        g.save(); g.font = `bold ${Math.max(9, Math.round(s * .26))}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        w.each((t, x, y) => { if (t.t === 'dust') { const l = P.dust[y * w.w + x]; g.fillStyle = 'rgba(0,0,0,.7)'; g.fillRect(x * s + s * .3, y * s + s * .3, s * .4, s * .4); g.fillStyle = l > 0 ? '#ffd2cc' : '#9a6b66'; g.fillText(String(l), x * s + s / 2, y * s + s / 2 + 1); } });
+        g.restore();
+      }
+      // labels & locks
+      w.each((t, x, y) => {
+        if (t.label) {
+          g.save(); g.font = `bold ${Math.max(8, Math.round(s * .2))}px system-ui`; const tw = g.measureText(t.label).width + 6;
+          g.fillStyle = '#f6c453'; rr(g, x * s + 2, y * s + 2, tw, s * .26, 3); g.fill(); g.fillStyle = '#1b1d1a'; g.textBaseline = 'middle'; g.fillText(t.label, x * s + 5, y * s + 2 + s * .13); g.restore();
+        } else if (t.lk) {
+          const lx = x * s + s - s * .22, ly = y * s + s * .1;
+          g.save(); g.fillStyle = '#f6c453'; g.fillRect(lx, ly + s * .07, s * .15, s * .1); g.strokeStyle = '#f6c453'; g.lineWidth = 1.5; g.beginPath(); g.arc(lx + s * .075, ly + s * .07, s * .045, Math.PI, 0); g.stroke(); g.restore();
+        }
+      });
+      for (const p of this.hl) { g.save(); g.strokeStyle = '#7fe0ff'; g.lineWidth = 3; g.setLineDash([4, 3]); g.strokeRect(p[0] * s + 1.5, p[1] * s + 1.5, s - 3, s - 3); g.restore(); }
+      this.flags.forEach((f, k) => {
+        g.save(); g.strokeStyle = '#ff5147'; g.lineWidth = 3; rr(g, f.x * s + 1.5, f.y * s + 1.5, s - 3, s - 3, 5); g.stroke();
+        const r = Math.max(7, s * .19); dot(g, f.x * s + s - r + 1, f.y * s + r - 1, r, '#ff5147');
+        g.fillStyle = '#fff'; g.font = `bold ${Math.round(r * 1.2)}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(k + 1), f.x * s + s - r + 1, f.y * s + r);
+        g.restore();
+      });
+    }
+  }
+  function plural(n, k) { if (k === 1) return n; if (/(ch|sh|ss|x)$/.test(n)) return n + 'es'; if (/Glass$|Cane$|Dust$/.test(n)) return n; return n + 's'; }
+  function ghostDirs(pieces, x, y) {
+    const has = (a, b) => pieces.some(p => p[1] === a && p[2] === b && ['dust', 'lever', 'button', 'plate', 'torch', 'rblock', 'repeater', 'comparator', 'observer'].includes(p[0]));
+    const c = []; for (let k = 0; k < 4; k++) if (has(x + R.DIRS[k][0], y + R.DIRS[k][1])) c.push(k);
+    if (!c.length) return [0, 1, 2, 3]; if (c.length === 1) return [c[0], R.opp(c[0])]; return c;
+  }
+  const SHORT = { dust: 'Dust', block: 'Block', glass: 'Glass', lever: 'Lever', button: 'Button', plate: 'Plate', torch: 'Torch', rblock: 'Redstone Blk', repeater: 'Repeater', comparator: 'Comparator', observer: 'Observer', lamp: 'Lamp', piston: 'Piston', sticky: 'Sticky', hopper: 'Hopper', cane: 'Cane' };
+  const TOOLTIP = {
+    hand: '✋ Use: flip levers, press buttons, step on plates, change repeater delay, switch comparator mode, add hopper items.',
+    erase: '⌫ Erase: tap a piece to remove it.',
+    torch: 'Torches snap onto a neighbouring block automatically. Tap again to rotate.',
+    repeater: 'Repeaters point the way the signal travels. Use the Facing button, or tap a placed repeater to rotate it.',
+    comparator: 'The comparator\'s back reads; its arrow points the output direction.',
+    observer: 'The observer\'s face (eyes) points the Facing direction; its back outputs.',
+    piston: 'Pistons push in the Facing direction.', sticky: 'Sticky pistons push in the Facing direction and pull back.',
+    hopper: 'The hopper\'s spout points the Facing direction. Add items with ✋.'
+  };
+  function placeMsg(t) {
+    if (R.DIRECTIONAL.has(t.t)) return `${C.NAMES[t.t]} placed, facing ${DIRNAME[t.d]}. Tap it again to rotate.`;
+    return C.NAMES[t.t] + ' placed.';
+  }
+  function describe(t, w, x, y) {
+    switch (t.t) {
+      case 'torch': return 'Redstone torch: ' + (R.torchValid(w, x, y, t) ? (t.on ? 'ON' : 'OFF (its block is powered)') : 'not attached to a block!');
+      case 'observer': return 'Observer watching the space ' + DIRNAME[t.d] + ' of it.';
+      case 'dust': return 'Dust signal strength: ' + (w.P ? w.P.dust[y * w.w + x] : 0);
+      case 'block': { const st = w.P.strong[y * w.w + x], wk = w.P.weak[y * w.w + x]; return 'Solid block: ' + (st ? 'strongly powered (' + st + ')' : wk ? 'weakly powered by dust' : 'unpowered'); }
+      case 'lamp': return 'Lamp ' + (t.lit ? 'ON' : 'OFF');
+      case 'piston': case 'sticky': return C.NAMES[t.t] + ', ' + (t.ext ? 'extended' : 'retracted') + ', pushing ' + DIRNAME[t.d];
+      case 'head': return 'Piston arm';
+      default: return C.NAMES[t.t] || t.t;
+    }
+  }
+
+  let lastT = performance.now();
+  function frame(now) { const dt = Math.min(200, now - lastT); lastT = now; EDITORS.forEach(e => e.loop(dt)); requestAnimationFrame(frame); }
+  requestAnimationFrame(frame);
+  window.addEventListener('resize', () => EDITORS.forEach(e => e.resize()));
+
+  // ---------- views ----------
+  const view = () => $('#view');
+  function mount(...nodes) { EDITORS = []; const v = view(); v.innerHTML = ''; v.append(...nodes); window.scrollTo(0, 0); EDITORS.forEach(e => e.resize()); }
+  function crumb(href, label) { return h('a', { class: 'crumb', href }, '← ' + label); }
+  function pbar(n, of) { return h('div', { class: 'pbar' }, h('i', { style: `width:${of ? Math.round(100 * n / of) : 0}%` })); }
+
+  const simComps = C.COMPONENTS;
+  const cnt = o => Object.keys(o || {}).length;
+
+  function home() {
+    const stages = [
+      { href: '#components', n: '1', t: 'Learn the components', d: 'What every piece does: dust, torches, repeaters, comparators, observers, pistons, hoppers and more.', done: cnt(progress.comp), of: simComps.length },
+      { href: '#mechanisms', n: '2', t: 'Study the mechanisms', d: 'Step-by-step builds of the circuits used inside bigger builds: logic gates, clocks, latches, doors, the Etho hopper clock and farms.', done: cnt(progress.mech), of: C.MECHS.length },
+      { href: '#practice', n: '3', t: 'Practice building', d: 'Rebuild each mechanism yourself, with an optional see-through blueprint. The trainer checks if it works.', done: cnt(progress.prac), of: C.MECHS.length },
+      { href: '#tests', n: '4', t: 'Take the tests', d: 'Build new things that combine several mechanisms. You\'ll get feedback on missing or misused pieces.', done: cnt(progress.test), of: C.TESTS.length }
+    ];
+    mount(
+      h('section', { class: 'hero' },
+        h('div', { class: 'hero-art' }, heroArt()),
+        h('h1', {}, 'Redstone Trainer'),
+        h('p', { class: 'lead' }, 'Learn redstone from the first wire to working machines. Every circuit here really runs, so you can poke it, break it and fix it.')),
+      h('div', { class: 'stages' }, stages.map(s => h('a', { class: 'stage card', href: s.href },
+        h('div', { class: 'stage-n' }, s.n),
+        h('div', { class: 'stage-b' }, h('h3', {}, s.t), h('p', {}, s.d), pbar(s.done, s.of), h('small', {}, `${s.done} / ${s.of} done`))))),
+      h('a', { class: 'card sandbox-link', href: '#sandbox' }, h('b', {}, '🧪 Free-build sandbox'), h('span', {}, ' Experiment with every piece on a big grid.')),
+      howToBuild(true),
+      h('p', { class: 'fine' }, 'Rules follow Minecraft: Java Edition. The trainer shows a flat, top-down slice of a build, so a few things are simplified (no vertical wiring, no quasi-connectivity). Each lesson notes where the real game differs. Not an official Minecraft product.')
+    );
+  }
+  function heroArt() {
+    const cv = h('canvas', {}); const s = 30, W = 9, H = 2; const dpr = window.devicePixelRatio || 1;
+    cv.width = s * W * dpr; cv.height = s * H * dpr; cv.style.width = s * W + 'px'; cv.style.height = s * H + 'px';
+    const g = cv.getContext('2d'); g.scale(dpr, dpr);
+    const w = R.build(W, H, [['lever', 0, 0, 0, { on: true }], ['dust', 1, 0], ['dust', 2, 0], ['repeater', 3, 0, 'E'], ['dust', 4, 0], ['block', 5, 0], ['torch', 6, 0, 'E'], ['lamp', 7, 0], ['dust', 4, 1], ['dust', 5, 1], ['dust', 6, 1], ['lamp', 7, 1]]);
+    for (let i = 0; i < 6; i++) R.tick(w);
+    w.each((t, x, y) => drawTile(g, t, x * s, y * s, s, infoFor(w, w.P, t, x, y)));
+    return cv;
+  }
+  function howToBuild(collapsed) {
+    return h('details', { class: 'card howto', open: collapsed ? false : null },
+      h('summary', {}, 'How the builder works'),
+      h('ul', {},
+        h('li', {}, 'Pick a piece in the toolbar, then tap a square to place it. Tap the same piece again to rotate it.'),
+        h('li', {}, 'The ', h('b', {}, 'Facing'), ' button sets which way new repeaters, comparators, observers, pistons and hoppers point.'),
+        h('li', {}, h('b', {}, '✋ Use'), ' flips levers, presses buttons, steps on plates, changes repeater delay, switches comparator mode and adds items to hoppers.'),
+        h('li', {}, 'Torches snap onto a neighbouring block. A red outline on a block means it is strongly powered; a dashed outline means weakly powered (by dust).'),
+        h('li', {}, 'The circuit runs live. ', h('b', {}, '# Numbers'), ' shows signal strength on dust; ', h('b', {}, 'Slow'), ' speed helps you see quick pulses. 1 redstone tick = 0.1 s.')));
+  }
+
+  // components
+  function components() {
+    const groups = {};
+    C.COMPONENTS.forEach(c => (groups[c.group] = groups[c.group] || []).push(c));
+    const order = ['Power sources', 'Wiring', 'Detectors', 'Outputs'];
+    mount(crumb('#home', 'Home'),
+      h('h2', {}, '1 · Components'),
+      h('p', {}, 'Tap a component to learn what it does. The ones marked ', h('span', { class: 'chip' }, 'Try it'), ' come with a live demo you can operate.'),
+      ...order.map(gname => h('section', {},
+        h('h3', { class: 'grp' }, gname),
+        h('div', { class: 'cgrid' }, groups[gname].map(c => h('a', { class: 'card comp' + (progress.comp[c.id] ? ' seen' : ''), href: '#c-' + c.id },
+          c.sim ? iconCanvas(c.id, 40) : h('div', { class: 'noicon' }, '◇'),
+          h('div', {}, h('b', {}, nameOf(c)), h('p', {}, c.short), c.sim && c.demo ? h('span', { class: 'chip' }, 'Try it') : null)))))),
+      h('a', { class: 'card quiz-link', href: '#quiz' }, h('b', {}, '✎ Components quick check'), h('span', {}, progress.quiz != null ? ` Best score: ${progress.quiz}/${C.QUIZ.length}` : ' 10 questions')),
+      h('a', { class: 'btn primary next', href: '#mechanisms' }, 'Next: Mechanisms →'));
+  }
+  function nameOf(c) { return { dispenser: 'Dispenser & Dropper', daylight: 'Daylight Detector', target: 'Target Block', noteblock: 'Note Block', slime: 'Slime & Honey Blocks', doors: 'Doors & Trapdoors' }[c.id] || C.NAMES[c.id]; }
+  function componentDetail(id) {
+    const i = C.COMPONENTS.findIndex(c => c.id === id); const c = C.COMPONENTS[i]; if (!c) return components();
+    progress.comp[id] = 1; saveProgress();
+    const next = C.COMPONENTS[i + 1];
+    const wrap = h('div', {});
+    const nodes = [crumb('#components', 'All components'),
+      h('div', { class: 'chead' }, c.sim ? iconCanvas(c.id, 56) : null, h('div', {}, h('small', { class: 'tag' }, c.group), h('h2', {}, nameOf(c)))),
+      h('p', { class: 'lead', html: c.body }),
+      h('ul', { class: 'facts' }, c.facts.map(f => h('li', { html: f })))];
+    if (c.demo) {
+      const [W, H, pcs] = c.demo;
+      nodes.push(h('h3', {}, 'Try it'), h('p', { class: 'note' }, c.demoNote || ''), wrap);
+    } else if (c.id === 'cane') {
+      nodes.push(h('p', { class: 'note' }, 'See it working in the ', h('a', { href: '#m-farm' }, 'Observer Piston Farm'), ' lesson.'));
+    } else if (!c.sim) nodes.push(h('p', { class: 'note' }, 'This piece isn\'t in the trainer\'s grid, but you\'ll meet it in bigger builds in the game.'));
+    nodes.push(h('div', { class: 'navrow' }, next ? h('a', { class: 'btn primary', href: '#c-' + next.id }, 'Next: ' + nameOf(next) + ' →') : h('a', { class: 'btn primary', href: '#quiz' }, 'Take the quick check →')));
+    mount(...nodes);
+    if (c.demo) { const [W, H, pcs] = c.demo; new Editor(wrap, { world: R.build(W, H, pcs) }); EDITORS.forEach(e => e.resize()); }
+  }
+
+  function quiz() {
+    let k = 0, score = 0; const box = h('div', { class: 'card quiz' });
+    const show = () => {
+      box.innerHTML = '';
+      if (k >= C.QUIZ.length) {
+        progress.quiz = Math.max(progress.quiz || 0, score); saveProgress();
+        box.append(h('h3', {}, `You scored ${score} / ${C.QUIZ.length}`), h('p', {}, score >= 8 ? 'Great foundation. Time for mechanisms!' : 'Review the components you missed, then try again.'),
+          h('div', { class: 'navrow' }, h('button', { class: 'btn', onclick: () => { k = 0; score = 0; show(); } }, 'Try again'), h('a', { class: 'btn primary', href: '#mechanisms' }, 'Mechanisms →')));
+        return;
+      }
+      const q = C.QUIZ[k]; let answered = false;
+      const fb = h('p', { class: 'fb' });
+      const opts = h('div', { class: 'opts' }, q.a.map((a, j) => h('button', {
+        class: 'opt', onclick: e => {
+          if (answered) return; answered = true;
+          const ok = j === q.c; if (ok) score++;
+          e.currentTarget.classList.add(ok ? 'right' : 'wrong'); opts.children[q.c].classList.add('right');
+          fb.innerHTML = (ok ? '<b>Correct.</b> ' : '<b>Not quite.</b> ') + q.why;
+          nextB.hidden = false;
+        }
+      }, a)));
+      const nextB = h('button', { class: 'btn primary', hidden: true, onclick: () => { k++; show(); } }, k === C.QUIZ.length - 1 ? 'See score' : 'Next question →');
+      box.append(h('small', { class: 'tag' }, `Question ${k + 1} of ${C.QUIZ.length}`), h('h3', {}, q.q), opts, fb, nextB);
+    };
+    show();
+    mount(crumb('#components', 'Components'), h('h2', {}, 'Components quick check'), box);
+  }
+
+  // mechanisms
+  function mechList(kind) {
+    const prac = kind === 'practice';
+    mount(crumb('#home', 'Home'),
+      h('h2', {}, prac ? '3 · Practice building' : '2 · Mechanisms'),
+      h('p', {}, prac ? 'Rebuild each mechanism on your own. The inputs and outputs are placed for you (marked with a lock). Use the blueprint ghost if you get stuck, then press Check.' : 'Each lesson builds a mechanism one step at a time, then lets you run it. These are the circuits hidden inside bigger builds.'),
+      h('div', { class: 'mgrid' }, C.MECHS.map((m, i) => {
+        const done = prac ? progress.prac[m.id] : progress.mech[m.id];
+        return h('a', { class: 'card mech' + (done ? ' done' : ''), href: (prac ? '#p-' : '#m-') + m.id },
+          h('div', { class: 'mtop' }, h('span', { class: 'tag t-' + m.tag.toLowerCase() }, m.tag), done ? h('span', { class: 'tick' }, '✓') : null),
+          h('h3', {}, (i + 1) + '. ' + m.name), h('p', {}, m.what));
+      })),
+      h('a', { class: 'btn primary next', href: prac ? '#tests' : '#practice' }, prac ? 'Next: Tests →' : 'Next: Practice →'));
+  }
+  function lesson(id) {
+    const m = C.MECHS.find(x => x.id === id); if (!m) return mechList();
+    const idx = C.MECHS.indexOf(m);
+    let step = 0;
+    const host = h('div', {});
+    const stepBox = h('div', { class: 'stepbox' });
+    const [W, H] = m.size;
+    let ed;
+    const go = k => {
+      step = Math.max(0, Math.min(m.steps.length - 1, k));
+      const pcs = m.steps.slice(0, step + 1).flatMap(s => s.add);
+      const w = R.build(W, H, pcs);
+      ed.setWorld(w); ed.hl = m.steps[step].add.map(p => [p[1], p[2]]); ed.running = true; ed.syncBar(); ed.render();
+      ed.status('Blue dashed squares show what this step adds. You can operate the circuit with taps.');
+      stepBox.innerHTML = '';
+      stepBox.append(
+        h('div', { class: 'dots' }, m.steps.map((_, j) => h('i', { class: j <= step ? 'on' : '' }))),
+        h('p', {}, h('b', {}, `Step ${step + 1} of ${m.steps.length}: `), m.steps[step].say),
+        h('div', { class: 'navrow' },
+          h('button', { class: 'btn', disabled: step === 0 ? true : null, onclick: () => go(step - 1) }, '← Back'),
+          step < m.steps.length - 1 ? h('button', { class: 'btn primary', onclick: () => go(step + 1) }, 'Next step →') : h('a', { class: 'btn primary', href: '#p-' + m.id }, 'Practice building it →')));
+      if (step === m.steps.length - 1) { progress.mech[m.id] = 1; saveProgress(); }
+    };
+    const next = C.MECHS[idx + 1];
+    mount(crumb('#mechanisms', 'All mechanisms'),
+      h('small', { class: 'tag t-' + m.tag.toLowerCase() }, m.tag), h('h2', {}, m.name),
+      h('p', { class: 'lead' }, m.what),
+      h('p', { class: 'used' }, h('b', {}, 'Used in bigger builds: '), m.used),
+      host, stepBox,
+      h('div', { class: 'card' }, h('h3', {}, 'How it works'), h('ul', {}, m.how.map(x => h('li', {}, x))), h('p', { class: 'gotcha' }, h('b', {}, '⚠ Watch out: '), m.gotcha)),
+      h('div', { class: 'navrow' }, h('a', { class: 'btn', href: '#p-' + m.id }, 'Practice this'), next ? h('a', { class: 'btn primary', href: '#m-' + next.id }, 'Next lesson: ' + next.name + ' →') : h('a', { class: 'btn primary', href: '#practice' }, 'Go to practice →')));
+    ed = new Editor(host, { world: R.build(W, H, []), door: m.door });
+    ed.resize(); go(0);
+  }
+
+  // practice + tests share a build page
+  function buildPage(kind, id) {
+    const isTest = kind === 'test';
+    const def = (isTest ? C.TESTS : C.MECHS).find(x => x.id === id); if (!def) return isTest ? testList() : mechList('practice');
+    const [W, H] = def.size;
+    const key = 'build_' + kind + '_' + id;
+    const lockedPieces = isTest ? def.locked.map(p => { const o = Object.assign({}, p[4] || {}, { lk: 1 }); return [p[0], p[1], p[2], p[3], o]; })
+      : def.pieces.filter(p => p[4] && p[4].io).map(p => [p[0], p[1], p[2], p[3], Object.assign({}, p[4], { lk: 1 })]);
+    const answer = isTest ? lockedPieces.concat(def.solution) : def.pieces.map(p => p[4] && p[4].io ? [p[0], p[1], p[2], p[3], Object.assign({}, p[4], { lk: 1 })] : p);
+    const fresh = () => R.build(W, H, lockedPieces);
+    let world; const saved = store.get(key, null);
+    try { world = saved && saved.w === W && saved.h === H ? deserialize(saved) : fresh(); } catch (e) { world = fresh(); }
+    let fails = 0, hintN = 0, clearArm = false, ansArm = false;
+    const host = h('div', {}); const results = h('div', { class: 'results' });
+    const ghostB = !isTest ? h('button', { class: 'btn', onclick: () => { ed.ghostOn = !ed.ghostOn; ghostB.classList.toggle('on', ed.ghostOn); ghostB.textContent = ed.ghostOn ? '👻 Blueprint on' : '👻 Blueprint'; ed.render(); } }, '👻 Blueprint') : null;
+    const hintBox = h('div', { class: 'hints' });
+    const hintB = isTest ? h('button', { class: 'btn', onclick: () => { if (hintN < def.hints.length) { hintBox.append(h('p', { class: 'hint' }, h('b', {}, `Hint ${hintN + 1}: `), def.hints[hintN])); hintN++; } if (hintN >= def.hints.length) hintB.disabled = true; } }, '💡 Hint') : null;
+    const ansB = h('button', { class: 'btn', hidden: isTest ? true : null, onclick: () => {
+      if (!ansArm) { ansArm = true; ansB.textContent = 'Tap again to replace your build'; setTimeout(() => { ansArm = false; ansB.textContent = isTest ? '🔑 Show a solution' : '🔑 Load the answer'; }, 3000); return; }
+      ansArm = false; ed.setWorld(R.build(W, H, answer)); ansB.textContent = isTest ? '🔑 Show a solution' : '🔑 Load the answer'; results.innerHTML = '';
+      ed.status(isTest ? 'Here is one working solution (other designs can work too). Press Check to test it.' : 'Blueprint loaded. Press Check to see it pass, then try it from scratch.'); save();
+    } }, isTest ? '🔑 Show a solution' : '🔑 Load the answer');
+    const clearB = h('button', { class: 'btn', onclick: () => {
+      if (!clearArm) { clearArm = true; clearB.textContent = 'Tap again to clear'; setTimeout(() => { clearArm = false; clearB.textContent = '🗑 Clear'; }, 3000); return; }
+      clearArm = false; clearB.textContent = '🗑 Clear'; ed.setWorld(fresh()); results.innerHTML = ''; save();
+    } }, '🗑 Clear');
+    const save = () => store.set(key, serialize(ed.w));
+    const checkB = h('button', { class: 'btn primary big', onclick: () => {
+      const res = C.runCheck(ed.w, def);
+      ed.flags = res.lints.map(l => ({ x: l.x, y: l.y })); ed.render();
+      results.innerHTML = '';
+      if (res.pass) {
+        (isTest ? progress.test : progress.prac)[id] = 1; saveProgress();
+        const list = isTest ? C.TESTS : C.MECHS; const nx = list[list.indexOf(def) + 1];
+        results.append(h('div', { class: 'res pass' }, h('h3', {}, '✅ It works!'),
+          h('p', {}, isTest ? 'Your build passed every test case.' : 'Your ' + def.name + ' passed every check.'),
+          nx ? h('a', { class: 'btn primary', href: (isTest ? '#t-' : '#p-') + nx.id }, 'Next: ' + nx.name + ' →') : h('a', { class: 'btn primary', href: isTest ? '#home' : '#tests' }, isTest ? 'Back home' : 'On to the tests →')));
+      } else {
+        fails++;
+        if (isTest && fails >= 2) ansB.hidden = false;
+        const box = h('div', { class: 'res fail' }, h('h3', {}, '❌ Not yet. Here\'s what I found'));
+        box.append(h('h4', {}, 'What went wrong when I tested it'), h('ul', {}, res.fails.map(f => h('li', {}, f))));
+        if (res.missing.length) box.append(h('h4', {}, 'Missing pieces'), h('ul', { class: 'miss' }, res.missing.map(mm => h('li', {}, iconCanvas(mm.t, 26), h('span', {}, h('b', {}, `${mm.need} more ${plural(C.NAMES[mm.t], mm.need)}`), ` (${mm.why})`)))));
+        if (res.lints.length) box.append(h('h4', {}, 'Pieces that look misused (numbered on the grid)'), h('ol', { class: 'lints' }, res.lints.map(l => h('li', {}, l.msg))));
+        if (!res.missing.length && !res.lints.length) box.append(h('p', { class: 'note' }, isTest ? 'All the right kinds of pieces are there, so check how they connect. Try a hint, or run the circuit slowly and watch the signal.' : 'All the right pieces are there, so check the connections. Turn on 👻 Blueprint to compare.'));
+        results.append(box);
+      }
+      results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } }, '✔ Check my build');
+    const reqs = isTest ? null : h('p', { class: 'note' }, 'Build it so that it behaves like the lesson. Locked pieces (🔒) are your inputs and outputs.');
+    mount(crumb(isTest ? '#tests' : '#practice', isTest ? 'All tests' : 'All practice'),
+      isTest ? h('small', { class: 'tag' }, 'Test') : h('small', { class: 'tag t-' + def.tag.toLowerCase() }, 'Practice · ' + def.tag),
+      h('h2', {}, def.name),
+      isTest ? h('p', { class: 'lead' }, def.brief) : h('p', { class: 'lead' }, 'Goal: ' + def.what),
+      isTest ? h('p', { class: 'skills' }, def.skills.map(s => h('span', { class: 'chip' }, s))) : reqs,
+      isTest ? hintBox : null,
+      host,
+      h('div', { class: 'actions' }, checkB, ghostB, hintB, ansB, clearB, !isTest ? h('a', { class: 'btn', href: '#m-' + def.id }, '📖 Lesson') : null),
+      results, howToBuild(true));
+    const allow = isTest ? C.PALETTE.filter(t => t !== 'cane' || def.id === 'alarmfarm') : C.PALETTE.filter(t => t !== 'cane' || def.id === 'farm');
+    const ed = new Editor(host, { world, palette: true, door: def.door, ghost: isTest ? null : def.pieces, allow, onEdit: () => save() });
+    ed.resize();
+  }
+  function testList() {
+    mount(crumb('#home', 'Home'), h('h2', {}, '4 · Tests'),
+      h('p', {}, 'Each test asks for something new that combines components and mechanisms you\'ve learned. There\'s no blueprint. When you press Check, the trainer runs your build through every case and tells you which pieces are missing or misused. Hints are available, and a solution unlocks after two tries.'),
+      h('div', { class: 'mgrid' }, C.TESTS.map((t, i) => h('a', { class: 'card mech' + (progress.test[t.id] ? ' done' : ''), href: '#t-' + t.id },
+        h('div', { class: 'mtop' }, h('span', { class: 'tag' }, 'Test ' + (i + 1)), progress.test[t.id] ? h('span', { class: 'tick' }, '✓') : null),
+        h('h3', {}, t.name), h('p', {}, t.brief), h('p', { class: 'skills' }, t.skills.map(s => h('span', { class: 'chip' }, s)))))));
+  }
+  function sandbox() {
+    const key = 'sandbox'; const saved = store.get(key, null);
+    let world; try { world = saved ? deserialize(saved) : R.build(12, 9, []); } catch (e) { world = R.build(12, 9, []); }
+    const host = h('div', {});
+    let arm = false;
+    const clr = h('button', { class: 'btn', onclick: () => { if (!arm) { arm = true; clr.textContent = 'Tap again to clear'; setTimeout(() => { arm = false; clr.textContent = '🗑 Clear all'; }, 3000); return; } arm = false; clr.textContent = '🗑 Clear all'; ed.setWorld(R.build(12, 9, [])); store.set(key, serialize(ed.w)); } }, '🗑 Clear all');
+    mount(crumb('#home', 'Home'), h('h2', {}, '🧪 Sandbox'), h('p', {}, 'Build anything. Your sandbox is saved in this browser.'), host, h('div', { class: 'actions' }, clr), howToBuild(true));
+    const ed = new Editor(host, { world, palette: true, onEdit: () => store.set(key, serialize(ed.w)) });
+    ed.resize();
+  }
+
+  function route() {
+    const hs = (location.hash || '#home').slice(1);
+    document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('on', a.dataset.r.split(' ').some(p => hs.startsWith(p))));
+    if (hs === 'home' || !hs) return home();
+    if (hs === 'components') return components();
+    if (hs === 'quiz') return quiz();
+    if (hs === 'mechanisms') return mechList('mech');
+    if (hs === 'practice') return mechList('practice');
+    if (hs === 'tests') return testList();
+    if (hs === 'sandbox') return sandbox();
+    if (hs.startsWith('c-')) return componentDetail(hs.slice(2));
+    if (hs.startsWith('m-')) return lesson(hs.slice(2));
+    if (hs.startsWith('p-')) return buildPage('practice', hs.slice(2));
+    if (hs.startsWith('t-')) return buildPage('test', hs.slice(2));
+    home();
+  }
+  window.addEventListener('hashchange', route);
+  route();
+})();
+
+</script>
+</body>
+</html>
