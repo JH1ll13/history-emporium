@@ -92,15 +92,16 @@ h1{font-family:'Bangers',cursive;font-weight:400;font-size:clamp(46px,13vw,96px)
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');const $=id=>document.getElementById(id);
 const LEVELS=[
  {n:'Green Meadow',path:[[-1,1.5],[3.5,1.5],[3.5,6.5],[7.5,6.5],[7.5,2.5],[11.5,2.5],[11.5,6.5],[14.5,6.5],[14.5,3.5],[17,3.5]]},
- {n:'Twisty Trail',path:[[-1,4.5],[2.5,4.5],[2.5,1.5],[6.5,1.5],[6.5,7.5],[10,7.5],[10,1.5],[13.5,1.5],[13.5,5.5],[17,5.5]]},
- {n:'The Long Loop',path:[[-1,6.5],[3,6.5],[3,2],[6.5,2],[6.5,7],[9.5,7],[9.5,4],[13,4],[13,8],[17,8]]},
- {n:'Zigzag Hills',path:[[-1,1.5],[2.5,7.5],[6,1.5],[9.5,7.5],[13,1.5],[17,7.5]]},
- {n:'Snake Valley',path:[[-1,7.5],[3,7.5],[3,1.5],[7,1.5],[7,7.5],[11,7.5],[11,1.5],[15,1.5],[15,4.5],[17,4.5]]},
+ {n:'Twisty Trail',path:[[-1,4.5],[2.5,4.5],[2.5,1.5],[6.5,1.5],[6.5,7.5],[9.5,7.5],[9.5,1.5],[13.5,1.5],[13.5,5.5],[17,5.5]]},
+ {n:'The Long Loop',path:[[-1,6.5],[2.5,6.5],[2.5,2.5],[6.5,2.5],[6.5,6.5],[9.5,6.5],[9.5,3.5],[12.5,3.5],[12.5,7.5],[14.5,7.5],[14.5,1.5],[17,1.5]]},
+ {n:'Zigzag Hills',path:[[-1,1.5],[1.5,1.5],[1.5,3.5],[3.5,3.5],[3.5,5.5],[5.5,5.5],[5.5,7.5],[7.5,7.5],[7.5,5.5],[9.5,5.5],[9.5,3.5],[11.5,3.5],[11.5,1.5],[13.5,1.5],[13.5,4.5],[17,4.5]]},
+ {n:'Snake Valley',path:[[-1,7.5],[2.5,7.5],[2.5,1.5],[6.5,1.5],[6.5,7.5],[10.5,7.5],[10.5,1.5],[14.5,1.5],[14.5,4.5],[17,4.5]]},
  {n:'Spiral Woods',path:[[-1,1.5],[13.5,1.5],[13.5,7.5],[2.5,7.5],[2.5,4.5],[9.5,4.5]]},
- {n:'Mountain Pass',path:[[-1,4.5],[3,4.5],[3,1],[8,1],[8,8],[12.5,8],[12.5,1.5],[15,1.5],[15,4.5],[17,4.5]]},
- {n:'Gigaclops Gauntlet',path:[[-1,6.5],[4,6.5],[4,2],[8,2],[8,5],[11,5],[11,2],[15,2],[15,7],[17,7]]}
+ {n:'Mountain Pass',path:[[-1,4.5],[2.5,4.5],[2.5,0.5],[7.5,0.5],[7.5,8.5],[11.5,8.5],[11.5,1.5],[14.5,1.5],[14.5,4.5],[17,4.5]]},
+ {n:'Gigaclops Gauntlet',path:[[-1,6.5],[3.5,6.5],[3.5,1.5],[7.5,1.5],[7.5,5.5],[10.5,5.5],[10.5,1.5],[14.5,1.5],[14.5,7.5],[17,7.5]]}
 ];
-let LI=0,PORTAL=[0.3,1.5],CRYS=[15.6,3.5];
+let LI=0,PORTAL=[0.3,1.5],CRYS=[15.6,3.5],pathCells=new Set();
+const cellOf=(x,y)=>[Math.floor(x),Math.floor(y)];const towerAt=(cx,cy)=>towers.find(t=>Math.floor(t.x)===cx&&Math.floor(t.y)===cy);
 const TYPES={
  ember:{n:['Ember Pup','Blaze Hound','Inferno Titan'],cost:50,dmg:[5,12,30],rate:[1.5,1.8,2.2],range:[2.4,2.7,3.1],c:['#ff7a2a','#ff3b1a','#ffcc33'],d:'Fast fire bolts. Evolved forms burn.'},
  frost:{n:['Frost Sprite','Glacier Fox','Blizzard Titan'],cost:70,dmg:[2,5,12],rate:[1.0,1.2,1.4],range:[2.2,2.5,2.9],slow:[0.35,0.5,0.65],c:['#7fe8ff','#3fb6ff','#e8fbff'],d:'Ice shards slow enemies down.'},
@@ -123,15 +124,17 @@ function layout(){
  portrait=H>W*1.1;COLS=portrait?9:16;ROWS=portrait?16:9;
  PATH=LEVELS[LI].path.map(([x,y])=>portrait?[y,x]:[x,y]);
  segs=[];plen=0;for(let i=1;i<PATH.length;i++){const [x1,y1]=PATH[i-1],[x2,y2]=PATH[i],l=Math.hypot(x2-x1,y2-y1);segs.push({x1,y1,x2,y2,l,s:plen});plen+=l}
+ pathCells=new Set();for(let s=0;s<=plen;s+=0.05){const [x,y]=posAt(s),cx=Math.floor(x),cy=Math.floor(y);if(cx>=0&&cy>=0&&cx<COLS&&cy<ROWS)pathCells.add(cx+','+cy)}
  const topH=52,botH=92;T=Math.max(4,Math.min(W/COLS,(H-topH-botH)/ROWS));OX=(W-T*COLS)/2;OY=topH+(H-topH-botH-T*ROWS)/2;
  const inm=(x,y)=>x>0.3&&y>0.3&&x<COLS-0.3&&y<ROWS-0.3;PORTAL=PATH[0];CRYS=PATH[PATH.length-1];for(let s=0;s<plen;s+=0.05){const q=posAt(s);if(inm(q[0],q[1])){PORTAL=q;break}}for(let s=plen;s>0;s-=0.05){const q=posAt(s);if(inm(q[0],q[1])){CRYS=q;break}}
  // keep towers in place if orientation changed: re-map
  makeDeco();renderBg();
 }
-addEventListener('resize',()=>{const was=portrait;layout();if(was!==portrait){for(const t of towers){[t.x,t.y]=[t.y,t.x]}}});
+function relayout(){const was=portrait;layout();if(was!==portrait){for(const t of towers){[t.x,t.y]=[t.y,t.x]}makeDeco();renderBg()}}
+addEventListener('resize',relayout);
 function posAt(s){if(s<=0)return[PATH[0][0],PATH[0][1]];for(const g of segs){if(s<=g.s+g.l){const k=(s-g.s)/g.l;return[g.x1+(g.x2-g.x1)*k,g.y1+(g.y2-g.y1)*k]}}const e=PATH[PATH.length-1];return[e[0],e[1]]}
 function distToPath(x,y){let m=1e9;for(const g of segs){const dx=g.x2-g.x1,dy=g.y2-g.y1,l2=dx*dx+dy*dy;let k=((x-g.x1)*dx+(y-g.y1)*dy)/l2;k=Math.max(0,Math.min(1,k));m=Math.min(m,Math.hypot(x-g.x1-dx*k,y-g.y1-dy*k))}return m}
-function makeDeco(){let sd=7+LI*97;const r=()=>{sd=(sd*9301+49297)%233280;return sd/233280};deco=[];for(let i=0;i<70;i++){const x=r()*COLS,y=r()*ROWS;if(distToPath(x,y)<0.9)continue;deco.push({x,y,k:r()<0.45?'tree':r()<0.6?'rock':'flower',s:0.6+r()*0.6,c:r()})}deco.sort((a,b)=>a.y-b.y)}
+function makeDeco(){let sd=7+LI*97;const r=()=>{sd=(sd*9301+49297)%233280;return sd/233280};deco=[];for(let cy=0;cy<ROWS;cy++)for(let cx=0;cx<COLS;cx++){const a=r(),b=r(),c=r(),d=r(),e=r();if(a>0.34||pathCells.has(cx+','+cy)||towerAt(cx,cy))continue;deco.push({x:cx+0.5+(b-0.5)*0.3,y:cy+0.55+(c-0.5)*0.2,cx,cy,k:d<0.45?'tree':e<0.6?'rock':'flower',s:0.6+e*0.55,c:b})}deco.sort((a,b)=>a.y-b.y)}
 function renderBg(){
  bgCv=document.createElement('canvas');bgCv.width=Math.max(1,Math.ceil(COLS*T*DPR));bgCv.height=Math.max(1,Math.ceil(ROWS*T*DPR));const g=bgCv.getContext('2d');g.scale(DPR*T,DPR*T);
  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){g.fillStyle=(x+y)%2?'#4f9a3a':'#57a440';g.fillRect(x,y,1,1)}
@@ -239,8 +242,8 @@ function evolve(t){t.st++;t.evoT=1.2;const c=TYPES[t.type].c[t.st];
  for(let i=0;i<40;i++){const a=Math.random()*6.283,v=1+Math.random()*3;parts.push({x:t.x,y:t.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:0,max:0.9,col:Math.random()<0.5?c:'#fff',r:0.07,g:0})}
  texts.push({x:t.x,y:t.y-0.9,t:'EVOLVED! '+TYPES[t.type].n[t.st].toUpperCase(),col:'#ffd23f',life:0,big:1});
  snd(523,0.12,'square',0.06);setTimeout(()=>snd(659,0.12,'square',0.06),100);setTimeout(()=>snd(784,0.12,'square',0.06),200);setTimeout(()=>snd(1046,0.35,'square',0.06),300);shake=5;if(selTower===t)showInfo()}
-function canPlace(x,y){if(x<0.45||y<0.45||x>COLS-0.45||y>ROWS-0.45)return false;if(distToPath(x,y)<0.8)return false;for(const t of towers)if(Math.hypot(t.x-x,t.y-y)<0.9)return false;return true}
-function place(k,x,y){const ty=TYPES[k];if(gold<ty.cost)return;gold-=ty.cost;const t={type:k,st:0,x,y,cd:0.2,xp:0,ang:Math.PI/2,evoT:0.6,spent:ty.cost};towers.push(t);
+function canPlace(x,y){const [cx,cy]=cellOf(x,y);if(cx<0||cy<0||cx>=COLS||cy>=ROWS)return false;if(pathCells.has(cx+','+cy))return false;return !towerAt(cx,cy)}
+function place(k,x,y){const ty=TYPES[k];if(gold<ty.cost)return;x=Math.floor(x)+0.5;y=Math.floor(y)+0.5;gold-=ty.cost;const t={type:k,st:0,x,y,cd:0.2,xp:0,ang:Math.PI/2,evoT:0.6,spent:ty.cost};towers.push(t);if(deco.some(d=>d.cx===Math.floor(x)&&d.cy===Math.floor(y))){makeDeco();renderBg()}
  for(let i=0;i<16;i++){const a=Math.random()*6.283;parts.push({x,y:y+0.3,vx:Math.cos(a)*2,vy:Math.sin(a)*1,life:0,max:0.5,col:'#d8c8a0',r:0.06,g:0})}
  snd(300,0.15,'square',0.06,600);if(gold<ty.cost)sel=null;ui()}
 function showInfo(){const t=selTower;if(!t){$('info').classList.add('hidden');return}const ty=TYPES[t.type],s=stats(t);
@@ -270,8 +273,8 @@ $('tBest').textContent=sv.cleared?`Levels beaten: ${Math.min(sv.cleared,8)}/8`+(
 function toWorld(cx,cy){return[(cx-OX)/T,(cy-OY)/T]}
 cv.addEventListener('pointermove',e=>{const [x,y]=toWorld(e.clientX,e.clientY);hover={x,y}});
 cv.addEventListener('pointerdown',e=>{if(state!=='play')return;const [x,y]=toWorld(e.clientX,e.clientY);hover={x,y};
- const hit=towers.find(t=>Math.hypot(t.x-x,t.y-y)<0.5);
- if(sel){if(hit){selTower=hit;sel=null;showInfo();ui();return}if(canPlace(x,y))place(sel,x,y);else{toast(distToPath(x,y)<0.8?"Can't build on the path!":'No room here');snd(150,0.15)}return}
+ const hit=towerAt(...cellOf(x,y));
+ if(sel){if(hit){selTower=hit;sel=null;showInfo();ui();return}if(canPlace(x,y))place(sel,x,y);else{toast(pathCells.has(cellOf(x,y).join(','))?"Can't build on the path!":'That square is taken');snd(150,0.15)}return}
  if(hit){selTower=hit;showInfo();snd(600,0.05,'sine',0.05)}else{selTower=null;$('info').classList.add('hidden')}});
 cv.addEventListener('pointerleave',()=>{hover=null});
 
@@ -328,7 +331,8 @@ function render(){
  const c0=[OX+CRYS[0]*T,OY+CRYS[1]*T];
  ctx.save();ctx.translate(c0[0],c0[1]-T*0.2+Math.sin(time*2)*T*0.05);const cg=ctx.createLinearGradient(0,-T*0.5,0,T*0.4);cg.addColorStop(0,'#e8fbff');cg.addColorStop(1,lives>10?'#3fb6ff':lives>5?'#ffd23f':'#ff3b3b');ctx.fillStyle=cg;ctx.shadowColor=lives>10?'#3fb6ff':'#ff3b3b';ctx.shadowBlur=20;ctx.beginPath();ctx.moveTo(0,-T*0.55);ctx.lineTo(T*0.3,0);ctx.lineTo(0,T*0.4);ctx.lineTo(-T*0.3,0);ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();ctx.restore();
  // placement ghost
- if(sel&&hover){const ok=canPlace(hover.x,hover.y),r=TYPES[sel].range[0];ctx.fillStyle=ok?'rgba(255,255,255,.12)':'rgba(255,40,40,.18)';ctx.strokeStyle=ok?'rgba(255,255,255,.6)':'rgba(255,60,60,.7)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(OX+hover.x*T,OY+hover.y*T,r*T,0,6.283);ctx.fill();ctx.stroke();ctx.globalAlpha=0.6;drawCreature(ctx,sel,0,OX+hover.x*T,OY+hover.y*T,T*0.42,time);ctx.globalAlpha=1}
+ if(sel){ctx.strokeStyle='rgba(255,255,255,.28)';ctx.fillStyle='rgba(255,255,255,.07)';ctx.lineWidth=1.5;for(let cy=0;cy<ROWS;cy++)for(let cx=0;cx<COLS;cx++){if(pathCells.has(cx+','+cy)||towerAt(cx,cy))continue;ctx.fillRect(OX+cx*T+2,OY+cy*T+2,T-4,T-4);ctx.strokeRect(OX+cx*T+2,OY+cy*T+2,T-4,T-4)}}
+ if(sel&&hover){const [hx,hy]=cellOf(hover.x,hover.y),gx=hx+0.5,gy=hy+0.5,ok=canPlace(gx,gy),r=TYPES[sel].range[0];if(hx>=0&&hy>=0&&hx<COLS&&hy<ROWS){ctx.fillStyle=ok?'rgba(255,255,255,.3)':'rgba(255,40,40,.35)';ctx.fillRect(OX+hx*T,OY+hy*T,T,T);ctx.strokeStyle=ok?'#fff':'#ff4a4a';ctx.lineWidth=3;ctx.strokeRect(OX+hx*T+1.5,OY+hy*T+1.5,T-3,T-3);ctx.fillStyle=ok?'rgba(255,255,255,.1)':'rgba(255,40,40,.12)';ctx.strokeStyle=ok?'rgba(255,255,255,.6)':'rgba(255,60,60,.7)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(OX+gx*T,OY+gy*T,r*T,0,6.283);ctx.fill();ctx.stroke();if(ok){ctx.globalAlpha=0.6;drawCreature(ctx,sel,0,OX+gx*T,OY+gy*T,T*0.42,time);ctx.globalAlpha=1}}}
  if(selTower){const s=stats(selTower);ctx.strokeStyle='rgba(255,255,255,.7)';ctx.fillStyle='rgba(255,255,255,.08)';ctx.lineWidth=2;ctx.setLineDash([6,6]);ctx.beginPath();ctx.arc(OX+selTower.x*T,OY+selTower.y*T,s.range*T,0,6.283);ctx.fill();ctx.stroke();ctx.setLineDash([])}
  // entities sorted
  const ents=[...towers.map(t=>({y:t.y,t})),...enemies.map(e=>({y:e.y,e}))].sort((a,b)=>a.y-b.y);
@@ -351,7 +355,7 @@ function render(){
 }
 let last=performance.now(),infoT=0;
 function frame(now){requestAnimationFrame(frame);const rdt=Math.min(0.05,Math.max(0,(now-last)/1000));last=now;time+=rdt;
- try{if(Math.max(1,innerWidth)!==W||Math.max(1,innerHeight)!==H){const was=portrait;layout();if(was!==portrait){for(const t of towers){[t.x,t.y]=[t.y,t.x]}}}
+ try{if(Math.max(1,innerWidth)!==W||Math.max(1,innerHeight)!==H)relayout();
  if(state==='play'){const sub=speed;for(let i=0;i<sub;i++)if(state==='play')update(rdt)}
  for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.life+=rdt;if(p.life>p.max){parts.splice(i,1);continue}p.x+=p.vx*rdt;p.y+=p.vy*rdt;if(p.g)p.vy+=p.g*rdt}
  for(let i=texts.length-1;i>=0;i--){texts[i].life+=rdt;if(texts[i].life>1.6)texts.splice(i,1)}
@@ -359,7 +363,7 @@ function frame(now){requestAnimationFrame(frame);const rdt=Math.min(0.05,Math.ma
  infoT+=rdt;if(infoT>0.3&&selTower){infoT=0;showInfo()}
  render()}catch(err){if(!frame.warned){frame.warned=1;console.warn(err)}}}
 layout();requestAnimationFrame(t=>{last=t;frame(t)});
-window.__tt={get s(){return{state,gold,lives,wave,waveActive,towers,enemies,spawnQ,PATH,plen,COLS,ROWS}},startLevel,update,place,canPlace,startWave,distToPath,evCost,xpNeed,TYPES,sv,LEVELS,setGold:v=>{gold=v},evolveNow:t=>{if(!t||t.st>=2)return false;const c=evCost(t);if(gold<c)return false;gold-=c;t.spent+=c;t.xp=Math.max(t.xp,xpNeed(t));evolve(t);return true}};
+window.__tt={get s(){return{state,gold,lives,wave,waveActive,towers,enemies,spawnQ,PATH,plen,COLS,ROWS,pathCells,deco}},startLevel,update,place,canPlace,startWave,distToPath,evCost,xpNeed,TYPES,sv,LEVELS,setGold:v=>{gold=v},evolveNow:t=>{if(!t||t.st>=2)return false;const c=evCost(t);if(gold<c)return false;gold-=c;t.spent+=c;t.xp=Math.max(t.xp,xpNeed(t));evolve(t);return true}};
 })();
 </script>
 </body>
