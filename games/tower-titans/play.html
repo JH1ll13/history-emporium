@@ -30,7 +30,8 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 #evB{background:linear-gradient(#ffd35a,#e07a10)}#sellB{background:linear-gradient(#ff7a7a,#c0263a)}#closeI{background:#666;flex:0 0 40px}
 .xp{height:10px;background:#0006;border-radius:6px;overflow:hidden;margin:6px 0 2px}.xp i{display:block;height:100%;background:linear-gradient(90deg,#7ff7ff,#b46bff)}
 #info small{font-size:12px;opacity:.85}
-.ov{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(30,50,20,.85),rgba(5,10,3,.95));padding:14px;box-sizing:border-box;text-align:center}
+.ov{position:fixed;inset:0;z-index:5;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;background:radial-gradient(circle,rgba(30,50,20,.85),rgba(5,10,3,.95));padding:14px;box-sizing:border-box;text-align:center}
+.ov>div{margin:auto 0}
 .hidden{display:none!important}
 h1{font-family:'Bangers',cursive;font-weight:400;font-size:clamp(46px,13vw,96px);margin:0;letter-spacing:3px;line-height:.95;color:#ffd23f;text-shadow:0 5px 0 #b3400f,0 10px 0 #4a1206,0 0 30px #ff8a3c88;transform:rotate(-3deg)}
 .sub{font-size:15px;margin:14px 0 20px;opacity:.9}
@@ -47,6 +48,7 @@ h1{font-family:'Bangers',cursive;font-weight:400;font-size:clamp(46px,13vw,96px)
 .lv .n{position:absolute;top:6px;left:6px;width:30px;height:30px;border-radius:50%;background:#ffd23f;color:#5a2a00;font-family:'Bangers',cursive;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #a06a00}
 .lv.locked{cursor:default;filter:grayscale(.9) brightness(.55)}.lv.locked:hover{transform:none}
 .lv .lk{position:absolute;inset:0 0 auto 0;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;font-size:40px}
+@media(max-width:600px){.lvgrid{grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.lv b{font-size:16px;padding:3px 7px 0}.lv span{font-size:10.5px;padding:0 7px 6px}.lv .n{width:24px;height:24px;font-size:16px;top:4px;left:4px}.lv .lk{font-size:28px}}
 .btn.alt{background:linear-gradient(#7fb6ff,#3b6fd8);box-shadow:0 6px 0 #1f3f8a}.btn.gry{background:linear-gradient(#aaa,#666);box-shadow:0 6px 0 #333}.btn.sm{font-size:19px;padding:9px 18px}
 </style>
 </head>
@@ -256,7 +258,7 @@ function startLevel(i){LI=i;newGame()}
 function thumb(c,L){const g=c.getContext('2d'),w=c.width,h=c.height,t=w/16;for(let y=0;y<9;y++)for(let x=0;x<16;x++){g.fillStyle=(x+y)%2?'#4f9a3a':'#57a440';g.fillRect(x*t,y*t,t+1,t+1)}
  g.lineCap='round';g.lineJoin='round';const pl=()=>{g.beginPath();L.path.forEach(([x,y],i)=>i?g.lineTo(x*t,y*t):g.moveTo(x*t,y*t))};pl();g.strokeStyle='#8a6a3a';g.lineWidth=t;g.stroke();g.strokeStyle='#d8b878';g.lineWidth=t*0.84;g.stroke();g.strokeStyle='#e6c98e';g.lineWidth=t*0.5;g.stroke();
  const e=L.path[L.path.length-1],ex=Math.min(15.6,e[0]),ey=e[1];g.fillStyle='#3fb6ff';g.beginPath();g.moveTo(ex*t,(ey-0.5)*t);g.lineTo((ex+0.3)*t,ey*t);g.lineTo(ex*t,(ey+0.4)*t);g.lineTo((ex-0.3)*t,ey*t);g.fill();g.strokeStyle='#b46bff';g.lineWidth=t*0.12;g.beginPath();g.arc(0.4*t,L.path[0][1]*t,t*0.3,0,6.283);g.stroke()}
-function openLevels(){state='levels';$('title').classList.add('hidden');$('endO').classList.add('hidden');$('top').classList.add('hidden');$('bar').classList.add('hidden');$('info').classList.add('hidden');$('levels').classList.remove('hidden');
+function openLevels(){state='levels';$('title').classList.add('hidden');$('endO').classList.add('hidden');$('top').classList.add('hidden');$('bar').classList.add('hidden');$('info').classList.add('hidden');$('levels').classList.remove('hidden');$('levels').scrollTop=0;
  const G=$('lvGrid');G.innerHTML='';LEVELS.forEach((L,i)=>{const lock=i>sv.cleared,p=sv.lv[i]||{};const d=document.createElement('div');d.className='lv'+(lock?' locked':'');const c=document.createElement('canvas');c.width=320;c.height=180;thumb(c,L);d.appendChild(c);
   d.insertAdjacentHTML('beforeend',`<div class="n">${i+1}</div>${lock?'<div class="lk">🔒</div>':''}<b>${L.n}</b><span>${lock?'Beat level '+i+' to unlock':p.stars?'★'.repeat(p.stars)+'☆'.repeat(3-p.stars)+' Won!':p.best?'Best: wave '+p.best+'/25':'Not played yet'}</span>`);
   if(!lock)d.onclick=()=>{snd(500,0.05,'sine',0.06);startLevel(i)};G.appendChild(d)})}
