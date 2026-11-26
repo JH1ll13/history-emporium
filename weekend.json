@@ -6,7 +6,7 @@
     "years": "Redstone Logic Builder",
     "color": "#ff4b3e",
     "blurb": "Learn Minecraft-style redstone from the ground up. Every circuit really runs, so you can flip levers, watch signals travel and build working machines.",
-    "learn": "22 components, 10 step-by-step mechanisms (logic gates, clocks, latches, piston doors, the Etho hopper clock, observer farms), build-it-yourself practice and 5 tests that point out missing or misused pieces.",
+    "learn": "22 components, 13 step-by-step mechanisms (logic gates, clocks, latches, piston doors, the Etho hopper clock, observer farms, slime block movers, flying machines and repeater-lock memory), build-it-yourself practice and 7 tests that point out missing or misused pieces.",
     "controls": "Tap or click a piece in the toolbar, then tap the grid to place it. Tap a placed piece again to rotate it. Use the hand tool to flip levers, press buttons and add hopper items."
   },
   {

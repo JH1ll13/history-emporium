@@ -40,7 +40,7 @@ a.card:hover{border-color:#556049}
 .sandbox-link span,.quiz-link span{color:var(--mute)}
 .crumb{display:block;width:max-content;color:var(--mute);text-decoration:none;font-size:14px;margin:2px 0 6px}
 .tag{display:inline-block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 8px;border-radius:6px;background:#3b4134;color:#d7dccf}
-.t-logic{background:#294a6b}.t-clock{background:#6b3b29}.t-memory{background:#4f2f6b}.t-pulse{background:#6b5a29}.t-doors{background:#2f6b4f}.t-automation{background:#3d6b29}
+.t-logic{background:#294a6b}.t-clock{background:#6b3b29}.t-memory{background:#4f2f6b}.t-pulse{background:#6b5a29}.t-doors{background:#2f6b4f}.t-automation{background:#3d6b29}.t-movers{background:#2a6b6b}
 .chip{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid #556049;color:#cfe3b9;margin:2px 4px 2px 0}
 .grp{color:var(--gold);font-family:'Press Start 2P',monospace;font-weight:400;font-size:12px;margin-top:20px}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
@@ -120,7 +120,7 @@ const R = (function () {
   const opp = d => (d + 2) & 3;
   let NEXT_ID = 1;
   const SRC_SIMPLE = new Set(['lever', 'button', 'plate']);
-  const MOVABLE = new Set(['block', 'glass', 'rblock', 'lamp', 'observer', 'piston', 'sticky']);
+  const MOVABLE = new Set(['block', 'glass', 'rblock', 'lamp', 'observer', 'piston', 'sticky', 'slime']);
   const BREAK = new Set(['dust', 'torch', 'lever', 'button', 'plate', 'repeater', 'comparator', 'cane']);
   const DIRECTIONAL = new Set(['torch', 'repeater', 'comparator', 'observer', 'piston', 'sticky', 'hopper']);
   const GROW = 24, BUTTON_T = 10, HOP_CD = 4, HOP_CAP = 320;
@@ -345,6 +345,45 @@ const R = (function () {
     if (t.t === 'piston' || t.t === 'sticky') return !t.ext;
     return MOVABLE.has(t.t);
   }
+  // gather the blocks a piston moves: a push chain plus everything stuck to slime blocks
+  function gather(w, sx, sy, d, px, py) {
+    const [dx, dy] = DIRS[d], key = (x, y) => y * w.w + x;
+    const set = new Map(), breaks = new Map(), q = [];
+    const anchor = (x, y) => x === px && y === py;
+    const add = (x, y) => { const k = key(x, y); if (set.has(k)) return true; set.set(k, [x, y]); q.push([x, y]); return set.size <= 12; };
+    if (!add(sx, sy)) return null;
+    while (q.length) {
+      const [bx, by] = q.shift(); const b = w.get(bx, by);
+      const nx = bx + dx, ny = by + dy;
+      if (!set.has(key(nx, ny))) {
+        if (!w.in(nx, ny) || anchor(nx, ny)) return null;
+        const n = w.get(nx, ny);
+        if (n) {
+          if (BREAK.has(n.t)) breaks.set(key(nx, ny), [nx, ny]);
+          else if (n.t === 'head' || !canMove(n)) return null;
+          else if (!add(nx, ny)) return null;
+        }
+      }
+      if (b && b.t === 'slime') {
+        for (let k = 0; k < 4; k++) {
+          const ax = bx + DIRS[k][0], ay = by + DIRS[k][1];
+          if (!w.in(ax, ay) || anchor(ax, ay) || set.has(key(ax, ay))) continue;
+          const n = w.get(ax, ay);
+          if (!n || BREAK.has(n.t) || n.t === 'head' || !canMove(n)) continue;
+          if (!add(ax, ay)) return null;
+        }
+      }
+    }
+    for (const k of set.keys()) breaks.delete(k);
+    return { cells: [...set.values()], breaks: [...breaks.values()] };
+  }
+  function shove(w, mv, d) {
+    const [dx, dy] = DIRS[d];
+    for (const [bx, by] of mv.breaks) { const t = w.get(bx, by); if (t && t.t === 'cane' && t.grown) w.harvested++; w.set(bx, by, null); }
+    const tiles = mv.cells.map(([x, y]) => [x, y, w.get(x, y)]);
+    for (const [x, y] of mv.cells) w.set(x, y, null);
+    for (const [x, y, t] of tiles) { w.set(x + dx, y + dy, t); t.mv = w.time + 1; if (t.t === 'observer') t.prev = '#'; }
+  }
   function extend(w, x, y, p) {
     const [dx, dy] = DIRS[p.d];
     const fx = x + dx, fy = y + dy;
@@ -354,21 +393,14 @@ const R = (function () {
       if (f.grown) { f.grown = false; f.age = 0; w.harvested++; }
       p.ext = true; p.over = true; return true;
     }
-    const chain = []; let cx = fx, cy = fy;
-    for (;;) {
-      if (!w.in(cx, cy)) return false;
-      const t = w.get(cx, cy);
-      if (!t) break;
-      if (BREAK.has(t.t)) { if (t.t === 'cane' && t.grown) w.harvested++; w.set(cx, cy, null); break; }
-      if (!canMove(t)) return false;
-      chain.push([cx, cy]);
-      if (chain.length > 12) return false;
-      cx += dx; cy += dy;
-    }
-    for (let i = chain.length - 1; i >= 0; i--) {
-      const [ax, ay] = chain[i]; const t = w.get(ax, ay);
-      w.set(ax + dx, ay + dy, t); w.set(ax, ay, null);
-      if (t.t === 'observer') t.prev = '#';
+    if (f) {
+      if (BREAK.has(f.t)) w.set(fx, fy, null);
+      else {
+        if (f.t === 'head' || !canMove(f)) return false;
+        const mv = gather(w, fx, fy, p.d, x, y);
+        if (!mv) return false;
+        shove(w, mv, p.d);
+      }
     }
     w.set(fx, fy, { id: NEXT_ID++, t: 'head', d: p.d, sticky: p.t === 'sticky' });
     p.ext = true; p.over = false;
@@ -384,7 +416,7 @@ const R = (function () {
     if (p.t === 'sticky') {
       const bx = fx + dx, by = fy + dy;
       const b = w.get(bx, by);
-      if (b && b.t !== 'head' && canMove(b)) { w.set(fx, fy, b); w.set(bx, by, null); if (b.t === 'observer') b.prev = '#'; }
+      if (b && b.t !== 'head' && canMove(b)) { const mv = gather(w, bx, by, opp(p.d), x, y); if (mv) shove(w, mv, opp(p.d)); }
     }
   }
 
@@ -465,7 +497,7 @@ const R = (function () {
     upd.forEach(f => f());
     // pistons (find current position each time; earlier pistons may have moved them)
     for (const [p, pw] of pistons) {
-      const pos = find(w, p); if (!pos) continue;
+      const pos = find(w, p); if (!pos || p.mv === w.time + 1) continue;
       if (pw && !p.ext) extend(w, pos[0], pos[1], p);
       else if (!pw && p.ext) retract(w, pos[0], pos[1], p);
     }
@@ -557,7 +589,10 @@ const R = (function () {
     plate(x, y, on) { const t = this.at(x, y); if (t && t.t === 'plate') t.on = on; return this; }
     run(n, fn) { for (let i = 0; i < n; i++) { tick(this.w); if (fn) fn(this.w, i); } return this; }
     lit(x, y) { const t = this.at(x, y); return !!(t && t.t === 'lamp' && t.lit); }
-    occupied(x, y) { const t = this.at(x, y); return !!t && ['block', 'glass', 'rblock', 'lamp', 'observer'].includes(t.t); }
+    occupied(x, y) { const t = this.at(x, y); return !!t && ['block', 'glass', 'rblock', 'lamp', 'observer', 'slime'].includes(t.t); }
+    find(type) { let p = null; this.w.each((t, x, y) => { if (!p && t.t === type) p = [x, y]; }); return p; }
+    parts() { let n = 0; this.w.each(t => { if (t.t !== 'head') n++; }); return n; }
+    count() { return count(this.w || this.base); }
     lampTiles() { const a = []; this.w.each(t => { if (t.t === 'lamp') a.push(t); }); return a; }
     hopperTiles() { const a = []; this.w.each(t => { if (t.t === 'hopper') a.push(t); }); return a; }
     // count lamp toggles over n ticks; returns array of {toggles, litTicks}
@@ -580,9 +615,9 @@ const C = (function () {
   const NAMES = {
     dust: 'Redstone Dust', block: 'Solid Block', glass: 'Glass', lever: 'Lever', button: 'Stone Button', plate: 'Pressure Plate',
     torch: 'Redstone Torch', rblock: 'Block of Redstone', repeater: 'Repeater', comparator: 'Comparator', observer: 'Observer',
-    lamp: 'Redstone Lamp', piston: 'Piston', sticky: 'Sticky Piston', hopper: 'Hopper', cane: 'Sugar Cane', head: 'Piston Arm'
+    lamp: 'Redstone Lamp', piston: 'Piston', sticky: 'Sticky Piston', hopper: 'Hopper', cane: 'Sugar Cane', head: 'Piston Arm', slime: 'Slime Block'
   };
-  const PALETTE = ['dust', 'block', 'lever', 'button', 'plate', 'torch', 'repeater', 'comparator', 'observer', 'lamp', 'piston', 'sticky', 'rblock', 'hopper', 'glass', 'cane'];
+  const PALETTE = ['dust', 'block', 'lever', 'button', 'plate', 'torch', 'repeater', 'comparator', 'observer', 'lamp', 'piston', 'sticky', 'slime', 'rblock', 'hopper', 'glass', 'cane'];
 
   // ---------- COMPONENTS ----------
   // sim: true -> it exists in the trainer's grid; demo: [w,h,pieces]
@@ -671,15 +706,19 @@ const C = (function () {
     { id: 'noteblock', group: 'Outputs', sim: false, short: 'Plays a note each time it is powered.',
       body: 'A note block plays a sound when it gets a pulse. Tap it to change the pitch; the block beneath it changes the instrument (wood = bass, sand = snare, gold = bell, and more). Chains of repeaters make songs.',
       facts: ['25 pitches (two octaves)', 'Instrument depends on the block underneath'] },
-    { id: 'slime', group: 'Outputs', sim: false, short: 'Sticky blocks that make pistons move whole structures.',
-      body: 'Slime blocks and honey blocks stick to the blocks around them, so one piston can move a whole group. Slime and honey do not stick to each other, which lets builders make two separate moving parts. Combined with observers, they make flying machines.',
-      facts: ['Still limited to 12 blocks total per push', 'Slime and honey do not stick to each other'] },
+    { id: 'slime', group: 'Outputs', sim: true, short: 'Sticks to its neighbours, so one piston moves a whole group.',
+      body: 'A slime block sticks to every movable block touching it. When a piston pushes or pulls a slime block, everything stuck to it comes along, and other slime blocks in the group pass the stickiness on. This is how one piston can move a wide door, and how observers and pistons riding on slime make flying machines. (Honey blocks do the same job, and slime and honey do not stick to each other.)',
+      facts: ['Sticks to blocks on all four sides (all six in the game)', 'A piston can still move at most 12 blocks in total', 'Does not grab fragile things like dust and torches, or blocks that cannot move (obsidian, hoppers, extended pistons)', 'Slime and honey do not stick to each other, which lets builders keep two moving parts separate'],
+      demo: [7, 4, [['lever', 0, 1], ['sticky', 1, 1, 'E'], ['slime', 2, 1], ['block', 2, 0], ['glass', 2, 2], ['lamp', 3, 1]]],
+      demoNote: 'Flip the lever: the sticky piston pushes the slime block, and the stone, the glass and the lamp stuck to it all ride along. Flip it back and the whole group is pulled home.' },
     { id: 'doors', group: 'Outputs', sim: false, short: 'Doors, trapdoors and fence gates open when powered.',
       body: 'Iron doors and iron trapdoors can only be opened by redstone. Wooden doors, trapdoors and fence gates can be opened by hand or by redstone. Powering a door opens it, removing power closes it.',
       facts: ['Iron doors need redstone', 'Great output for testing logic gates'] }
   ];
 
   const QUIZ = [
+    { q: 'A sticky piston pushes a slime block that has two stone blocks touching it. How many blocks move?', a: ['Just the slime block', 'The slime block and one stone', 'All three', 'None, slime blocks cannot move'], c: 2, why: 'Slime sticks to every movable block touching it, so the whole group moves together.' },
+    { q: 'What starts a flying machine moving?', a: ['A redstone torch underneath it', 'An observer seeing a change', 'Pressing a button on the slime', 'Rain'], c: 1, why: 'An observer spots a change (like a block being placed) and pulses a piston. Every move makes the observers fire again, so it keeps going.' },
     { q: 'How many blocks of redstone dust can a full-strength signal travel?', a: ['8', '12', '15', '64'], c: 2, why: 'A signal starts at 15 and loses 1 per block of dust.' },
     { q: 'What happens to a redstone torch when the block it is attached to becomes powered?', a: ['It turns ON', 'It turns OFF', 'It breaks', 'Nothing'], c: 1, why: 'Torches invert: block powered → torch off. That makes them NOT gates.' },
     { q: 'Which component can read how full a hopper is?', a: ['Repeater', 'Observer', 'Comparator', 'Redstone lamp'], c: 2, why: 'A comparator with a container at its back outputs 1–15 based on fullness.' },
@@ -882,6 +921,72 @@ const C = (function () {
       check(T) {
         T.reset().run(200); if (T.w.harvested < 3) T.fail('The cane should be harvested automatically every time it grows. It was harvested ' + T.w.harvested + ' times in 20 seconds.');
       }
+    },
+    {
+      id: 'slimemover', name: 'Slime Block Mover', tag: 'Movers', size: [8, 4],
+      what: 'One sticky piston moves a whole group of blocks, because slime sticks to everything touching it.',
+      used: 'Wide piston doors, moving walls, bridges that slide out, and every flying machine.',
+      steps: [
+        { say: 'Place a lever, then a sticky piston to its right facing east (use the Facing button).', add: [['lever', 0, 1, 0, io()], ['sticky', 1, 1, 'E']] },
+        { say: 'Put a slime block in front of the piston.', add: [['slime', 2, 1]] },
+        { say: 'Stick three blocks to the slime: glass above, stone below and stone in front. They are your cargo.', add: [['glass', 2, 0], ['block', 2, 2], ['block', 3, 1]] },
+        { say: 'Flip the lever. The piston pushes the slime, and all three blocks ride along. Flip it back and the sticky piston pulls the whole group home.', add: [] }
+      ],
+      how: ['The piston pushes the slime block one space.', 'Slime sticks to every movable block touching it, so the glass and stone move too.', 'A sticky piston pulls the slime back, and the slime brings its passengers.', 'The piston can move up to 12 blocks in total.'],
+      gotcha: 'Slime grabs everything next to it, including things you did not mean to move. Keep other builds one block away, or the piston may jam or drag them along.',
+      check(T) {
+        const k = (x, y) => { const a = T.at(x, y); return a ? a.t : ''; };
+        T.reset().lever(0, 1, true).run(6);
+        if (k(3, 1) !== 'slime') T.fail('With the lever ON, the slime block should be pushed one space to the right.');
+        if (k(3, 0) !== 'glass' || k(3, 2) !== 'block' || k(4, 1) !== 'block') T.fail('The blocks touching the slime should move with it. Make sure the glass is above the slime and the stones are below and in front of it.');
+        T.lever(0, 1, false).run(6);
+        if (k(2, 1) !== 'slime' || k(2, 0) !== 'glass' || k(2, 2) !== 'block' || k(3, 1) !== 'block') T.fail('With the lever OFF, the sticky piston should pull the whole group back to where it started.');
+      }
+    },
+    {
+      id: 'flyer', name: 'Flying Machine', tag: 'Movers', size: [16, 4],
+      what: 'A machine that moves itself, one block at a time, forever (until it hits a wall). No player input after the start.',
+      used: 'Moving farms and bridges, rideable "airships", tunnel diggers and world-eaters. In the game, build it up in the air so it doesn\'t drag the ground along.',
+      steps: [
+        { say: 'Place two slime blocks, one above the other. They glue the two halves of the machine together.', add: [['slime', 1, 1], ['slime', 1, 2]] },
+        { say: 'Put a regular piston to the left of the bottom slime, facing east into it. This piston pushes the front half forward.', add: [['piston', 0, 2, 'E']] },
+        { say: 'Put a sticky piston to the right of the top slime, facing west back toward it. It pulls the back half along.', add: [['sticky', 2, 1, 'W']] },
+        { say: 'Add an observer behind the sticky piston with its face pointing east. Its red dot (the back) powers the piston.', add: [['observer', 3, 1, 'E']] },
+        { say: 'Last, put an observer on the regular piston with its face pointing north. Observers fire when they move or see a change, so the machine starts flying as soon as it is complete!', add: [['observer', 0, 1, 'N']] }
+      ],
+      how: ['An observer pulses the regular piston, which pushes the slime half (and everything stuck to it) one block east.', 'The observers that moved see that the world changed, so they fire again.', 'The sticky piston at the front fires and pulls the back half, piston and all, up behind it.', 'Every step moves an observer, so the loop never ends. It only stops when a push is blocked, like at the wall.'],
+      gotcha: 'Build the observers last, because the machine takes off the moment they fire. In the real game, slime sticks to the ground too, so build it in the air. An immovable block such as obsidian in its path makes a good "station" to stop it.',
+      check(T) {
+        T.reset();
+        const xOf = t => { const s = T.find(t); return s ? s[0] : null; };
+        const a = xOf('sticky'), parts = T.parts();
+        T.run(60);
+        const b = xOf('sticky');
+        if (a == null || b == null) { T.fail('The machine needs one sticky piston.'); return; }
+        if (b - a < 5) T.fail('The machine should fly east on its own. It moved ' + Math.max(0, b - a) + ' blocks in 6 seconds. Check that each observer\'s red dot points into its piston.');
+        else if (T.parts() !== parts) T.fail('Part of the machine got left behind. Every piece has to touch a slime block or sit in front of a piston.');
+      }
+    },
+    {
+      id: 'replock', name: 'Repeater Lock (Memory Cell)', tag: 'Memory', size: [5, 4],
+      what: 'A repeater can be "locked" by another repeater pointing into its side. While locked it keeps its last output, whatever its input does.',
+      used: 'Storing a bit of information, freezing a display, sample-and-hold circuits and computer memory in redstone computers.',
+      steps: [
+        { say: 'Place the DATA lever and run dust into a repeater facing east.', add: [['lever', 0, 1, 0, io()], ['dust', 1, 1], ['repeater', 2, 1, 'E']] },
+        { say: 'Add a lamp as the output. Right now the lamp simply copies the lever.', add: [['lamp', 3, 1, 0, io()]] },
+        { say: 'Below the first repeater, put a second repeater facing north, so it points into the first repeater\'s side.', add: [['repeater', 2, 2, 'N']] },
+        { say: 'Add the LOCK lever behind it. Turn LOCK on, then flip DATA: the lamp stays frozen until you unlock.', add: [['lever', 2, 3, 0, io()]] }
+      ],
+      how: ['A powered repeater or comparator pointing into the side of a repeater locks it.', 'A locked repeater ignores its input and keeps outputting whatever it had.', 'When the lock turns off, the repeater catches up with its input again.'],
+      gotcha: 'Only repeaters (and comparators) can lock a repeater. Dust or a lever touching the side does nothing.',
+      check(T) {
+        T.reset().lever(0, 1, true).lever(2, 3, false).run(8);
+        if (!T.lit(3, 1)) T.fail('Unlocked, the lamp should follow the DATA lever (DATA ON → lamp ON).');
+        T.lever(2, 3, true).run(8).lever(0, 1, false).run(8);
+        if (!T.lit(3, 1)) T.fail('With LOCK on, switching DATA off should NOT turn the lamp off. The side repeater must point into the data repeater.');
+        T.lever(2, 3, false).run(8);
+        if (T.lit(3, 1)) T.fail('After unlocking, the lamp should catch up with DATA (now OFF).');
+      }
     }
   ];
 
@@ -983,6 +1088,44 @@ const C = (function () {
         T.lever(0, 4, false); let moved2 = false; const s2 = hs.map(h => h.items);
         T.run(120, () => { if (hs.some((h, i) => h.items !== s2[i])) moved2 = true; });
         if (!moved2) T.fail('Turning the lever back OFF should let the clock start again.');
+      }
+    },
+    {
+      id: 'doubledoor', name: 'The Double Door', size: [8, 5], door: [[6, 1], [6, 2]],
+      skills: ['Slime blocks', 'Sticky pistons', 'Torches'],
+      brief: 'Make a door two blocks tall that opens with ONE sticky piston. With the lever OFF, both doorway squares must be blocked. With the lever ON, both must be open.',
+      locked: [['lever', 0, 1, 0, { label: 'L' }]],
+      needs: [{ t: 'sticky', n: 1, why: 'one piston moves both door blocks' }, { t: 'slime', n: 2, why: 'to glue the door blocks to the piston' }, { t: 'torch', n: 1, why: 'so the door is closed when the lever is OFF' }],
+      needSticky: true,
+      hints: ['Put the lever against a block with a torch on it, so the torch is ON while the lever is OFF.', 'Let the torch power a sticky piston facing east, with two slime blocks stacked in front of it.', 'Put a door block in front of each slime. Extended, the door blocks fill the doorway; retracted, the slime pulls them back out.'],
+      solution: [['block', 1, 1], ['torch', 2, 1, 'E'], ['sticky', 3, 1, 'E'], ['slime', 4, 1], ['slime', 4, 2], ['block', 5, 1], ['block', 5, 2]],
+      check(T) {
+        const pistons = (T.count().sticky || 0) + (T.count().piston || 0);
+        if (pistons !== 1) T.fail('Use exactly one piston (a sticky piston). You have ' + pistons + '.');
+        for (const on of [false, true, false]) {
+          T.reset().lever(0, 1, on).run(14);
+          const open = !T.occupied(6, 1) && !T.occupied(6, 2), shut = T.occupied(6, 1) && T.occupied(6, 2);
+          if (on && !open) T.fail('Lever ON: both doorway squares should be open.');
+          if (!on && !shut) T.fail('Lever OFF: both doorway squares should be blocked.');
+        }
+      }
+    },
+    {
+      id: 'cargo', name: 'Cargo Flyer', size: [16, 5],
+      skills: ['Flying machines', 'Observers', 'Slime blocks'],
+      brief: 'The glass block is cargo. Build a flying machine that carries it at least 8 blocks to the east, with nothing left behind.',
+      locked: [['glass', 1, 1, 0, { label: 'cargo' }]],
+      needs: [{ t: 'slime', n: 2, why: 'to hold the machine (and the cargo) together' }, { t: 'observer', n: 2, why: 'to keep re-triggering the pistons' }, { t: 'sticky', n: 1, why: 'to pull the back half forward' }, { t: 'piston', n: 1, why: 'to push the front half forward' }],
+      needSticky: true,
+      hints: ['Build the Flying Machine from the Mechanisms page one row lower, so one of its slime blocks sits right under the glass.', 'Anything touching a slime block rides along, including the glass.', 'Place the observers last: the machine takes off when they fire.'],
+      solution: [['slime', 1, 2], ['slime', 1, 3], ['piston', 0, 3, 'E'], ['sticky', 2, 2, 'W'], ['observer', 3, 2, 'E'], ['observer', 0, 2, 'N']],
+      check(T) {
+        T.reset();
+        const g = T.find('glass'), parts = T.parts();
+        T.run(80);
+        const g2 = T.find('glass');
+        if (!g || !g2 || g2[0] - 1 < 8) T.fail('The cargo should end up at least 8 blocks east of where it started. It moved ' + (g && g2 ? g2[0] - 1 : 0) + '. Make sure a slime block touches the glass.');
+        else if (T.parts() !== parts) T.fail('Something was left behind. Every part must touch a slime block or sit in front of a piston.');
       }
     }
   ];
@@ -1111,28 +1254,70 @@ if (typeof module !== 'undefined') module.exports = C;
   function chevron(g, y, s, col) { g.fillStyle = col; g.beginPath(); g.moveTo(0, y - s * 0.09); g.lineTo(s * 0.1, y + s * 0.03); g.lineTo(-s * 0.1, y + s * 0.03); g.closePath(); g.fill(); }
   function dot(g, x, y, r, col, glow) { g.save(); if (glow) { g.shadowColor = col; g.shadowBlur = r * 3; } g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.restore(); }
 
-  // info: {lvl, dirs, strong, weak, valid, hopLocked}
+  // ---------- textures & light ----------
+  const PXC = {};
+  // a seeded 16x16 pixel-noise texture, cached (Minecraft-style)
+  function pxTex(key, base, cols, n, post) {
+    if (PXC[key]) return PXC[key];
+    const c = document.createElement('canvas'); c.width = c.height = 16; const x = c.getContext('2d');
+    x.fillStyle = base; x.fillRect(0, 0, 16, 16);
+    let sd = 7; for (const ch of key) sd = (sd * 31 + ch.charCodeAt(0)) >>> 0;
+    const rnd = () => { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
+    for (let k = 0; k < n; k++) { x.fillStyle = cols[(rnd() * cols.length) | 0]; x.fillRect((rnd() * 16) | 0, (rnd() * 16) | 0, rnd() < .35 ? 2 : 1, 1); }
+    if (post) post(x, rnd);
+    return PXC[key] = c;
+  }
+  function tex(g, c, x, y, w, h) { g.save(); g.imageSmoothingEnabled = false; g.drawImage(c, x, y, w, h); g.restore(); }
+  function bevel(g, x, y, w, h, hi, lo, k) {
+    g.fillStyle = hi; g.fillRect(x, y, w, k); g.fillRect(x, y, k, h);
+    g.fillStyle = lo; g.fillRect(x, y + h - k, w, k); g.fillRect(x + w - k, y, k, h);
+  }
+  function glowAt(g, x, y, r, col, a) {
+    if (a <= 0) return;
+    g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = Math.min(1, a);
+    const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); g.restore();
+  }
+  const T_STONE = () => pxTex('stone', '#7f827b', ['#8d9089', '#737670', '#6a6d67', '#979a92', '#777a73'], 95);
+  const T_COBBLE = () => pxTex('cobble', '#7a7a7a', ['#8e8e8e', '#686868', '#5c5c5c', '#9c9c9c', '#727272'], 110, (x, rnd) => {
+    x.fillStyle = 'rgba(0,0,0,.22)'; for (let k = 0; k < 9; k++) x.fillRect((rnd() * 15) | 0, (rnd() * 15) | 0, 1 + ((rnd() * 3) | 0), 1);
+  });
+  const T_PLANKS = () => pxTex('planks', '#b8894f', ['#c79a5c', '#a67a43', '#9c7140', '#d1a66a', '#b0834a'], 70, x => {
+    x.fillStyle = '#7d5a30'; for (const yy of [3, 7, 11, 15]) x.fillRect(0, yy, 16, 1);
+    x.fillStyle = 'rgba(125,90,48,.8)'; [[5, 0], [12, 4], [3, 8], [10, 12]].forEach(([a, b]) => x.fillRect(a, b, 1, 3));
+  });
+  const T_FLOOR = k => k ? pxTex('floorA', '#2b302a', ['#272c26', '#30362f', '#2d332c', '#252a24', '#323830'], 60)
+                         : pxTex('floorB', '#2f342d', ['#2b302a', '#343a32', '#31372f', '#292e28', '#363c34'], 60);
+
+  // info: {lvl, dirs, strong, weak, valid, hopLocked, noShadow}
+  const SOLIDS = new Set(['block', 'rblock', 'lamp', 'observer', 'piston', 'sticky', 'slime', 'hopper']);
   function drawTile(g, t, px, py, s, info = {}) {
     const cx = px + s / 2, cy = py + s / 2, i = s * 0.08;
     g.save();
+    if (SOLIDS.has(t.t) && !info.noShadow) { g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(px + s * .1, py + s * .12, s - 2, s - 2); }
     const rot = () => { g.translate(cx, cy); g.rotate(t.d * Math.PI / 2); };
     switch (t.t) {
       case 'dust': {
-        const col = RED(info.lvl == null ? 15 : info.lvl);
+        const lvl = info.lvl == null ? 15 : info.lvl, col = RED(lvl);
         const dirs = info.dirs || [0, 1, 2, 3];
-        g.strokeStyle = col; g.lineWidth = s * 0.17; g.lineCap = 'round';
-        if (info.lvl > 0) { g.shadowColor = col; g.shadowBlur = s * 0.15; }
-        g.beginPath();
-        for (const k of dirs) { const [dx, dy] = R.DIRS[k]; g.moveTo(cx, cy); g.lineTo(cx + dx * s / 2, cy + dy * s / 2); }
-        g.stroke(); dot(g, cx, cy, s * 0.13, col);
+        const path = () => { g.beginPath(); for (const k of dirs) { const [dx, dy] = R.DIRS[k]; g.moveTo(cx, cy); g.lineTo(cx + dx * s / 2, cy + dy * s / 2); } };
+        g.lineCap = 'round';
+        g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = s * .25; path(); g.stroke();
+        if (lvl > 0) { g.shadowColor = col; g.shadowBlur = s * 0.22; }
+        g.strokeStyle = col; g.lineWidth = s * .17; path(); g.stroke();
+        g.shadowBlur = 0;
+        g.strokeStyle = lvl > 0 ? `hsla(12, 100%, ${62 + lvl * 2}%, ${0.3 + lvl * 0.035})` : 'rgba(110,36,32,.7)'; g.lineWidth = s * .05; path(); g.stroke();
+        dot(g, cx, cy, s * 0.13, col);
+        if (lvl > 0) {
+          g.fillStyle = `rgba(255,225,215,${0.3 + lvl * 0.04})`; const q = Math.max(1.5, s * .04);
+          g.fillRect(cx - s * .05, cy - s * .05, q, q); g.fillRect(cx + s * .03, cy + s * .02, q, q);
+        }
         break;
       }
       case 'block': {
-        g.fillStyle = '#80847d'; g.fillRect(px + 1, py + 1, s - 2, s - 2);
-        g.fillStyle = '#9ca097'; g.fillRect(px + 1, py + 1, s - 2, s * 0.1); g.fillRect(px + 1, py + 1, s * 0.1, s - 2);
-        g.fillStyle = '#5f625b'; g.fillRect(px + 1, py + s * 0.9 - 1, s - 2, s * 0.1); g.fillRect(px + s * 0.9 - 1, py + 1, s * 0.1, s - 2);
-        g.fillStyle = '#6c7069';
-        [[.3, .3], [.62, .22], [.45, .62], [.72, .66], [.22, .7]].forEach(([a, b]) => g.fillRect(px + a * s, py + b * s, s * 0.09, s * 0.09));
+        tex(g, T_STONE(), px + 1, py + 1, s - 2, s - 2);
+        bevel(g, px + 1, py + 1, s - 2, s - 2, 'rgba(255,255,255,.17)', 'rgba(0,0,0,.3)', Math.max(1.5, s * .07));
+        g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 1; g.strokeRect(px + 1.5, py + 1.5, s - 3, s - 3);
         const st = info.strong || 0, wk = info.weak || 0;
         if (st > 0 || wk > 0) {
           g.strokeStyle = '#ff3b2f'; g.lineWidth = Math.max(2, s * 0.07);
@@ -1142,64 +1327,102 @@ if (typeof module !== 'undefined') module.exports = C;
         }
         break;
       }
-      case 'glass':
-        g.fillStyle = 'rgba(170,220,240,0.16)'; g.fillRect(px + 2, py + 2, s - 4, s - 4);
-        g.strokeStyle = '#d4eef6'; g.lineWidth = 2; g.strokeRect(px + 2, py + 2, s - 4, s - 4);
-        g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1.5;
+      case 'glass': {
+        const gr = g.createLinearGradient(px, py, px + s, py + s); gr.addColorStop(0, 'rgba(205,240,255,.30)'); gr.addColorStop(1, 'rgba(120,190,225,.10)');
+        g.fillStyle = gr; g.fillRect(px + 2, py + 2, s - 4, s - 4);
+        g.strokeStyle = '#e4f7fd'; g.lineWidth = 2; g.strokeRect(px + 2, py + 2, s - 4, s - 4);
+        g.strokeStyle = 'rgba(255,255,255,.22)'; g.lineWidth = 1; g.strokeRect(px + 4.5, py + 4.5, s - 9, s - 9);
+        g.fillStyle = 'rgba(255,255,255,.75)'; const q = Math.max(2, s * .07);
+        g.fillRect(px + 3, py + 3, q, q); g.fillRect(px + s - 3 - q, py + s - 3 - q, q, q);
+        g.strokeStyle = 'rgba(255,255,255,.6)'; g.lineWidth = 1.5;
         g.beginPath(); g.moveTo(px + s * .25, py + s * .55); g.lineTo(px + s * .55, py + s * .25); g.moveTo(px + s * .4, py + s * .7); g.lineTo(px + s * .7, py + s * .4); g.stroke();
         break;
-      case 'rblock':
-        g.fillStyle = '#9e1d17'; g.fillRect(px + 1, py + 1, s - 2, s - 2);
-        g.fillStyle = '#e0453a';
-        for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) g.fillRect(px + s * (0.16 + a * 0.26), py + s * (0.16 + b * 0.26), s * 0.16, s * 0.16);
+      }
+      case 'rblock': {
+        tex(g, pxTex('rblock', '#a01e17', ['#c42a20', '#8a1912', '#d63a2f', '#b3231b', '#741410'], 110), px + 1, py + 1, s - 2, s - 2);
+        g.fillStyle = 'rgba(255,110,90,.6)';
+        for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) g.fillRect(px + s * (0.18 + a * 0.26), py + s * (0.18 + b * 0.26), s * 0.12, s * 0.12);
+        bevel(g, px + 1, py + 1, s - 2, s - 2, 'rgba(255,170,150,.28)', 'rgba(50,0,0,.4)', Math.max(1.5, s * .07));
         g.strokeStyle = '#5e0f0b'; g.lineWidth = 2; g.strokeRect(px + 1, py + 1, s - 2, s - 2);
         break;
+      }
       case 'lamp': {
-        if (t.lit) { g.shadowColor = '#ffd76a'; g.shadowBlur = s * 0.5; }
-        g.fillStyle = t.lit ? '#f3bb4c' : '#4b3322'; g.fillRect(px + 2, py + 2, s - 4, s - 4);
-        g.shadowBlur = 0;
-        g.strokeStyle = t.lit ? '#fff3c2' : '#2e1f15'; g.lineWidth = Math.max(1.5, s * 0.05);
+        const on = t.lit;
+        tex(g, on ? pxTex('lampOn', '#f0b648', ['#ffd77a', '#e39a2c', '#fff0b8', '#f6c45a', '#d08a24'], 120)
+                  : pxTex('lampOff', '#4b3322', ['#5b3f2a', '#3c281b', '#6a4a30', '#2f2016', '#553826'], 120), px + 2, py + 2, s - 4, s - 4);
+        if (on) {
+          const gr = g.createRadialGradient(cx, cy, 0, cx, cy, s * .45); gr.addColorStop(0, 'rgba(255,255,225,.75)'); gr.addColorStop(1, 'rgba(255,220,120,0)');
+          g.fillStyle = gr; g.fillRect(px + 2, py + 2, s - 4, s - 4);
+        }
+        g.strokeStyle = on ? 'rgba(255,248,215,.9)' : '#2e1f15'; g.lineWidth = Math.max(1.5, s * 0.05);
         g.beginPath(); g.moveTo(px + s / 2, py + s * .15); g.lineTo(px + s / 2, py + s * .85); g.moveTo(px + s * .15, py + s / 2); g.lineTo(px + s * .85, py + s / 2); g.stroke();
-        g.strokeStyle = t.lit ? '#b8801f' : '#2a1b11'; g.lineWidth = 2; g.strokeRect(px + 2, py + 2, s - 4, s - 4);
+        bevel(g, px + 2, py + 2, s - 4, s - 4, on ? 'rgba(255,255,235,.35)' : 'rgba(255,255,255,.07)', 'rgba(0,0,0,.3)', Math.max(1.5, s * .06));
+        g.strokeStyle = on ? '#b8801f' : '#2a1b11'; g.lineWidth = 2; g.strokeRect(px + 2, py + 2, s - 4, s - 4);
         break;
       }
       case 'lever': {
-        g.fillStyle = '#8d8d8d'; rr(g, cx - s * .2, cy - s * .13, s * .4, s * .26, 3); g.fill();
-        g.strokeStyle = '#5a5a5a'; g.lineWidth = 1.5; g.stroke();
+        const bx = cx - s * .22, by = cy - s * .15, bw = s * .44, bh = s * .3;
+        g.fillStyle = 'rgba(0,0,0,.3)'; rr(g, bx + 1.5, by + 2, bw, bh, 3); g.fill();
+        g.save(); rr(g, bx, by, bw, bh, 3); g.clip(); tex(g, T_COBBLE(), bx, by, bw, bh); g.restore();
+        g.strokeStyle = '#4a4a4a'; g.lineWidth = 1.5; rr(g, bx, by, bw, bh, 3); g.stroke();
         const ex = cx + (t.on ? s * .22 : -s * .22), ey = cy - s * .3;
-        g.strokeStyle = '#6e5232'; g.lineWidth = s * .09; g.lineCap = 'round';
-        g.beginPath(); g.moveTo(cx, cy); g.lineTo(ex, ey); g.stroke();
-        dot(g, ex, ey, s * .08, t.on ? '#ff3b2f' : '#3b3b3b', t.on);
+        g.lineCap = 'round';
+        g.strokeStyle = '#3a2814'; g.lineWidth = s * .12; g.beginPath(); g.moveTo(cx, cy); g.lineTo(ex, ey); g.stroke();
+        g.strokeStyle = '#8a6a40'; g.lineWidth = s * .075; g.beginPath(); g.moveTo(cx, cy); g.lineTo(ex, ey); g.stroke();
+        g.strokeStyle = 'rgba(255,230,180,.4)'; g.lineWidth = s * .025; g.beginPath(); g.moveTo(cx - s * .01, cy - s * .01); g.lineTo(ex - s * .01, ey - s * .01); g.stroke();
+        dot(g, ex, ey, s * .085, t.on ? '#ff3b2f' : '#3b3b3b', t.on);
+        dot(g, ex - s * .025, ey - s * .025, s * .025, 'rgba(255,255,255,.55)');
         break;
       }
-      case 'button':
-        g.fillStyle = t.on ? '#6a6a6a' : '#a3a3a3'; rr(g, cx - s * .17, cy - s * .12, s * .34, s * .24, 3); g.fill();
-        g.strokeStyle = '#4e4e4e'; g.lineWidth = 2; g.stroke();
+      case 'button': {
+        const bx = cx - s * .17, by = cy - s * .12, bw = s * .34, bh = s * .24, dn = t.on ? 1.5 : 0;
+        g.fillStyle = 'rgba(0,0,0,.32)'; rr(g, bx + 1.5, by + 2.5, bw, bh, 3); g.fill();
+        const gr = g.createLinearGradient(0, by, 0, by + bh); gr.addColorStop(0, t.on ? '#7a7a7a' : '#c4c4c4'); gr.addColorStop(1, t.on ? '#555' : '#8a8a8a');
+        g.fillStyle = gr; rr(g, bx, by + dn, bw, bh - dn, 3); g.fill();
+        g.strokeStyle = '#4a4a4a'; g.lineWidth = 2; g.stroke();
         if (t.on) dot(g, cx, cy, s * .06, '#ff3b2f', true);
         break;
-      case 'plate':
-        g.fillStyle = t.on ? '#727272' : '#a3a3a3'; g.fillRect(px + s * .17, py + s * .17, s * .66, s * .66);
-        g.strokeStyle = t.on ? '#ff3b2f' : '#5c5c5c'; g.lineWidth = 2; g.strokeRect(px + s * .17, py + s * .17, s * .66, s * .66);
+      }
+      case 'plate': {
+        const a = px + s * .17, b = py + s * .17, w2 = s * .66;
+        tex(g, t.on ? pxTex('plateOn', '#747474', ['#7e7e7e', '#6a6a6a', '#636363'], 45) : pxTex('plate', '#a3a3a3', ['#adadad', '#999', '#b6b6b6', '#929292'], 45), a, b, w2, w2);
+        bevel(g, a, b, w2, w2, t.on ? 'rgba(0,0,0,.25)' : 'rgba(255,255,255,.28)', t.on ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.3)', Math.max(1.2, s * .04));
+        g.strokeStyle = t.on ? '#ff3b2f' : '#5c5c5c'; g.lineWidth = 2; g.strokeRect(a, b, w2, w2);
         break;
+      }
       case 'torch': {
         rot();
-        g.strokeStyle = '#7d5a30'; g.lineWidth = s * .13; g.lineCap = 'butt';
-        g.beginPath(); g.moveTo(0, s * .5); g.lineTo(0, -s * .05); g.stroke();
-        dot(g, 0, -s * .14, s * .14, t.on ? '#ff3b2f' : '#5c1d18', t.on);
-        if (t.on) dot(g, 0, -s * .14, s * .06, '#ffb3a8');
+        const sw = s * .13;
+        g.fillStyle = '#5a3f1f'; g.fillRect(-sw / 2, -s * .05, sw, s * .55);
+        g.fillStyle = '#8f6838'; g.fillRect(-sw / 2, -s * .05, sw * .5, s * .55);
+        dot(g, 0, -s * .14, s * .15, t.on ? '#ff3b2f' : '#5c1d18', t.on);
+        if (t.on) { dot(g, 0, -s * .14, s * .075, '#ffb3a8'); dot(g, -s * .035, -s * .18, s * .03, '#fff'); }
+        else dot(g, -s * .04, -s * .18, s * .035, 'rgba(255,255,255,.14)');
         break;
       }
       case 'repeater': case 'comparator': {
         rot();
-        g.fillStyle = t.t === 'repeater' ? '#b9b9af' : '#c9c6b8'; rr(g, -s / 2 + i, -s / 2 + i, s - 2 * i, s - 2 * i, s * .08); g.fill();
-        g.strokeStyle = '#6d6d64'; g.lineWidth = 1.5; g.stroke();
-        const on = t.t === 'repeater' ? t.on : t.out > 0;
+        const x0 = -s / 2 + i, w0 = s - 2 * i, rep = t.t === 'repeater';
+        g.save(); rr(g, x0, x0, w0, w0, s * .08); g.clip();
+        tex(g, rep ? pxTex('slab', '#b9b9af', ['#c6c6bc', '#acaca2', '#a3a399', '#cfcfc5'], 70) : pxTex('slabC', '#c9c6b8', ['#d4d1c4', '#bdbaac', '#b3b0a2', '#dcd9cc'], 70), x0, x0, w0, w0);
+        bevel(g, x0, x0, w0, w0, 'rgba(255,255,255,.25)', 'rgba(0,0,0,.18)', Math.max(1.2, s * .04));
+        g.restore();
+        g.strokeStyle = '#6d6d64'; g.lineWidth = 1.5; rr(g, x0, x0, w0, w0, s * .08); g.stroke();
+        const on = rep ? t.on : t.out > 0;
+        g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = s * .13;
+        g.beginPath(); g.moveTo(0, s * .38); g.lineTo(0, -s * .36); g.stroke();
+        if (on) { g.shadowColor = '#ff3b2f'; g.shadowBlur = s * .12; }
         g.strokeStyle = on ? RED(15) : '#6b2420'; g.lineWidth = s * .08;
         g.beginPath(); g.moveTo(0, s * .38); g.lineTo(0, -s * .36); g.stroke();
-        if (t.t === 'repeater') {
+        g.shadowBlur = 0;
+        if (rep) {
           dot(g, 0, -s * .24, s * .085, on ? '#ff3b2f' : '#5c1d18', on);
           dot(g, 0, s * .32 - (t.delay - 1) * s * .09, s * .085, on ? '#ff3b2f' : '#5c1d18', on);
-          if (t.locked) { g.fillStyle = '#3a3a3a'; g.fillRect(-s * .34, -s * .03, s * .68, s * .1); }
+          if (t.locked) {
+            const lg = g.createLinearGradient(0, -s * .03, 0, s * .07); lg.addColorStop(0, '#5a5a5a'); lg.addColorStop(1, '#262626');
+            g.fillStyle = lg; g.fillRect(-s * .34, -s * .03, s * .68, s * .1);
+            g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(-s * .34, -s * .03, s * .68, Math.max(1, s * .02));
+          }
         } else {
           dot(g, -s * .2, s * .24, s * .08, on ? '#ff3b2f' : '#5c1d18', on);
           dot(g, s * .2, s * .24, s * .08, on ? '#ff3b2f' : '#5c1d18', on);
@@ -1210,43 +1433,73 @@ if (typeof module !== 'undefined') module.exports = C;
       }
       case 'observer': {
         rot();
-        g.fillStyle = '#5c5c5c'; g.fillRect(-s / 2 + 1, -s / 2 + 1, s - 2, s - 2);
-        g.fillStyle = '#2a2a2a'; g.fillRect(-s / 2 + 1, -s / 2 + 1, s - 2, s * .3);
-        g.fillStyle = '#b5b5b5'; g.fillRect(-s * .28, -s * .42, s * .14, s * .12); g.fillRect(s * .14, -s * .42, s * .14, s * .12);
-        g.strokeStyle = '#3d3d3d'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + 1, -s / 2 + 1, s - 2, s - 2);
-        g.strokeStyle = '#7a7a7a'; g.lineWidth = s * .05;
+        const x0 = -s / 2 + 1, w0 = s - 2;
+        tex(g, pxTex('obs', '#5c5c5c', ['#676767', '#525252', '#4a4a4a', '#707070'], 80), x0, x0, w0, w0);
+        const fg = g.createLinearGradient(0, x0, 0, x0 + s * .3); fg.addColorStop(0, '#1c1c1c'); fg.addColorStop(1, '#333');
+        g.fillStyle = fg; g.fillRect(x0, x0, w0, s * .3);
+        g.fillStyle = '#c8c8c8'; g.fillRect(-s * .28, -s * .42, s * .14, s * .12); g.fillRect(s * .14, -s * .42, s * .14, s * .12);
+        g.fillStyle = '#2a2a2a'; g.fillRect(-s * .23, -s * .38, s * .05, s * .05); g.fillRect(s * .19, -s * .38, s * .05, s * .05);
+        g.strokeStyle = '#3a3a3a'; g.lineWidth = s * .065;
         g.beginPath(); g.moveTo(-s * .25, s * .02); g.lineTo(s * .25, s * .02); g.moveTo(-s * .25, s * .14); g.lineTo(s * .25, s * .14); g.stroke();
+        g.strokeStyle = '#8a8a8a'; g.lineWidth = s * .03;
+        g.beginPath(); g.moveTo(-s * .25, s * .0); g.lineTo(s * .25, s * .0); g.moveTo(-s * .25, s * .12); g.lineTo(s * .25, s * .12); g.stroke();
+        bevel(g, x0, x0 + s * .3, w0, w0 - s * .3, 'rgba(255,255,255,.12)', 'rgba(0,0,0,.28)', Math.max(1.2, s * .05));
+        g.strokeStyle = '#2f2f2f'; g.lineWidth = 1.5; g.strokeRect(x0, x0, w0, w0);
         dot(g, 0, s * .34, s * .09, t.on ? '#ff3b2f' : '#3e1512', t.on);
         break;
       }
       case 'piston': case 'sticky': {
         rot();
-        g.fillStyle = '#787878'; g.fillRect(-s / 2 + 2, -s * .2, s - 4, s * .7 - 2);
-        g.fillStyle = '#8f8f8f'; g.fillRect(-s * .15, -s * .05, s * .3, s * .3);
+        tex(g, T_COBBLE(), -s / 2 + 2, -s * .2, s - 4, s * .7 - 2);
+        bevel(g, -s / 2 + 2, -s * .2, s - 4, s * .7 - 2, 'rgba(255,255,255,.14)', 'rgba(0,0,0,.3)', Math.max(1.5, s * .05));
+        const ig = g.createLinearGradient(0, -s * .05, 0, s * .25); ig.addColorStop(0, '#bdbdbd'); ig.addColorStop(1, '#7c7c7c');
+        g.fillStyle = ig; g.fillRect(-s * .15, -s * .05, s * .3, s * .3);
+        g.strokeStyle = '#4f4f4f'; g.lineWidth = 1; g.strokeRect(-s * .15, -s * .05, s * .3, s * .3);
         if (!t.ext) {
-          g.fillStyle = '#b8894f'; g.fillRect(-s / 2 + 2, -s / 2 + 2, s - 4, s * .3 - 2);
-          g.strokeStyle = '#8a6334'; g.lineWidth = 1; g.beginPath(); g.moveTo(-s / 2 + 2, -s * .35); g.lineTo(s / 2 - 2, -s * .35); g.stroke();
-          if (t.t === 'sticky') { g.fillStyle = '#7cc24a'; g.fillRect(-s * .18, -s / 2 + 3, s * .36, s * .25); }
+          tex(g, T_PLANKS(), -s / 2 + 2, -s / 2 + 2, s - 4, s * .3 - 2);
+          g.strokeStyle = '#6e4e28'; g.lineWidth = 1; g.beginPath(); g.moveTo(-s / 2 + 2, -s * .2); g.lineTo(s / 2 - 2, -s * .2); g.stroke();
+          if (t.t === 'sticky') slimePad(g, -s * .18, -s / 2 + 3, s * .36, s * .25);
         } else {
-          g.fillStyle = '#a9a9a9'; g.fillRect(-s * .08, -s / 2, s * .16, s * .32);
+          const ag = g.createLinearGradient(-s * .08, 0, s * .08, 0); ag.addColorStop(0, '#cfcfcf'); ag.addColorStop(1, '#808080');
+          g.fillStyle = ag; g.fillRect(-s * .08, -s / 2, s * .16, s * .32);
         }
-        g.strokeStyle = '#4c4c4c'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + 2, -s / 2 + 2, s - 4, s - 4);
+        g.strokeStyle = '#444'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + 2, -s / 2 + 2, s - 4, s - 4);
         break;
       }
       case 'head': {
         rot();
-        g.fillStyle = '#a9a9a9'; g.fillRect(-s * .08, -s * .3, s * .16, s * .8);
-        g.fillStyle = '#b8894f'; g.fillRect(-s / 2 + 2, -s / 2 + 2, s - 4, s * .24);
-        if (t.sticky) { g.fillStyle = '#7cc24a'; g.fillRect(-s * .18, -s / 2 + 3, s * .36, s * .19); }
-        g.strokeStyle = '#7a5a30'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + 2, -s / 2 + 2, s - 4, s * .24);
+        const ag = g.createLinearGradient(-s * .08, 0, s * .08, 0); ag.addColorStop(0, '#cfcfcf'); ag.addColorStop(1, '#808080');
+        g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(-s * .06, -s * .28, s * .16, s * .8);
+        g.fillStyle = ag; g.fillRect(-s * .08, -s * .3, s * .16, s * .8);
+        g.save(); g.beginPath(); g.rect(-s / 2 + 2, -s / 2 + 2, s - 4, s * .24); g.clip(); tex(g, T_PLANKS(), -s / 2 + 2, -s / 2 + 2, s - 4, s * .3); g.restore();
+        if (t.sticky) slimePad(g, -s * .18, -s / 2 + 3, s * .36, s * .19);
+        g.strokeStyle = '#6e4e28'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + 2, -s / 2 + 2, s - 4, s * .24);
+        break;
+      }
+      case 'slime': {
+        const x0 = px + 2, y0 = py + 2, w0 = s - 4, r0 = s * .1;
+        const gr = g.createLinearGradient(x0, y0, x0 + w0, y0 + w0); gr.addColorStop(0, 'rgba(160,236,118,.9)'); gr.addColorStop(1, 'rgba(72,160,50,.9)');
+        g.fillStyle = gr; rr(g, x0, y0, w0, w0, r0); g.fill();
+        const cg = g.createLinearGradient(px + s * .28, py + s * .28, px + s * .72, py + s * .72); cg.addColorStop(0, 'rgba(96,180,64,.95)'); cg.addColorStop(1, 'rgba(50,120,36,.95)');
+        g.fillStyle = cg; rr(g, px + s * .28, py + s * .28, s * .44, s * .44, s * .06); g.fill();
+        g.strokeStyle = 'rgba(30,90,22,.6)'; g.lineWidth = 1; g.stroke();
+        g.fillStyle = 'rgba(235,255,215,.6)'; g.fillRect(px + s * .13, py + s * .13, s * .22, s * .07); g.fillRect(px + s * .13, py + s * .13, s * .07, s * .18);
+        g.fillStyle = 'rgba(235,255,215,.4)'; g.fillRect(px + s * .34, py + s * .34, s * .09, s * .09);
+        g.fillStyle = 'rgba(20,70,15,.25)'; g.fillRect(px + s * .7, py + s * .82, s * .14, s * .05);
+        g.strokeStyle = '#3a8628'; g.lineWidth = Math.max(1.5, s * .05); rr(g, x0, y0, w0, w0, r0); g.stroke();
         break;
       }
       case 'hopper': {
         rot();
-        g.fillStyle = '#434343'; g.fillRect(-s / 2 + i, -s / 2 + i + s * .06, s - 2 * i, s - 2 * i - s * .06);
-        g.fillStyle = '#1f1f1f'; g.fillRect(-s * .27, -s * .2, s * .54, s * .54);
-        g.fillStyle = '#6a6a6a'; g.fillRect(-s * .13, -s / 2 + 1, s * .26, s * .26); g.strokeStyle = '#2a2a2a'; g.lineWidth = 1.5; g.strokeRect(-s * .13, -s / 2 + 1, s * .26, s * .26);
-        g.strokeStyle = '#2a2a2a'; g.lineWidth = 1.5; g.strokeRect(-s / 2 + i, -s / 2 + i + s * .06, s - 2 * i, s - 2 * i - s * .06);
+        const x0 = -s / 2 + i, y0 = -s / 2 + i + s * .06, w0 = s - 2 * i, h0 = s - 2 * i - s * .06;
+        tex(g, pxTex('hop', '#434343', ['#4d4d4d', '#3a3a3a', '#333', '#555'], 70), x0, y0, w0, h0);
+        bevel(g, x0, y0, w0, h0, 'rgba(255,255,255,.12)', 'rgba(0,0,0,.3)', Math.max(1.2, s * .05));
+        const hg = g.createLinearGradient(0, -s * .2, 0, s * .34); hg.addColorStop(0, '#0e0e0e'); hg.addColorStop(1, '#2a2a2a');
+        g.fillStyle = hg; g.fillRect(-s * .27, -s * .2, s * .54, s * .54);
+        g.fillStyle = '#6a6a6a'; g.fillRect(-s * .13, -s / 2 + 1, s * .26, s * .26);
+        g.fillStyle = 'rgba(255,255,255,.2)'; g.fillRect(-s * .13, -s / 2 + 1, s * .26, Math.max(1, s * .04));
+        g.strokeStyle = '#2a2a2a'; g.lineWidth = 1.5; g.strokeRect(-s * .13, -s / 2 + 1, s * .26, s * .26);
+        g.strokeStyle = '#2a2a2a'; g.lineWidth = 1.5; g.strokeRect(x0, y0, w0, h0);
         if (info.hopLocked) { g.strokeStyle = '#ff3b2f'; g.lineWidth = 2; g.strokeRect(-s * .27, -s * .2, s * .54, s * .54); }
         break;
       }
@@ -1254,8 +1507,12 @@ if (typeof module !== 'undefined') module.exports = C;
         const n = t.grown ? 3 : 1;
         [-.2, 0, .2].forEach((ox, j) => {
           const top = cy + s * .38 - n * s * .22 - (j === 1 ? s * .04 : 0);
-          g.strokeStyle = '#86c95a'; g.lineWidth = s * .09; g.lineCap = 'round';
+          g.strokeStyle = 'rgba(0,0,0,.3)'; g.lineWidth = s * .11; g.lineCap = 'round';
+          g.beginPath(); g.moveTo(cx + ox * s + 1, cy + s * .41); g.lineTo(cx + ox * s + 1, top + 1); g.stroke();
+          g.strokeStyle = '#86c95a'; g.lineWidth = s * .09;
           g.beginPath(); g.moveTo(cx + ox * s, cy + s * .4); g.lineTo(cx + ox * s, top); g.stroke();
+          g.strokeStyle = 'rgba(220,255,190,.45)'; g.lineWidth = s * .025;
+          g.beginPath(); g.moveTo(cx + ox * s - s * .02, cy + s * .38); g.lineTo(cx + ox * s - s * .02, top + s * .02); g.stroke();
           g.strokeStyle = '#5d9a3a'; g.lineWidth = 1;
           for (let k = 1; k <= n; k++) { const yy = cy + s * .4 - k * s * .22; if (yy > top) { g.beginPath(); g.moveTo(cx + ox * s - s * .05, yy); g.lineTo(cx + ox * s + s * .05, yy); g.stroke(); } }
         });
@@ -1271,6 +1528,27 @@ if (typeof module !== 'undefined') module.exports = C;
     }
     if (t.t === 'repeater' && info.showNum) smallNum(g, px, py, s, t.delay + 't');
     if (t.t === 'comparator' && (info.showNum || t.out > 0)) smallNum(g, px, py, s, String(t.out));
+  }
+  function slimePad(g, x, y, w, h) {
+    const sg = g.createLinearGradient(x, y, x, y + h); sg.addColorStop(0, '#a6e67a'); sg.addColorStop(1, '#5fa83a');
+    g.fillStyle = sg; g.fillRect(x, y, w, h);
+    g.fillStyle = 'rgba(240,255,220,.55)'; g.fillRect(x + w * .12, y + h * .15, w * .3, Math.max(1, h * .2));
+    g.strokeStyle = '#3d7d26'; g.lineWidth = 1; g.strokeRect(x, y, w, h);
+  }
+  // light that spills onto the floor around powered parts (drawn after all tiles)
+  function drawGlow(g, t, px, py, s, info = {}) {
+    const cx = px + s / 2, cy = py + s / 2, a = t.d * Math.PI / 2, sn = Math.sin(a), cs = Math.cos(a);
+    switch (t.t) {
+      case 'dust': { const l = info.lvl || 0; if (l > 0) glowAt(g, cx, cy, s * .75, RED(l), 0.08 + l * 0.014); break; }
+      case 'torch': if (t.on) { const k = s * .14; glowAt(g, cx + k * sn, cy - k * cs, s * .9, '#ff5a3c', 0.42); } break;
+      case 'lamp': if (t.lit) glowAt(g, cx, cy, s * 1.25, '#ffcf5a', 0.5); break;
+      case 'rblock': glowAt(g, cx, cy, s * .85, '#ff3b2f', 0.22); break;
+      case 'observer': if (t.on) { const k = s * .34; glowAt(g, cx - k * sn, cy + k * cs, s * .5, '#ff3b2f', 0.45); } break;
+      case 'repeater': if (t.on) glowAt(g, cx, cy, s * .55, '#ff3b2f', 0.22); break;
+      case 'comparator': if (t.out > 0) glowAt(g, cx, cy, s * .55, '#ff3b2f', 0.22); break;
+      case 'lever': if (t.on) glowAt(g, cx + s * .22, cy - s * .3, s * .35, '#ff3b2f', 0.35); break;
+      case 'button': case 'plate': if (t.on) glowAt(g, cx, cy, s * .45, '#ff3b2f', 0.25); break;
+    }
   }
   function smallNum(g, px, py, s, txt) {
     g.save(); g.font = `bold ${Math.max(9, Math.round(s * .22))}px system-ui,sans-serif`; g.textAlign = 'right'; g.textBaseline = 'bottom';
@@ -1294,7 +1572,7 @@ if (typeof module !== 'undefined') module.exports = C;
     if (type === 'lamp') t.lit = true;
     if (type === 'cane') t.grown = true;
     if (type === 'hopper') t.d = 2;
-    drawTile(g, t, 0, 0, size, { lvl: 15, dirs: [1, 3] });
+    drawTile(g, t, 0, 0, size, { lvl: 15, dirs: [1, 3], noShadow: true });
     return cv;
   }
 
@@ -1458,16 +1736,18 @@ if (typeof module !== 'undefined') module.exports = C;
       const g = this.g, s = this.s, w = this.w, P = w.P;
       g.clearRect(0, 0, s * w.w, s * w.h);
       for (let y = 0; y < w.h; y++) for (let x = 0; x < w.w; x++) {
-        g.fillStyle = (x + y) % 2 ? '#2b302a' : '#2f342d'; g.fillRect(x * s, y * s, s, s);
+        tex(g, T_FLOOR((x + y) % 2), x * s, y * s, s, s);
       }
       g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = 1;
       for (let x = 0; x <= w.w; x++) { g.beginPath(); g.moveTo(x * s + .5, 0); g.lineTo(x * s + .5, w.h * s); g.stroke(); }
       for (let y = 0; y <= w.h; y++) { g.beginPath(); g.moveTo(0, y * s + .5); g.lineTo(w.w * s, y * s + .5); g.stroke(); }
       const door = this.opt.door;
       if (door) {
-        const [dx, dy] = door; g.save(); g.strokeStyle = '#f6c453'; g.lineWidth = 2; g.setLineDash([5, 4]);
+        for (const [dx, dy] of (Array.isArray(door[0]) ? door : [door])) {
+        g.save(); g.strokeStyle = '#f6c453'; g.lineWidth = 2; g.setLineDash([5, 4]);
         g.strokeRect(dx * s + 3, dy * s + 3, s - 6, s - 6); g.restore();
         if (!w.get(dx, dy)) { g.fillStyle = '#f6c453'; g.font = `bold ${Math.max(8, Math.round(s * .2))}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('DOOR', dx * s + s / 2, dy * s + s / 2); }
+        }
       }
       if (this.ghostOn && this.opt.ghost) {
         g.save(); g.globalAlpha = .33;
@@ -1475,6 +1755,7 @@ if (typeof module !== 'undefined') module.exports = C;
         g.restore();
       }
       w.each((t, x, y) => { const inf = infoFor(w, P, t, x, y); inf.showNum = this.nums; drawTile(g, t, x * s, y * s, s, inf); });
+      w.each((t, x, y) => drawGlow(g, t, x * s, y * s, s, infoFor(w, P, t, x, y)));
       // pistons extended over cane
       w.each((t, x, y) => { if ((t.t === 'piston' || t.t === 'sticky') && t.ext && t.over) { const [dx, dy] = R.DIRS[t.d]; drawTile(g, { t: 'head', d: t.d, sticky: t.t === 'sticky' }, (x + dx) * s, (y + dy) * s, s); } });
       if (this.nums && P) {
@@ -1507,7 +1788,7 @@ if (typeof module !== 'undefined') module.exports = C;
     const c = []; for (let k = 0; k < 4; k++) if (has(x + R.DIRS[k][0], y + R.DIRS[k][1])) c.push(k);
     if (!c.length) return [0, 1, 2, 3]; if (c.length === 1) return [c[0], R.opp(c[0])]; return c;
   }
-  const SHORT = { dust: 'Dust', block: 'Block', glass: 'Glass', lever: 'Lever', button: 'Button', plate: 'Plate', torch: 'Torch', rblock: 'Redstone Blk', repeater: 'Repeater', comparator: 'Comparator', observer: 'Observer', lamp: 'Lamp', piston: 'Piston', sticky: 'Sticky', hopper: 'Hopper', cane: 'Cane' };
+  const SHORT = { dust: 'Dust', block: 'Block', glass: 'Glass', lever: 'Lever', button: 'Button', plate: 'Plate', torch: 'Torch', rblock: 'Redstone Blk', repeater: 'Repeater', comparator: 'Comparator', observer: 'Observer', lamp: 'Lamp', piston: 'Piston', sticky: 'Sticky', slime: 'Slime', hopper: 'Hopper', cane: 'Cane' };
   const TOOLTIP = {
     hand: '✋ Use: flip levers, press buttons, step on plates, change repeater delay, switch comparator mode, add hopper items.',
     erase: '⌫ Erase: tap a piece to remove it.',
@@ -1516,7 +1797,8 @@ if (typeof module !== 'undefined') module.exports = C;
     comparator: 'The comparator\'s back reads; its arrow points the output direction.',
     observer: 'The observer\'s face (eyes) points the Facing direction; its back outputs.',
     piston: 'Pistons push in the Facing direction.', sticky: 'Sticky pistons push in the Facing direction and pull back.',
-    hopper: 'The hopper\'s spout points the Facing direction. Add items with ✋.'
+    hopper: 'The hopper\'s spout points the Facing direction. Add items with ✋.',
+    slime: 'Slime sticks to every movable block touching it, so pistons move the whole group.'
   };
   function placeMsg(t) {
     if (R.DIRECTIONAL.has(t.t)) return `${C.NAMES[t.t]} placed, facing ${DIRNAME[t.d]}. Tap it again to rotate.`;
