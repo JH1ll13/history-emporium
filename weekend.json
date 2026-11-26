@@ -108,25 +108,5 @@
     "blurb": "Eat glowing orbs to grow into the longest serpent in the arena, and trap rival snakes so they crash into your tail.",
     "learn": "16 rival serpents, a live leaderboard, boost to cut others off, and 8 skins that unlock as your best length grows.",
     "controls": "Point with your mouse to steer and hold the mouse button or Space to boost. On a touchscreen, drag to steer and hold BOOST."
-  },
-  {
-    "slug": "siege-smash",
-    "title": "Siege Smash",
-    "unit": "Weekend Fun",
-    "years": "Catapult Physics",
-    "color": "#d8460a",
-    "blurb": "Load your catapult with boulders, bombs and triple-shots, then bring goblin castles crashing down with real physics.",
-    "learn": "12 castles of wood, stone, ice and TNT, 4 kinds of ammo, and up to 3 stars per level for saving shots.",
-    "controls": "Drag back anywhere to aim and let go to fire. Tap while a bomb or triple-shot is flying to use its power."
-  },
-  {
-    "slug": "rift-runner",
-    "title": "Rift Runner",
-    "unit": "Weekend Fun",
-    "years": "Endless Runner",
-    "color": "#ff3fbf",
-    "blurb": "Sprint across neon rooftops in the rain. Jump gaps, slide under bars, dash through energy walls and chase your best distance.",
-    "learn": "Obstacles that get trickier the farther you go, magnet, shield and double-coin power-ups, and 6 runners to unlock with coins.",
-    "controls": "Space or up arrow to jump (twice for a double jump), down arrow to slide, right arrow or Shift to dash. On a touchscreen, tap to jump, swipe down to slide and swipe right to dash."
   }
 ]
